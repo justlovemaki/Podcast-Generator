@@ -1,0 +1,277 @@
+{
+  "voices": [
+    {
+      "name": "Xiaoxiao",
+      "alias": "晓晓",
+      "code": "zh-CN-XiaoxiaoNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Yunxi",
+      "alias": "云希",
+      "code": "zh-CN-YunxiNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunjian",
+      "alias": "云健",
+      "code": "zh-CN-YunjianNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Xiaoyi",
+      "alias": "晓伊",
+      "code": "zh-CN-XiaoyiNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Yunyang",
+      "alias": "云扬",
+      "code": "zh-CN-YunyangNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Xiaochen",
+      "alias": "晓辰",
+      "code": "zh-CN-XiaochenNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaochen Multilingual",
+      "alias": "晓辰 多语言",
+      "code": "zh-CN-XiaochenMultilingualNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaohan",
+      "alias": "晓涵",
+      "code": "zh-CN-XiaohanNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaomeng",
+      "alias": "晓梦",
+      "code": "zh-CN-XiaomengNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaomo",
+      "alias": "晓墨",
+      "code": "zh-CN-XiaomoNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaoqiu",
+      "alias": "晓秋",
+      "code": "zh-CN-XiaoqiuNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaorou",
+      "alias": "晓柔",
+      "code": "zh-CN-XiaorouNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaorui",
+      "alias": "晓睿",
+      "code": "zh-CN-XiaoruiNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaoshuang",
+      "alias": "晓双",
+      "code": "zh-CN-XiaoshuangNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaoxiao Dialects",
+      "alias": "晓晓 方言",
+      "code": "zh-CN-XiaoxiaoDialectsNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaoxiao Multilingual",
+      "alias": "晓晓 多语言",
+      "code": "zh-CN-XiaoxiaoMultilingualNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaoyan",
+      "alias": "晓颜",
+      "code": "zh-CN-XiaoyanNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaoyou",
+      "alias": "晓悠",
+      "code": "zh-CN-XiaoyouNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaoyu Multilingual",
+      "alias": "晓宇 多语言",
+      "code": "zh-CN-XiaoyuMultilingualNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Xiaozhen",
+      "alias": "晓甄",
+      "code": "zh-CN-XiaozhenNeural",
+      "locale": "zh-CN",
+      "gender": "Female"
+    },
+    {
+      "name": "Yunfeng",
+      "alias": "云枫",
+      "code": "zh-CN-YunfengNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunhao",
+      "alias": "云皓",
+      "code": "zh-CN-YunhaoNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunjie",
+      "alias": "云杰",
+      "code": "zh-CN-YunjieNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunxia",
+      "alias": "云夏",
+      "code": "zh-CN-YunxiaNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunxiao Multilingual",
+      "alias": "Yunxiao Multilingual",
+      "code": "zh-CN-YunxiaoMultilingualNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunye",
+      "alias": "云野",
+      "code": "zh-CN-YunyeNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunyi Multilingual",
+      "alias": "云逸 多语言",
+      "code": "zh-CN-YunyiMultilingualNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunze",
+      "alias": "云泽",
+      "code": "zh-CN-YunzeNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunfan Multilingual",
+      "alias": "Yunfan Multilingual",
+      "code": "zh-CN-YunfanMultilingualNeural",
+      "locale": "zh-CN",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunqi",
+      "alias": "云奇 广西",
+      "code": "zh-CN-guangxi-YunqiNeural",
+      "locale": "zh-CN-guangxi",
+      "gender": "Male"
+    },
+    {
+      "name": "Yundeng",
+      "alias": "云登",
+      "code": "zh-CN-henan-YundengNeural",
+      "locale": "zh-CN-henan",
+      "gender": "Male"
+    },
+    {
+      "name": "Xiaobei",
+      "alias": "晓北 辽宁",
+      "code": "zh-CN-liaoning-XiaobeiNeural",
+      "locale": "zh-CN-liaoning",
+      "gender": "Female"
+    },
+    {
+      "name": "Yunbiao",
+      "alias": "云彪 辽宁",
+      "code": "zh-CN-liaoning-YunbiaoNeural",
+      "locale": "zh-CN-liaoning",
+      "gender": "Male"
+    },
+    {
+      "name": "Xiaoni",
+      "alias": "晓妮",
+      "code": "zh-CN-shaanxi-XiaoniNeural",
+      "locale": "zh-CN-shaanxi",
+      "gender": "Female"
+    },
+    {
+      "name": "Yunxiang",
+      "alias": "云翔",
+      "code": "zh-CN-shandong-YunxiangNeural",
+      "locale": "zh-CN-shandong",
+      "gender": "Male"
+    },
+    {
+      "name": "Yunxi",
+      "alias": "云希 四川",
+      "code": "zh-CN-sichuan-YunxiNeural",
+      "locale": "zh-CN-sichuan",
+      "gender": "Male"
+    },
+    {
+      "name": "XiaoMin",
+      "alias": "晓敏",
+      "code": "yue-CN-XiaoMinNeural",
+      "gender": "Female",
+      "locale": "yue-CN"
+    },
+    {
+      "name": "YunSong",
+      "alias": "云松",
+      "code": "yue-CN-YunSongNeural",
+      "gender": "Male",
+      "locale": "yue-CN"
+    }
+  ],
+  "apiUrl": "http://192.168.1.178:7899/tts?t={{text}}&v={{voiceCode}}",
+  "podUsers": [
+    "zh-CN-sichuan-YunxiNeural",
+    "zh-CN-liaoning-XiaobeiNeural",
+    "yue-CN-YunSongNeural"
+  ],
+  "turnPattern": "random"
+}
