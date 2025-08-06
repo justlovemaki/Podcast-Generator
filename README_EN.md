@@ -186,8 +186,14 @@ All successfully generated podcast audio files will be automatically saved in th
 
 You can find sample podcast audio generated using different TTS services in the `example/` folder:
 
-*   **Edge TTS Sample**: <audio controls src="example/edgeTTS_podcast_1754467217.aac"></audio>
-*   **Index TTS Sample**: <audio controls src="example/indexTTS_podcast_1754467749.aac"></audio>
+*   **Edge TTS Sample**: 
+
+[edgeTTS](https://github.com/user-attachments/assets/3891cf4c-f47f-4c9b-aef6-30ffb3fcefc4)
+
+*   **Index TTS Sample**: 
+
+[indexTTS](https://github.com/user-attachments/assets/a1d2ebee-3e9a-43cb-bc94-67e3c9b3c45a)
+
 
 These audio files demonstrate the actual effect of this tool in practical applications.
 

@@ -187,8 +187,14 @@ python podcast_generator.py --api-key sk-xxxxxx --model gpt-4o --threads 4
 
 您可以在 `example/` 文件夹中找到使用不同 TTS 服务生成的播客示例音频：
 
-*   **Edge TTS 生成示例**: <audio controls src="example/edgeTTS_podcast_1754467217.aac"></audio>
-*   **Index TTS 生成示例**: <audio controls src="example/indexTTS_podcast_1754467749.aac"></audio>
+*   **Edge TTS 生成示例**:
+
+[edgeTTS](https://github.com/user-attachments/assets/3891cf4c-f47f-4c9b-aef6-30ffb3fcefc4)
+
+*   **Index TTS 生成示例**:
+
+[indexTTS](https://github.com/user-attachments/assets/a1d2ebee-3e9a-43cb-bc94-67e3c9b3c45a)
+
 
 这些音频文件展示了本工具在实际应用中的效果。
 
