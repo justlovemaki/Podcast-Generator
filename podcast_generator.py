@@ -134,8 +134,8 @@ def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Generate podcast script and audio using OpenAI and local TTS.")
     parser.add_argument("--api-key", help="OpenAI API key.")
-    parser.add_argument("--base-url", help="OpenAI API base URL.")
-    parser.add_argument("--model", help="OpenAI model to use (e.g., gpt-3.5-turbo).")
+    parser.add_argument("--base-url", default="https://api.openai.com/v1", help="OpenAI API base URL (default: https://api.openai.com/v1).")
+    parser.add_argument("--model", default="gpt-3.5-turbo", help="OpenAI model to use (default: gpt-3.5-turbo).")
     parser.add_argument("--threads", type=int, default=1, help="Number of threads to use for audio generation (default: 1).")
     args = parser.parse_args()
 

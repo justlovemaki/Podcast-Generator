@@ -1,6 +1,7 @@
 # 🎙️ 简易播客生成器 (Simple Podcast Generator)
 
 > 轻松将您的想法，一键生成为生动有趣的多人对话播客！
+> [English Version](README_EN.md)
 
 这是一个强大的脚本工具，它利用 **OpenAI API** 的智慧生成富有洞察力的播客脚本，并通过 **TTS (Text-to-Speech)** API服务，将冰冷的文字转化为有温度的音频。您只需提供一个主题，剩下的交给它！
 
@@ -73,10 +74,6 @@ python podcast_generator.py [可选参数]
 # 使用 gpt-4o 模型和 4 个线程来生成播客
 python podcast_generator.py --api-key sk-xxxxxx --model gpt-4o --threads 4
 ```
-
----
-
----
 
 ### 4. 自定义 AI 提示词（`custom` 代码块）
 
@@ -185,16 +182,13 @@ python podcast_generator.py --api-key sk-xxxxxx --model gpt-4o --threads 4
 
 所有成功生成的播客音频文件将自动保存在 `output/` 目录下。文件名格式为 `podcast_` 加上生成时的时间戳，例如 `podcast_1678886400.wav`。
 
----
-
----
 
 ## 🎧 示例音频
 
 您可以在 `example/` 文件夹中找到使用不同 TTS 服务生成的播客示例音频：
 
-*   **Edge TTS 生成示例**: [edgeTTS_podcast_1754467217.aac](example/edgeTTS_podcast_1754467217.aac)
-*   **Index TTS 生成示例**: [indexTTS_podcast_1754467749.aac](example/indexTTS_podcast_1754467749.aac)
+*   **Edge TTS 生成示例**: <audio controls src="example/edgeTTS_podcast_1754467217.aac"></audio>
+*   **Index TTS 生成示例**: <audio controls src="example/indexTTS_podcast_1754467749.aac"></audio>
 
 这些音频文件展示了本工具在实际应用中的效果。
 
