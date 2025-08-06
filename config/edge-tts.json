@@ -5,273 +5,439 @@
       "alias": "晓晓",
       "code": "zh-CN-XiaoxiaoNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓晓"
     },
     {
       "name": "Yunxi",
       "alias": "云希",
       "code": "zh-CN-YunxiNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云希"
     },
     {
       "name": "Yunjian",
       "alias": "云健",
       "code": "zh-CN-YunjianNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云健"
     },
     {
       "name": "Xiaoyi",
       "alias": "晓伊",
       "code": "zh-CN-XiaoyiNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓伊"
     },
     {
       "name": "Yunyang",
       "alias": "云扬",
       "code": "zh-CN-YunyangNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云扬"
     },
     {
       "name": "Xiaochen",
       "alias": "晓辰",
       "code": "zh-CN-XiaochenNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓辰"
     },
     {
       "name": "Xiaochen Multilingual",
       "alias": "晓辰 多语言",
       "code": "zh-CN-XiaochenMultilingualNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓辰"
     },
     {
       "name": "Xiaohan",
       "alias": "晓涵",
       "code": "zh-CN-XiaohanNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓涵"
     },
     {
       "name": "Xiaomeng",
       "alias": "晓梦",
       "code": "zh-CN-XiaomengNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓梦"
     },
     {
       "name": "Xiaomo",
       "alias": "晓墨",
       "code": "zh-CN-XiaomoNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓墨"
     },
     {
       "name": "Xiaoqiu",
       "alias": "晓秋",
       "code": "zh-CN-XiaoqiuNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓秋"
     },
     {
       "name": "Xiaorou",
       "alias": "晓柔",
       "code": "zh-CN-XiaorouNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓柔"
     },
     {
       "name": "Xiaorui",
       "alias": "晓睿",
       "code": "zh-CN-XiaoruiNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓睿"
     },
     {
       "name": "Xiaoshuang",
       "alias": "晓双",
       "code": "zh-CN-XiaoshuangNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓双"
     },
     {
       "name": "Xiaoxiao Dialects",
       "alias": "晓晓 方言",
       "code": "zh-CN-XiaoxiaoDialectsNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓晓"
     },
     {
       "name": "Xiaoxiao Multilingual",
       "alias": "晓晓 多语言",
       "code": "zh-CN-XiaoxiaoMultilingualNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓晓"
     },
     {
       "name": "Xiaoyan",
       "alias": "晓颜",
       "code": "zh-CN-XiaoyanNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓颜"
     },
     {
       "name": "Xiaoyou",
       "alias": "晓悠",
       "code": "zh-CN-XiaoyouNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓悠"
     },
     {
       "name": "Xiaoyu Multilingual",
       "alias": "晓宇 多语言",
       "code": "zh-CN-XiaoyuMultilingualNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓宇"
     },
     {
       "name": "Xiaozhen",
       "alias": "晓甄",
       "code": "zh-CN-XiaozhenNeural",
       "locale": "zh-CN",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓甄"
     },
     {
       "name": "Yunfeng",
       "alias": "云枫",
       "code": "zh-CN-YunfengNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云枫"
     },
     {
       "name": "Yunhao",
       "alias": "云皓",
       "code": "zh-CN-YunhaoNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云皓"
     },
     {
       "name": "Yunjie",
       "alias": "云杰",
       "code": "zh-CN-YunjieNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云杰"
     },
     {
       "name": "Yunxia",
       "alias": "云夏",
       "code": "zh-CN-YunxiaNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云夏"
     },
     {
       "name": "Yunxiao Multilingual",
-      "alias": "Yunxiao Multilingual",
+      "alias": "云晓 多语言",
       "code": "zh-CN-YunxiaoMultilingualNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云晓"
     },
     {
       "name": "Yunye",
       "alias": "云野",
       "code": "zh-CN-YunyeNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云野"
     },
     {
       "name": "Yunyi Multilingual",
       "alias": "云逸 多语言",
       "code": "zh-CN-YunyiMultilingualNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云逸"
     },
     {
       "name": "Yunze",
       "alias": "云泽",
       "code": "zh-CN-YunzeNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云泽"
+    },
+    {
+      "name": "Xiaochen",
+      "alias": "小陈",
+      "code": "zh-CN-Xiaochen:DragonHDFlashLatestNeural",
+      "locale": "zh-CN",
+      "gender": "Female",
+      "usedname": "小陈"
+    },
+    {
+      "name": "Xiaoxiao",
+      "alias": "晓晓",
+      "code": "zh-CN-Xiaoxiao:DragonHDFlashLatestNeural",
+      "locale": "zh-CN",
+      "gender": "Female",
+      "usedname": "晓晓"
+    },
+    {
+      "name": "Xiaoxiao2",
+      "alias": "晓晓2",
+      "code": "zh-CN-Xiaoxiao2:DragonHDFlashLatestNeural",
+      "locale": "zh-CN",
+      "gender": "Female",
+      "usedname": "晓晓2"
     },
     {
       "name": "Yunfan Multilingual",
-      "alias": "Yunfan Multilingual",
+      "alias": "云帆 多语言",
       "code": "zh-CN-YunfanMultilingualNeural",
       "locale": "zh-CN",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云帆"
+    },
+    {
+      "name": "Yunxiao",
+      "alias": "云晓",
+      "code": "zh-CN-Yunxiao:DragonHDFlashLatestNeural",
+      "locale": "zh-CN",
+      "gender": "Male",
+      "usedname": "云晓"
+    },
+    {
+      "name": "Yunye",
+      "alias": "云野",
+      "code": "zh-CN-Yunye:DragonHDFlashLatestNeural",
+      "locale": "zh-CN",
+      "gender": "Male",
+      "usedname": "云野"
+    },
+    {
+      "name": "Yunyi",
+      "alias": "云逸",
+      "code": "zh-CN-Yunyi:DragonHDFlashLatestNeural",
+      "locale": "zh-CN",
+      "gender": "Male",
+      "usedname": "云逸"
+    },
+    {
+      "name": "Xiaochen",
+      "alias": "小陈",
+      "code": "zh-CN-Xiaochen:DragonHDLatestNeural",
+      "locale": "zh-CN",
+      "gender": "Female",
+      "usedname": "小陈"
+    },
+    {
+      "name": "Yunfan Dragon HD Latest",
+      "alias": "云帆",
+      "code": "zh-CN-Yunfan:DragonHDLatestNeural",
+      "locale": "zh-CN",
+      "gender": "Male",
+      "usedname": "云帆"
     },
     {
       "name": "Yunqi",
       "alias": "云奇 广西",
       "code": "zh-CN-guangxi-YunqiNeural",
       "locale": "zh-CN-guangxi",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云奇"
     },
     {
       "name": "Yundeng",
       "alias": "云登",
       "code": "zh-CN-henan-YundengNeural",
       "locale": "zh-CN-henan",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云登"
     },
     {
       "name": "Xiaobei",
       "alias": "晓北 辽宁",
       "code": "zh-CN-liaoning-XiaobeiNeural",
       "locale": "zh-CN-liaoning",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓北"
     },
     {
       "name": "Yunbiao",
       "alias": "云彪 辽宁",
       "code": "zh-CN-liaoning-YunbiaoNeural",
       "locale": "zh-CN-liaoning",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云彪"
     },
     {
       "name": "Xiaoni",
       "alias": "晓妮",
       "code": "zh-CN-shaanxi-XiaoniNeural",
       "locale": "zh-CN-shaanxi",
-      "gender": "Female"
+      "gender": "Female",
+      "usedname": "晓妮"
     },
     {
       "name": "Yunxiang",
       "alias": "云翔",
       "code": "zh-CN-shandong-YunxiangNeural",
       "locale": "zh-CN-shandong",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云翔"
     },
     {
       "name": "Yunxi",
       "alias": "云希 四川",
       "code": "zh-CN-sichuan-YunxiNeural",
       "locale": "zh-CN-sichuan",
-      "gender": "Male"
+      "gender": "Male",
+      "usedname": "云希"
+    },
+    {
+      "name": "HiuMaan",
+      "alias": "曉曼",
+      "code": "zh-HK-HiuMaanNeural",
+      "locale": "zh-HK",
+      "gender": "Female",
+      "usedname": "曉曼"
+    },
+    {
+      "name": "WanLung",
+      "alias": "雲龍",
+      "code": "zh-HK-WanLungNeural",
+      "locale": "zh-HK",
+      "gender": "Male",
+      "usedname": "雲龍"
+    },
+    {
+      "name": "HiuGaai",
+      "alias": "曉佳",
+      "code": "zh-HK-HiuGaaiNeural",
+      "locale": "zh-HK",
+      "gender": "Female",
+      "usedname": "曉佳"
+    },
+    {
+      "name": "HsiaoChen",
+      "alias": "曉臻",
+      "code": "zh-TW-HsiaoChenNeural",
+      "locale": "zh-TW",
+      "gender": "Female",
+      "usedname": "曉臻"
+    },
+    {
+      "name": "YunJhe",
+      "alias": "雲哲",
+      "code": "zh-TW-YunJheNeural",
+      "locale": "zh-TW",
+      "gender": "Male",
+      "usedname": "雲哲"
+    },
+    {
+      "name": "HsiaoYu",
+      "alias": "曉雨",
+      "code": "zh-TW-HsiaoYuNeural",
+      "locale": "zh-TW",
+      "gender": "Female",
+      "usedname": "曉雨"
+    },
+    {
+      "name": "Xiaotong",
+      "alias": "晓彤",
+      "code": "wuu-CN-XiaotongNeural",
+      "locale": "wuu-CN",
+      "gender": "Female",
+      "usedname": "晓彤"
+    },
+    {
+      "name": "Yunzhe",
+      "alias": "云哲",
+      "code": "wuu-CN-YunzheNeural",
+      "locale": "wuu-CN",
+      "gender": "Male",
+      "usedname": "云哲"
     },
     {
       "name": "XiaoMin",
       "alias": "晓敏",
       "code": "yue-CN-XiaoMinNeural",
+      "locale": "yue-CN",
       "gender": "Female",
-      "locale": "yue-CN"
+      "usedname": "晓敏"
     },
     {
       "name": "YunSong",
       "alias": "云松",
       "code": "yue-CN-YunSongNeural",
+      "locale": "yue-CN",
       "gender": "Male",
-      "locale": "yue-CN"
+      "usedname": "云松"
     }
   ],
-  "apiUrl": "http://192.168.1.178:7899/tts?t={{text}}&v={{voiceCode}}",
+  "apiUrl": "http://192.168.1.178:7899/tts?t={{text}}&v={{voiceCode}}&r=5",
   "podUsers": [
-    "zh-CN-sichuan-YunxiNeural",
-    "zh-CN-liaoning-XiaobeiNeural",
-    "yue-CN-YunSongNeural"
+    {"role": "酒馆主理人", "code": "zh-CN-Yunyi:DragonHDFlashLatestNeural"},
+    {"role": "科技爱好者", "code": "zh-CN-Xiaochen:DragonHDFlashLatestNeural"},
+    {"role": "AI从业人员", "code": "zh-CN-liaoning-YunbiaoNeural"}
   ],
   "turnPattern": "random"
 }

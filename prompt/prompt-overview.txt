@@ -60,6 +60,7 @@
             - Structure content with clear hierarchy and organization
             - Avoid jargon and overly technical language
             - Include transition sentences between sections
+            - Make sure the input language is set as the output language
         </style>
     </output_format>
 
@@ -86,5 +87,3 @@
     
     Now, create a summary of the following document:
 </INSTRUCTIONS>
-
-Make sure the input language is set as the output language！

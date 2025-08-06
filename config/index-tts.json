@@ -1,0 +1,51 @@
+{
+  "voices": [
+    {
+      "name": "Xiaolin",
+      "alias": "林夕",
+      "code": "zh-CN-XiaolinIndex",
+      "locale": "zh-CN",
+      "gender": "Female",
+      "usedname": "林夕"
+    },
+    {
+      "name": "Yunzhe",
+      "alias": "苏哲",
+      "code": "zh-CN-YunzheIndex",
+      "locale": "zh-CN",
+      "gender": "Male",
+      "usedname": "苏哲"
+    },
+    {
+      "name": "HeXi",
+      "alias": "何夕2077",
+      "code": "zh-CN-HeXiIndex",
+      "locale": "zh-CN",
+      "gender": "Male",
+      "usedname": "何夕"
+    },
+    {
+      "name": "Datong",
+      "alias": "大同",
+      "code": "zh-CN-DatongIndex",
+      "locale": "zh-CN",
+      "gender": "Male",
+      "usedname": "大同"
+    },
+    {
+      "name": "Daibei",
+      "alias": "大比",
+      "code": "zh-CN-DaibeiIndex",
+      "locale": "zh-CN",
+      "gender": "Male",
+      "usedname": "大比"
+    }
+  ],
+  "apiUrl": "http://192.168.1.232:7899/synthesize?text={{text}}&server_audio_prompt_path={{voiceCode}}",
+  "podUsers": [
+    {"role": "节目主理人", "code": "zh-CN-YunzheIndex"},
+    {"role": "科技爱好者", "code": "zh-CN-XiaolinIndex"},
+    {"role": "独立音乐人", "code": "zh-CN-DatongIndex"}
+  ],
+  "turnPattern": "random"
+}

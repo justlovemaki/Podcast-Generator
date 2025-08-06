@@ -12,6 +12,7 @@ import uuid # For generating unique filenames for temporary audio files
 from datetime import datetime
 from openai_cli import OpenAICli # Moved to top for proper import
 import urllib.parse # For URL encoding
+import re # For regular expression operations
 
 # Global configuration
 output_dir = "output"
@@ -61,21 +62,27 @@ def generate_speaker_id_text(pod_users, voices_list):
     voice_map = {voice.get("code"): voice for voice in voices_list if voice.get("code")}
     
     speaker_info = []
-    for speaker_id, pod_user_code in enumerate(pod_users):
+    for speaker_id, pod_user in enumerate(pod_users):
+        pod_user_code = pod_user.get("code")
+        role = pod_user.get("role", "") # Default to "未知角色" if role is not provided
+
         found_name = None
         voice = voice_map.get(pod_user_code)
         if voice:
-            found_name = voice.get("alias") or voice.get("name")
+            found_name = voice.get("usedname") or voice.get("alias") or voice.get("name")
         
         if found_name:
-            speaker_info.append(f"speaker_id={speaker_id}的名叫{found_name}")
+            if role:
+                speaker_info.append(f"speaker_id={speaker_id}的名叫{found_name}，是一个{role}")
+            else:
+                speaker_info.append(f"speaker_id={speaker_id}的名叫{found_name}")
         else:
             raise ValueError(f"语音code '{pod_user_code}' (speaker_id={speaker_id}) 未找到对应名称或alias。请检查 config/edge-tts.json 中的 voices 配置。")
             
-    return "，".join(speaker_info)
+    return "。".join(speaker_info) + "。"
 
 def merge_audio_files():
-    output_audio_filename = f"podcast_{int(time.time())}.mp3"
+    output_audio_filename = f"podcast_{int(time.time())}.wav"
     # Use ffmpeg to concatenate audio files
     # Check if ffmpeg is available
     try:
@@ -92,7 +99,9 @@ def merge_audio_files():
             "-f", "concat",
             "-safe", "0",
             "-i", os.path.basename(file_list_path),
-            "-c", "copy",
+            "-acodec", "pcm_s16le",
+            "-ar", "44100",
+            "-ac", "2",
             output_audio_filename
         ]
         # Execute ffmpeg from the output_dir to correctly resolve file paths in file_list.txt
@@ -127,6 +136,7 @@ def main():
     parser.add_argument("--api-key", help="OpenAI API key.")
     parser.add_argument("--base-url", help="OpenAI API base URL.")
     parser.add_argument("--model", help="OpenAI model to use (e.g., gpt-3.5-turbo).")
+    parser.add_argument("--threads", type=int, default=1, help="Number of threads to use for audio generation (default: 1).")
     args = parser.parse_args()
 
     print("Podcast Generation Script")
@@ -153,8 +163,8 @@ def main():
 
     # Step 2: Read prompt files
     input_prompt = read_file_content('input.txt')
-    overview_prompt = read_file_content('prompt-overview.txt')
-    original_podscript_prompt = read_file_content('prompt-podscript.txt')
+    overview_prompt = read_file_content('prompt/prompt-overview.txt')
+    original_podscript_prompt = read_file_content('prompt/prompt-podscript.txt')
 
     # 从 input_prompt 中提取自定义内容
     custom_content = ""
@@ -202,28 +212,46 @@ def main():
         openai_client_podscript = OpenAICli(api_key=api_key, base_url=base_url, model=model, system_message=podscript_prompt)
         podscript_response_generator = openai_client_podscript.chat_completion(messages=[{"role": "user", "content": overview_content}])
         podscript_json_str = "".join([chunk.choices[0].delta.content for chunk in podscript_response_generator if chunk.choices and chunk.choices[0].delta.content])
-        
+        # try:
+        #     output_script_filename = os.path.join(output_dir, f"podcast_script_{int(time.time())}.json")
+        #     with open(output_script_filename, 'w', encoding='utf-8') as f:
+        #         json.dump(podscript_json_str, f, ensure_ascii=False, indent=4)
+        #     print(f"Podcast script saved to {output_script_filename}")
+        # except Exception as e:
+        #     print(f"Error saving podcast script to file: {e}")
+        #     sys.exit(1)
+
         # Attempt to parse the JSON string. OpenAI sometimes returns extra text.
-        try:
-            # Find the first and last curly braces to extract valid JSON
-            json_start = podscript_json_str.find('{')
-            json_end = podscript_json_str.rfind('}') + 1
-            if json_start != -1 and json_end != -1 and json_end > json_start:
-                valid_json_str = podscript_json_str[json_start:json_end]
-                podcast_script = json.loads(valid_json_str)
-            else:
-                raise ValueError("Could not find valid JSON object in response.")
-        except json.JSONDecodeError as e:
-            print(f"Error decoding podcast script JSON: {e}")
-            print(f"Raw response: {podscript_json_str}")
-            sys.exit(1)
-        except ValueError as e:
-            print(f"Error processing podcast script response: {e}")
+        podcast_script = None
+        decoder = json.JSONDecoder()
+        idx = 0
+        valid_json_str = ""
+        while idx < len(podscript_json_str):
+            try:
+                obj, end = decoder.raw_decode(podscript_json_str[idx:])
+                # Check if this object is the expected podcast_script
+                if isinstance(obj, dict) and "podcast_transcripts" in obj:
+                    podcast_script = obj
+                    valid_json_str = podscript_json_str[idx : idx + end] # Capture the exact valid JSON string
+                    break # Found the desired JSON, stop searching
+                idx += end # Move to the end of the current JSON object
+            except json.JSONDecodeError:
+                # If decoding fails, advance index by one and continue
+                idx += 1
+                # Optionally, skip to the next potential JSON start if it's far away
+                next_brace = podscript_json_str.find('{', idx)
+                if next_brace != -1:
+                    idx = next_brace
+                else:
+                    break # No more braces, no more JSON to find
+
+        if podcast_script is None:
+            print(f"Error: Could not find a valid podcast script JSON object with 'podcast_transcripts' key in response.")
             print(f"Raw response: {podscript_json_str}")
             sys.exit(1)
 
-        print("\nGenerated Podcast Script Length:"+ str(len(podcast_script.get("podcast_transcripts"))))
-        print(valid_json_str[:100])
+        print("\nGenerated Podcast Script Length:"+ str(len(podcast_script.get("podcast_transcripts") or [])))
+        print(valid_json_str[:100] + "...") # Print beginning of the *actual* parsed JSON
         if not podcast_script.get("podcast_transcripts"):
             print("Warning: 'podcast_transcripts' array is empty or not found in the generated script. Nothing to convert to audio.")
             sys.exit(0) # Exit gracefully if no transcripts to process
@@ -234,10 +262,9 @@ def main():
 
     # Step 7: Parse podcast script and generate audio
     os.makedirs(output_dir, exist_ok=True) # Create output directory if it doesn't exist
-    audio_files = [] # List to store paths of generated audio files
-
-    print("\nGenerating audio files...")
-    for i, item in enumerate(podcast_script.get("podcast_transcripts", [])):
+    
+    def generate_audio_for_item(item, index):
+        """Generate audio for a single podcast transcript item."""
         speaker_id = item.get("speaker_id")
         dialog = item.get("dialog")
 
@@ -245,20 +272,24 @@ def main():
         # Assuming speaker_id corresponds to the index in the 'person' array
         voice_code = None
         if config_data and "podUsers" in config_data and 0 <= speaker_id < len(config_data["podUsers"]):
-            voice_code = config_data["podUsers"][speaker_id]
+            pod_user_entry = config_data["podUsers"][speaker_id]
+            voice_code = pod_user_entry.get("code")
         
         if not voice_code:
             print(f"Warning: No voice code found for speaker_id {speaker_id}. Skipping this dialog.")
-            continue
+            return None
 
         # Replace placeholders in apiUrl
         # URL encode the dialog before replacing {{text}}
+        # 移除指定标点符号，只保留逗号，句号，感叹号
+        dialog = re.sub(r'[^\w\s\-,，.。?？!！\u4e00-\u9fa5]', '', dialog)
+        print(f"dialog: {dialog}")
         encoded_dialog = urllib.parse.quote(dialog)
         api_url = config_data.get("apiUrl", "").replace("{{text}}", encoded_dialog).replace("{{voiceCode}}", voice_code)
         
         if not api_url:
             print(f"Warning: apiUrl not found in config. Skipping dialog for speaker_id {speaker_id}.")
-            continue
+            return None
 
         try:
             print(f"Calling TTS API for speaker {speaker_id} with voice {voice_code}...")
@@ -270,12 +301,41 @@ def main():
             with open(temp_audio_file, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
-            audio_files.append(temp_audio_file)
             print(f"Generated {os.path.basename(temp_audio_file)}")
+            return temp_audio_file
 
         except requests.exceptions.RequestException as e:
             print(f"Error calling TTS API for speaker {speaker_id} ({voice_code}): {e}")
-            continue
+            return None
+    
+    print("\nGenerating audio files...")
+    transcripts = podcast_script.get("podcast_transcripts", [])
+    
+    # Use ThreadPoolExecutor for multi-threading audio generation
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    
+    # Create a dictionary to hold results with their indices
+    audio_files_dict = {}
+    
+    with ThreadPoolExecutor(max_workers=args.threads) as executor:
+        # Submit all tasks with their indices
+        future_to_index = {
+            executor.submit(generate_audio_for_item, item, i): i
+            for i, item in enumerate(transcripts)
+        }
+        
+        # Collect results and place them in the correct order
+        for future in as_completed(future_to_index):
+            index = future_to_index[future]
+            try:
+                result = future.result()
+                if result:
+                    audio_files_dict[index] = result
+            except Exception as e:
+                print(f"Error generating audio for item {index}: {e}")
+    
+    # Convert dictionary to list in the correct order
+    audio_files = [audio_files_dict[i] for i in sorted(audio_files_dict.keys())]
     
     print(f"\nFinished generating individual audio files. Total files: {len(audio_files)}")
     """
@@ -301,7 +361,13 @@ def main():
         print(f.read())
 
 
-    
 if __name__ == "__main__":
+    start_time = time.time() # Record the start time
+    
     main()
     merge_audio_files()
+
+    end_time = time.time() # Record the end time
+    execution_time = end_time - start_time # Calculate total execution time
+    print(f"\nTotal execution time: {execution_time:.2f} seconds")
+    
