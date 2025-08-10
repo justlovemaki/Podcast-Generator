@@ -495,7 +495,7 @@
   "headers": {
     "Authorization": "Bearer {{api_key}}",
     "Content-Type": "application/msgpack",
-    "model": "s1"
+    "model": "speech-1.5"
   },
   "request_payload": {
     "text": "{{test_text}}",

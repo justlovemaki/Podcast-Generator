@@ -34,7 +34,7 @@ This is a powerful script tool that leverages the intelligence of **OpenAI API**
 
 Open your terminal or command prompt and install the required Python libraries using pip:
 ```bash
-pip install requests openai
+pip install requests openai pydub msgpack
 ```
 
 ---
@@ -151,6 +151,42 @@ The configuration file is the "brain" of the entire project, telling the script 
 *   `apiUrl`: Your TTS service API endpoint. `{{text}}` will be replaced with the dialogue text, and `{{voiceCode}}` will be replaced with the character's voice code.
 *   `turnPattern`: Defines the **turn-taking pattern** for character dialogue, such as `random` or `sequential`.
 
+### `tts_providers.json` File Description
+
+The `tts_providers.json` file is used to store authentication information for various TTS service providers, such as API keys. This file is used in the following scenarios:
+
+1. In the various TTS service test scripts in the `check/` directory, to obtain the corresponding authentication information
+2. In the `podcast_generator.py` script, to obtain additional configuration parameters for specific TTS services
+
+The structure of this file is as follows:
+```json
+{
+  "index": {
+        "api_key": null
+  },
+  "edge": {
+        "api_key": null
+  },
+  "doubao": {
+        "X-Api-App-Id": "null",
+        "X-Api-Access-Key": "null"
+  },
+  "fish": {
+        "api_key": "null"
+  },
+  "minimax": {
+        "group_id": "null",
+        "api_key": "null"
+  },
+  "gemini": {
+        "api_key": "null"
+  }
+}
+```
+
+Notes:
+*   In actual use, please replace `"null"` with the corresponding authentication information
+*   `tts_providers-local.json` is a local configuration file example that contains actual authentication information (please do not commit this file to version control systems)
 ---
 
 ## 🔌 TTS (Text-to-Speech) Service Integration
@@ -170,10 +206,9 @@ You can deploy the following open-source projects as local TTS services and inte
 ### 🌐 Web TTS Interface Support
 
 This project can also be easily configured to integrate various web TTS services. Just ensure your `apiUrl` configuration meets the service provider's requirements. Commonly supported services include:
-
+*   **Doubao TTS**
 *   **Minimax TTS**
 *   **Fish Audio TTS**
-*   **Doubao TTS**
 *   **Gemini TTS**
 *   **OpenAI TTS** (Planned)
 *   **Azure TTS** (Planned)
@@ -246,3 +281,6 @@ These audio files demonstrate the actual effect of this tool in practical applic
 ├── README.md                # 📄 Project Documentation
 ├── README_EN.md             # 📄 English Documentation
 └── tts_adapters.py          # TTS Adapter File
+## 📝 Disclaimer
+
+This project is free software licensed under the GNU General Public License v3.0 (GPL-3.0). We provide no warranties, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. In no event shall the authors or copyright holders be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage. You use this software at your own risk. This software is provided "as is" without warranty of any kind. Before using this software, please ensure you have read and understood all terms of this disclaimer. If you do not agree to these terms, please do not use this software. Third-party services used in this project (such as OpenAI API, TTS services, etc.) may have their own terms of use and restrictions, and users are responsible for using these services at their own risk. We make no commitments or guarantees regarding the availability, performance, or security of any third-party services. This project is for learning and research purposes only and should not be used for any commercial purposes or production environments. We are not responsible for any consequences arising from the use of this project. Users should comply with all applicable laws and regulations when using this project. Any violations of laws and regulations are the sole responsibility of the user. The interpretation rights of this disclaimer belong to the project developers. We reserve the right to modify this disclaimer at any time without notice. The modified disclaimer will be published in the project repository, and users should check regularly to stay informed of the latest version. Continued use of this project indicates your acceptance and agreement to comply with the latest version of the disclaimer terms. If you have any questions about this disclaimer or need more information, please contact us through the contact information in the project repository.
