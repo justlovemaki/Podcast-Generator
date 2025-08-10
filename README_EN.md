@@ -14,7 +14,7 @@ This is a powerful script tool that leverages the intelligence of **OpenAI API**
 *   **🤖 AI-Driven Scripting**: Automatically generate high-quality, in-depth podcast dialogue scripts with the powerful OpenAI model.
 *   **👥 Multi-Role Support**: Freely define multiple podcast roles (e.g., host, guest) and assign a unique TTS voice to each role.
 *   **🔌 Flexible TTS Integration**: Seamlessly connect with your self-built or third-party TTS services through simple API URL configuration.
-*   **🔊 Smart Audio Merging**: Automatically and precisely stitch together voice segments from various roles to synthesize a complete, smooth podcast audio file (`.wav` format).
+*   **🔊 Smart Audio Merging**: Automatically and precisely stitch together voice segments from various roles, and support volume and speed adjustment, to synthesize a complete, smooth podcast audio file (`.wav` format).
 *   **⌨️ Convenient Command-Line Interface**: Provides clear command-line parameters, giving you full control over every aspect of the podcast generation process.
 
 ---
@@ -145,6 +145,8 @@ The configuration file is the "brain" of the entire project, telling the script 
 ```
 
 *   `podUsers`: Defines the **roles** in the podcast. The `code` for each role must correspond to a valid voice in the `voices` list.
+*   `tts_max_retries` (optional): The maximum number of retries when a TTS API call fails (default is `3`).
+*   `voices`: Defines all available TTS **voices**, which can include `volume_adjustment` (volume adjustment in dB, e.g., `6.0` to increase by 6dB, `-3.0` to decrease by 3dB) and `speed_adjustment` (speed adjustment in percentage, e.g., `10.0` to increase speed by 10%, `-10.0` to decrease speed by 10%) parameters.
 *   `voices`: Defines all available TTS **voices**.
 *   `apiUrl`: Your TTS service API endpoint. `{{text}}` will be replaced with the dialogue text, and `{{voiceCode}}` will be replaced with the character's voice code.
 *   `turnPattern`: Defines the **turn-taking pattern** for character dialogue, such as `random` or `sequential`.
@@ -165,16 +167,17 @@ You can deploy the following open-source projects as local TTS services and inte
 *   **edge-tts**: [https://github.com/zuoban/tts](https://github.com/zuoban/tts)
     *   This is a general TTS library that you can integrate by customizing an adapter.
 
-### 🌐 Web TTS Interface Support (Pending)
+### 🌐 Web TTS Interface Support
 
 This project can also be easily configured to integrate various web TTS services. Just ensure your `apiUrl` configuration meets the service provider's requirements. Commonly supported services include:
 
-*   **OpenAI TTS**
-*   **Azure TTS**
-*   **Google Cloud Text-to-Speech (Vertex AI)**
 *   **Minimax TTS**
-*   **Gemini TTS** (may require integration via custom API adapter)
 *   **Fish Audio TTS**
+*   **Doubao TTS**
+*   **Gemini TTS**
+*   **OpenAI TTS** (Planned)
+*   **Azure TTS** (Planned)
+*   **Google Cloud Text-to-Speech (Vertex AI)** (Planned)
 
 ---
 
@@ -188,12 +191,27 @@ You can find sample podcast audio generated using different TTS services in the 
 
 *   **Edge TTS Sample**: 
 
-[edgeTTS](https://github.com/user-attachments/assets/3891cf4c-f47f-4c9b-aef6-30ffb3fcefc4)
+[edgeTTS](example/edgeTTS.wav)
 
 *   **Index TTS Sample**: 
 
-[indexTTS](https://github.com/user-attachments/assets/a1d2ebee-3e9a-43cb-bc94-67e3c9b3c45a)
+[indexTTS](example/indexTTS.wav)
 
+*   **Doubao TTS Sample**: 
+
+[doubaoTTS](example/doubaoTTS.wav)
+
+*   **Minimax Sample**: 
+
+[minimax](example/minimax.wav)
+
+*   **Fish Audio Sample**: 
+
+[fish](example/fish.wav)
+
+*   **Gemini TTS Sample**: 
+
+[geminiTTS](example/geminiTTS.wav)
 
 These audio files demonstrate the actual effect of this tool in practical applications.
 
@@ -204,13 +222,27 @@ These audio files demonstrate the actual effect of this tool in practical applic
 ```
 .
 ├── config/                  # ⚙️ Configuration Files Directory
+│   ├── doubao-tts.json
 │   ├── edge-tts.json
-│   └── index-tts.json
+│   ├── fish-audio.json
+│   ├── gemini-tts.json
+│   ├── index-tts.json
+│   ├── minimax.json
+│   └── tts_providers.json
 ├── prompt/                  # 🧠 AI Prompt Files Directory
 │   ├── prompt-overview.txt
 │   └── prompt-podscript.txt
+├── example/                 # 🎧 Sample Audio Directory
+│   ├── doubaoTTS.wav
+│   ├── edgeTTS.wav
+│   ├── fish.wav
+│   ├── geminiTTS.wav
+│   ├── indexTTS.wav
+│   └── minimax.wav
 ├── output/                  # 🎉 Output Audio Directory
 ├── input.txt                # 🎙️ Podcast Topic Input File
 ├── openai_cli.py            # OpenAI Command Line Tool
 ├── podcast_generator.py     # 🚀 Main Running Script
-└── README.md                # 📄 Project Documentation
+├── README.md                # 📄 Project Documentation
+├── README_EN.md             # 📄 English Documentation
+└── tts_adapters.py          # TTS Adapter File

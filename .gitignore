@@ -2,3 +2,4 @@
 __pycache__/
 output/
 excalidraw.log
+config/tts_providers-local.json

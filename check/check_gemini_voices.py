@@ -1,0 +1,87 @@
+import json
+import wave
+import time
+import os
+import requests
+import base64
+import json
+
+def check_gemini_voices():
+    config_file_path = "config/gemini-tts.json"
+    tts_providers_path = "config/tts_providers.json"
+    test_text = "你好"  # 测试文本
+    
+    try:
+        with open(config_file_path, 'r', encoding='utf-8') as f:
+            config_data = json.load(f)
+    except FileNotFoundError:
+        print(f"错误: 配置文件未找到，请检查路径: {config_file_path}")
+        return
+    except json.JSONDecodeError:
+        print(f"错误: 无法解析 JSON 文件: {config_file_path}")
+        return
+
+    voices = config_data.get('voices', [])
+    request_payload = config_data.get('request_payload', {})
+    headers = config_data.get('headers', {})
+    url = config_data.get('apiUrl','')
+
+    try:
+        with open(tts_providers_path, 'r', encoding='utf-8') as f:
+            tts_providers_data = json.load(f)
+        gemini_api_key = tts_providers_data.get('gemini', {}).get('api_key')
+        if gemini_api_key:
+            headers['x-goog-api-key'] = gemini_api_key
+        else:
+            print(f"警告: 未在 {tts_providers_path} 中找到 Gemini 的 API 密钥。")
+    except FileNotFoundError:
+        print(f"错误: TTS 提供商配置文件未找到，请检查路径: {tts_providers_path}")
+        return
+    except json.JSONDecodeError:
+        print(f"错误: 无法解析 TTS 提供商 JSON 文件: {tts_providers_path}")
+        return
+
+    if not voices:
+        print("未在配置文件中找到任何声音（voices）。")
+        return
+
+    print(f"开始验证 {len(voices)} 个 Gemini 语音...")
+    for voice in voices:
+        voice_code = voice.get('code')
+        voice_name = voice.get('alias', voice.get('name', '未知'))  # 优先使用 alias, 否则使用 name
+
+        if voice_code:
+            print(f"正在测试语音: {voice_name} (Code: {voice_code})")
+            try:
+                url = url.replace('{{model}}', request_payload['model'])
+                request_payload['contents'][0]['parts'][0]['text'] = test_text
+                request_payload['generationConfig']['speechConfig']['voiceConfig']['prebuiltVoiceConfig']['voiceName'] = voice_code
+
+
+                response = requests.post(url, headers=headers, json=request_payload, timeout=60)
+                
+                if response.status_code == 200:
+                    response_data = response.json()
+                    audio_data_base64 = response_data['candidates'][0]['content']['parts'][0]['inlineData']['data']
+                    audio_data_pcm = base64.b64decode(audio_data_base64)
+
+                    print(f"  ✅ {voice_name} (Code: {voice_code}): 可用")
+                    with wave.open(f"test_{voice_code}.mp3",  "wb") as f:
+                        f.setnchannels(1)
+                        f.setsampwidth(2)
+                        f.setframerate(24000)
+                        f.writeframes(audio_data_pcm)
+                else:
+                    print(f"  ❌ {voice_name} (Code: {voice_code}): 不可用, 状态码: {response.status_code}, 响应: {response.text}")
+            except requests.exceptions.RequestException as e:
+                print(f"  ❌ {voice_name} (Code: {voice_code}): 请求失败, 错误: {e}")
+            except Exception as e:
+                print(f"  ❌ {voice_name} (Code: {voice_code}): 处理响应失败, 错误: {e}")
+            time.sleep(0.5)  # 短暂延迟，避免请求过快
+        else:
+            print(f"跳过一个缺少 'code' 字段的语音条目: {voice}")
+
+    print("Gemini 语音验证完成。")
+
+if __name__ == "__main__":
+    check_gemini_voices()

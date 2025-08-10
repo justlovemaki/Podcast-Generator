@@ -14,7 +14,7 @@
 *   **🤖 AI 驱动脚本**：借助强大的 OpenAI 模型，自动创作高质量、有深度的播客对话脚本。
 *   **👥 多角色支持**：自由定义多个播客角色（如主持、嘉宾），并为每个角色指定独一无二的 TTS 语音。
 *   **🔌 灵活的 TTS 集成**：通过简单的 API URL 配置，无缝对接您自建的或第三方的 TTS 服务。
-*   **🔊 智能音频合并**：自动将各个角色的语音片段精准拼接，合成一个完整的、流畅的播客音频文件 (`.wav` 格式)。
+*   **🔊 智能音频合并**：自动将各个角色的语音片段精准拼接，并支持**音量与语速调整**，合成一个完整的、流畅的播客音频文件 (`.wav` 格式)。
 *   **⌨️ 便捷的命令行接口**：提供清晰的命令行参数，让您对播客生成过程的每一个环节都了如指掌。
 
 ---
@@ -144,8 +144,9 @@ python podcast_generator.py --api-key sk-xxxxxx --model gpt-4o --threads 4
 }
 ```
 
+*   `tts_max_retries` (可选): TTS API 调用失败时的最大重试次数（默认为 `3`）。
 *   `podUsers`: 定义播客中的**角色**。每个角色的 `code` 必须对应 `voices` 列表中的一个有效语音。
-*   `voices`: 定义所有可用的 TTS **语音**。
+*   `voices`: 定义所有可用的 TTS **语音**，可包含 `volume_adjustment` (音量调整，单位 dB，例如 `6.0` 增加 6dB，`-3.0` 减少 3dB) 和 `speed_adjustment` (语速调整，单位百分比，例如 `10.0` 增加 10% 语速，`-10.0` 减少 10% 语速) 参数。
 *   `apiUrl`: 您的 TTS 服务 API 端点。`{{text}}` 将被替换为对话文本，`{{voiceCode}}` 将被替换为角色的语音代码。
 *   `turnPattern`: 定义角色对话的**轮流模式**，例如 `random` (随机) 或 `sequential` (顺序)。
 
@@ -165,17 +166,16 @@ python podcast_generator.py --api-key sk-xxxxxx --model gpt-4o --threads 4
 *   **edge-tts**: [https://github.com/zuoban/tts](https://github.com/zuoban/tts)
     *   这是一个通用的 TTS 库，您可以通过自定义适配器将其集成。
 
-### 🌐 网络 TTS 接口支持（未完成）
+### 🌐 网络 TTS 接口支持
 
 本项目也可以轻松配置集成各种网络 TTS 服务，只需确保您的 `apiUrl` 配置符合服务提供商的要求。常见的支持服务包括：
-
-*   **OpenAI TTS**
-*   **Azure TTS**
-*   **Google Cloud Text-to-Speech (Vertex AI)**
 *   **Minimax TTS**
-*   **Gemini TTS** (可能需要通过自定义 API 适配器集成)
 *   **Fish Audio TTS**
-
+*   **豆包 TTS (Doubao TTS)**
+*   **Gemini TTS**
+*   **OpenAI TTS**(计划中)
+*   **Azure TTS**(计划中)
+*   **Google Cloud Text-to-Speech (Vertex AI)**(计划中)
 ---
 
 ## 🎉 输出成果
@@ -189,11 +189,27 @@ python podcast_generator.py --api-key sk-xxxxxx --model gpt-4o --threads 4
 
 *   **Edge TTS 生成示例**:
 
-[edgeTTS](https://github.com/user-attachments/assets/3891cf4c-f47f-4c9b-aef6-30ffb3fcefc4)
+[edgeTTS](example/edgeTTS.wav)
 
 *   **Index TTS 生成示例**:
 
-[indexTTS](https://github.com/user-attachments/assets/a1d2ebee-3e9a-43cb-bc94-67e3c9b3c45a)
+[indexTTS](example/indexTTS.wav)
+
+*   **豆包 TTS 生成示例**:
+
+[doubaoTTS](example/doubaoTTS.wav)
+
+*   **Minimax 生成示例**:
+
+[minimax](example/minimax.wav)
+
+*   **Fish Audio 生成示例**:
+
+[fish](example/fish.wav)
+
+*   **Gemini TTS 生成示例**:
+
+[geminiTTS](example/geminiTTS.wav)
 
 
 这些音频文件展示了本工具在实际应用中的效果。
@@ -205,15 +221,29 @@ python podcast_generator.py --api-key sk-xxxxxx --model gpt-4o --threads 4
 ```
 .
 ├── config/                  # ⚙️ 配置文件目录
+│   ├── doubao-tts.json
 │   ├── edge-tts.json
-│   └── index-tts.json
+│   ├── fish-audio.json
+│   ├── gemini-tts.json
+│   ├── index-tts.json
+│   ├── minimax.json
+│   └── tts_providers.json
 ├── prompt/                  # 🧠 AI 提示词目录
 │   ├── prompt-overview.txt
 │   └── prompt-podscript.txt
+├── example/                 # 🎧 示例音频目录
+│   ├── doubaoTTS.wav
+│   ├── edgeTTS.wav
+│   ├── fish.wav
+│   ├── geminiTTS.wav
+│   ├── indexTTS.wav
+│   └── minimax.wav
 ├── output/                  # 🎉 输出音频目录
 ├── input.txt                # 🎙️ 播客主题输入文件
 ├── openai_cli.py            # OpenAI 命令行工具
 ├── podcast_generator.py     # 🚀 主运行脚本
-└── README.md                # 📄 项目说明文档
+├── README.md                # 📄 项目说明文档
+├── README_EN.md             # 📄 英文说明文档
+└── tts_adapters.py          # TTS 适配器文件
 
 ```

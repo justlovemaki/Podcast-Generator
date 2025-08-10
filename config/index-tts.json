@@ -6,7 +6,9 @@
       "code": "zh-CN-XiaolinIndex",
       "locale": "zh-CN",
       "gender": "Female",
-      "usedname": "林夕"
+      "usedname": "林夕",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0
     },
     {
       "name": "Yunzhe",
@@ -14,7 +16,9 @@
       "code": "zh-CN-YunzheIndex",
       "locale": "zh-CN",
       "gender": "Male",
-      "usedname": "苏哲"
+      "usedname": "苏哲",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0
     },
     {
       "name": "HeXi",
@@ -22,7 +26,9 @@
       "code": "zh-CN-HeXiIndex",
       "locale": "zh-CN",
       "gender": "Male",
-      "usedname": "何夕"
+      "usedname": "何夕",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0
     },
     {
       "name": "Datong",
@@ -30,7 +36,19 @@
       "code": "zh-CN-DatongIndex",
       "locale": "zh-CN",
       "gender": "Male",
-      "usedname": "大同"
+      "usedname": "大同",
+      "volume_adjustment": -1,
+      "speed_adjustment": 0
+    },
+    {
+      "name": "KaiQi",
+      "alias": "凯琪",
+      "code": "zh-CN-KaiQiIndex",
+      "locale": "zh-CN",
+      "gender": "Female",
+      "usedname": "凯琪",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0
     },
     {
       "name": "Daibei",
@@ -38,14 +56,16 @@
       "code": "zh-CN-DaibeiIndex",
       "locale": "zh-CN",
       "gender": "Male",
-      "usedname": "大比"
+      "usedname": "大比",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0
     }
   ],
   "apiUrl": "http://192.168.1.232:7899/synthesize?text={{text}}&server_audio_prompt_path={{voiceCode}}",
   "podUsers": [
-    {"role": "节目主理人", "code": "zh-CN-YunzheIndex"},
-    {"role": "科技爱好者", "code": "zh-CN-XiaolinIndex"},
-    {"role": "独立音乐人", "code": "zh-CN-DatongIndex"}
+    {"role": "节目主持人", "code": "zh-CN-DatongIndex"},
+    {"role": "科技爱好者", "code": "zh-CN-KaiQiIndex"}
   ],
-  "turnPattern": "random"
+  "turnPattern": "random",
+  "tts_max_retries": 3
 }

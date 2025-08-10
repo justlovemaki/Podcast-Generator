@@ -1,0 +1,363 @@
+{
+  "voices": [
+    {
+      "name": "Zephyr",
+      "alias": "明亮",
+      "code": "Zephyr",
+      "locale": "zh-CN",
+      "usedname": "明亮",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Zephyr.wav"
+    },
+    {
+      "name": "Puck",
+      "alias": "欢快",
+      "code": "Puck",
+      "locale": "zh-CN",
+      "usedname": "欢快",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Puck.wav"
+    },
+    {
+      "name": "Charon",
+      "alias": "信息丰富",
+      "code": "Charon",
+      "locale": "zh-CN",
+      "usedname": "信息丰富",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Charon.wav"
+    },
+    {
+      "name": "Kore",
+      "alias": "坚定",
+      "code": "Kore",
+      "locale": "zh-CN",
+      "usedname": "坚定",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Kore.wav"
+    },
+    {
+      "name": "Fenrir",
+      "alias": "Excitable",
+      "code": "Fenrir",
+      "locale": "zh-CN",
+      "usedname": "Excitable",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Fenrir.wav"
+    },
+    {
+      "name": "Leda",
+      "alias": "青春",
+      "code": "Leda",
+      "locale": "zh-CN",
+      "usedname": "青春",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Leda.wav"
+    },
+    {
+      "name": "Orus",
+      "alias": "公司",
+      "code": "Orus",
+      "locale": "zh-CN",
+      "usedname": "公司",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Orus.wav"
+    },
+    {
+      "name": "Aoede",
+      "alias": "Breezy",
+      "code": "Aoede",
+      "locale": "zh-CN",
+      "usedname": "Breezy",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Aoede.wav"
+    },
+    {
+      "name": "Callirrhoe",
+      "alias": "随和",
+      "code": "Callirrhoe",
+      "locale": "zh-CN",
+      "usedname": "随和",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Callirrhoe.wav"
+    },
+    {
+      "name": "Autonoe",
+      "alias": "明亮",
+      "code": "Autonoe",
+      "locale": "zh-CN",
+      "usedname": "明亮",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Autonoe.wav"
+    },
+    {
+      "name": "Enceladus",
+      "alias": "气声",
+      "code": "Enceladus",
+      "locale": "zh-CN",
+      "usedname": "气声",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Enceladus.wav"
+    },
+    {
+      "name": "Iapetus",
+      "alias": "清晰",
+      "code": "Iapetus",
+      "locale": "zh-CN",
+      "usedname": "清晰",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Iapetus.wav"
+    },
+    {
+      "name": "Umbriel",
+      "alias": "随和",
+      "code": "Umbriel",
+      "locale": "zh-CN",
+      "usedname": "随和",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Umbriel.wav"
+    },
+    {
+      "name": "Algieba",
+      "alias": "平滑",
+      "code": "Algieba",
+      "locale": "zh-CN",
+      "usedname": "平滑",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Algieba.wav"
+    },
+    {
+      "name": "Despina",
+      "alias": "平滑",
+      "code": "Despina",
+      "locale": "zh-CN",
+      "usedname": "平滑",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Despina.wav"
+    },
+    {
+      "name": "Erinome",
+      "alias": "清除",
+      "code": "Erinome",
+      "locale": "zh-CN",
+      "usedname": "清除",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Erinome.wav"
+    },
+    {
+      "name": "Algenib",
+      "alias": "Gravelly",
+      "code": "Algenib",
+      "locale": "zh-CN",
+      "usedname": "Gravelly",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Algenib.wav"
+    },
+    {
+      "name": "Rasalgethi",
+      "alias": "信息丰富",
+      "code": "Rasalgethi",
+      "locale": "zh-CN",
+      "usedname": "信息丰富",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Rasalgethi.wav"
+    },
+    {
+      "name": "Laomedeia",
+      "alias": "欢快",
+      "code": "Laomedeia",
+      "locale": "zh-CN",
+      "usedname": "欢快",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Laomedeia.wav"
+    },
+    {
+      "name": "Achernar",
+      "alias": "软",
+      "code": "Achernar",
+      "locale": "zh-CN",
+      "usedname": "软",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Achernar.wav"
+    },
+    {
+      "name": "Alnilam",
+      "alias": "Firm",
+      "code": "Alnilam",
+      "locale": "zh-CN",
+      "usedname": "Firm",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Alnilam.wav"
+    },
+    {
+      "name": "Schedar",
+      "alias": "均匀",
+      "code": "Schedar",
+      "locale": "zh-CN",
+      "usedname": "均匀",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Schedar.wav"
+    },
+    {
+      "name": "Gacrux",
+      "alias": "成人",
+      "code": "Gacrux",
+      "locale": "zh-CN",
+      "usedname": "成人",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Gacrux.wav"
+    },
+    {
+      "name": "Pulcherrima",
+      "alias": "转发",
+      "code": "Pulcherrima",
+      "locale": "zh-CN",
+      "usedname": "转发",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Pulcherrima.wav"
+    },
+    {
+      "name": "Achird",
+      "alias": "友好",
+      "code": "Achird",
+      "locale": "zh-CN",
+      "usedname": "友好",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Achird.wav"
+    },
+    {
+      "name": "Zubenelgenubi",
+      "alias": "随意",
+      "code": "Zubenelgenubi",
+      "locale": "zh-CN",
+      "usedname": "随意",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Zubenelgenubi.wav"
+    },
+    {
+      "name": "Vindemiatrix",
+      "alias": "温柔",
+      "code": "Vindemiatrix",
+      "locale": "zh-CN",
+      "usedname": "温柔",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Vindemiatrix.wav"
+    },
+    {
+      "name": "Sadachbia",
+      "alias": "活泼",
+      "code": "Sadachbia",
+      "locale": "zh-CN",
+      "usedname": "活泼",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Sadachbia.wav"
+    },
+    {
+      "name": "Sadaltager",
+      "alias": "知识渊博",
+      "code": "Sadaltager",
+      "locale": "zh-CN",
+      "usedname": "知识渊博",
+      "gender": "Male",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Sadaltager.wav"
+    },
+    {
+      "name": "Sulafat",
+      "alias": "偏高",
+      "code": "Sulafat",
+      "locale": "zh-CN",
+      "usedname": "偏高",
+      "gender": "Female",
+      "volume_adjustment": 0,
+      "speed_adjustment": 0,
+      "audio": "https://www.gstatic.com/aistudio/voices/samples/Sulafat.wav"
+    }
+  ],
+  "podUsers": [
+    {"role": "节目主理人", "code": "Sadaltager"},
+    {"role": "科技爱好者", "code": "Vindemiatrix"}
+  ],
+  "turnPattern": "random",
+  "tts_max_retries": 3,
+  "apiUrl": "https://generativelanguage.googleapis.com/v1beta/models/{{model}}:generateContent",
+  "headers": {
+    "x-goog-api-key": "{{api_key}}",
+    "Content-Type": "application/json"
+  },
+  "request_payload": {
+    "contents": [{
+        "parts":[{
+            "text": "{{text}}"
+        }]
+    }],
+    "generationConfig": {
+        "responseModalities": ["AUDIO"],
+        "speechConfig": {
+            "voiceConfig": {
+                "prebuiltVoiceConfig": {
+                    "voiceName": "{{voice_code}}"
+                }
+            }
+        }
+    },
+    "model": "gemini-2.5-flash-preview-tts"
+  }
+}

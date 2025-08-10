@@ -1,0 +1,22 @@
+{
+  "index": {
+        "api_key": null
+  },
+  "edge": {
+        "api_key": null
+  },
+  "doubao": {
+        "X-Api-App-Id": "null",
+        "X-Api-Access-Key": "null"
+  },
+  "fish": {
+        "api_key": "null"
+  },
+  "minimax": {
+        "group_id": "null",
+        "api_key": "null"
+  },
+  "gemini": {
+        "api_key": "null"
+  }
+}
