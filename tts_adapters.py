@@ -96,12 +96,14 @@ class IndexTTSAdapter(TTSAdapter):
     """
     IndexTTS 的 TTS 适配器实现。
     """
-    def __init__(self, api_url_template: str):
+    def __init__(self, api_url_template: str, tts_extra_params: Optional[dict] = None):
         self.api_url_template = api_url_template
+        self.tts_extra_params = tts_extra_params if tts_extra_params is not None else {}
 
     def generate_audio(self, text: str, voice_code: str, output_dir: str, volume_adjustment: float = 0.0, speed_adjustment: float = 0.0) -> str:
         encoded_text = urllib.parse.quote(text)
 
+        self.api_url_template = self.tts_extra_params.get("api_url", self.api_url_template)
         api_url = self.api_url_template.replace("{{text}}", encoded_text).replace("{{voiceCode}}", voice_code)
 
         if not api_url:
@@ -130,12 +132,14 @@ class EdgeTTSAdapter(TTSAdapter):
     """
     EdgeTTS 的 TTS 适配器实现。
     """
-    def __init__(self, api_url_template: str):
+    def __init__(self, api_url_template: str, tts_extra_params: Optional[dict] = None):
         self.api_url_template = api_url_template
+        self.tts_extra_params = tts_extra_params if tts_extra_params is not None else {}
 
     def generate_audio(self, text: str, voice_code: str, output_dir: str, volume_adjustment: float = 0.0, speed_adjustment: float = 0.0) -> str:
         encoded_text = urllib.parse.quote(text)
 
+        self.api_url_template = self.tts_extra_params.get("api_url", self.api_url_template)
         api_url = self.api_url_template.replace("{{text}}", encoded_text).replace("{{voiceCode}}", voice_code)
 
         if not api_url:

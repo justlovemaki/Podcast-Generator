@@ -1,9 +1,9 @@
 {
   "index": {
-        "api_key": null
+        "api_url": null
   },
   "edge": {
-        "api_key": null
+        "api_url": null
   },
   "doubao": {
         "X-Api-App-Id": "null",

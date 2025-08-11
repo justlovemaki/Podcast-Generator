@@ -2231,7 +2231,7 @@
     "speed_adjustment": 0
   }
   ],
-  "apiUrl": "http://192.168.1.178:7899/tts?t={{text}}&v={{voiceCode}}&r=5",
+  "apiUrl": "{{api_url}}",
   "podUsers": [
     {"role": "酒馆主理人", "code": "zh-CN-Yunyi:DragonHDFlashLatestNeural"},
     {"role": "科技爱好者", "code": "zh-CN-Xiaochen:DragonHDFlashLatestNeural"}

@@ -37,7 +37,7 @@
       "locale": "zh-CN",
       "gender": "Male",
       "usedname": "大同",
-      "volume_adjustment": -1,
+      "volume_adjustment":3,
       "speed_adjustment": 0
     },
     {
@@ -47,8 +47,8 @@
       "locale": "zh-CN",
       "gender": "Female",
       "usedname": "凯琪",
-      "volume_adjustment": 0,
-      "speed_adjustment": 0
+      "volume_adjustment": 5,
+      "speed_adjustment": 8
     },
     {
       "name": "Daibei",
@@ -61,7 +61,7 @@
       "speed_adjustment": 0
     }
   ],
-  "apiUrl": "http://192.168.1.232:7899/synthesize?text={{text}}&server_audio_prompt_path={{voiceCode}}",
+  "apiUrl": "{{api_url}}",
   "podUsers": [
     {"role": "节目主持人", "code": "zh-CN-DatongIndex"},
     {"role": "科技爱好者", "code": "zh-CN-KaiQiIndex"}

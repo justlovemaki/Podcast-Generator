@@ -13,6 +13,7 @@ from datetime import datetime
 from openai_cli import OpenAICli # Moved to top for proper import
 import urllib.parse # For URL encoding
 import re # For regular expression operations
+from typing import Optional, Tuple
 from tts_adapters import TTSAdapter, IndexTTSAdapter, EdgeTTSAdapter, FishAudioAdapter, MinimaxAdapter, DoubaoTTSAdapter, GeminiTTSAdapter # Import TTS adapters
 
 # Global configuration
@@ -28,6 +29,16 @@ def read_file_content(filepath):
     except FileNotFoundError:
         raise FileNotFoundError(f"Error: File not found at {filepath}")
 
+def _load_json_config(file_path: str) -> dict:
+    """Loads a JSON configuration file."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Error: Configuration file not found at {file_path}")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Error decoding JSON from {file_path}: {e}")
+
 def select_json_config(config_dir='config', return_file_path=False):
     """
     Reads JSON files from the specified directory and allows the user to select one.
@@ -42,7 +53,7 @@ def select_json_config(config_dir='config', return_file_path=False):
     print(f"Found JSON configuration files in '{config_dir}':")
     for i, file_path in enumerate(json_files):
         file_name = os.path.basename(file_path)
-        if file_name != "tts_providers.json":
+        if file_name != os.path.basename(tts_providers_config_path):
             valid_json_files.append(file_path)
             print(f"{len(valid_json_files)}. {file_name}")
 
@@ -102,6 +113,8 @@ def generate_speaker_id_text(pod_users, voices_list):
 
 def merge_audio_files():
     output_audio_filename = f"podcast_{int(time.time())}.wav"
+    output_audio_filepath = "/".join([output_dir, output_audio_filename])
+
     # Use ffmpeg to concatenate audio files
     # Check if ffmpeg is available
     try:
@@ -123,9 +136,10 @@ def merge_audio_files():
         ]
         # Execute ffmpeg from the output_dir to correctly resolve file paths in file_list.txt
         process = subprocess.run(command, check=True, cwd=output_dir, capture_output=True, text=True)
-        print("Audio files merged successfully!")
+        print(f"Audio files merged successfully into {output_audio_filepath}!")
         print("FFmpeg stdout:\n", process.stdout)
         print("FFmpeg stderr:\n", process.stderr)
+        return output_audio_filename
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error merging audio files with FFmpeg: {e.stderr}")
     finally:
@@ -165,6 +179,19 @@ def _load_configuration():
     
     print("\nLoaded Configuration: " + tts_provider)
     return config_data
+
+def _load_configuration_path(config_path: str) -> dict:
+    """Loads JSON configuration from a specified path and infers tts_provider from the file name."""
+    config_data = _load_json_config(config_path)
+    
+    # 从文件名中提取 tts_provider
+    file_name = os.path.basename(config_path)
+    tts_provider = os.path.splitext(file_name)[0] # 移除 .json 扩展名
+    
+    config_data["tts_provider"] = tts_provider # 将 tts_provider 添加到配置数据中
+    
+    print(f"\nLoaded Configuration: {tts_provider} from {config_path}")
+    return config_data    
 
 def _prepare_openai_settings(args, config_data):
     """Determines final OpenAI API key, base URL, and model based on priority."""
@@ -368,7 +395,8 @@ def _create_ffmpeg_file_list(audio_files):
 
 from typing import cast # Add import for cast
 
-def _initialize_tts_adapter(config_data: dict, output_dir: str) -> TTSAdapter:
+def _initialize_tts_adapter(config_data: dict, tts_providers_config_content: Optional[str] = None) -> TTSAdapter:
+
     """
     根据配置数据初始化并返回相应的 TTS 适配器。
     """
@@ -378,8 +406,11 @@ def _initialize_tts_adapter(config_data: dict, output_dir: str) -> TTSAdapter:
 
     tts_providers_config = {}
     try:
-        tts_providers_config_content = read_file_content(tts_providers_config_path)
-        tts_providers_config = json.loads(tts_providers_config_content)
+        if tts_providers_config_content:
+            tts_providers_config = json.loads(tts_providers_config_content)
+        else:
+            tts_providers_config_content = read_file_content(tts_providers_config_path)
+            tts_providers_config = json.loads(tts_providers_config_content)
     except Exception as e:
         print(f"Warning: Could not load tts_providers.json: {e}")
     
@@ -390,12 +421,13 @@ def _initialize_tts_adapter(config_data: dict, output_dir: str) -> TTSAdapter:
         api_url = config_data.get("apiUrl")
         if not api_url:
             raise ValueError("IndexTTS apiUrl is not configured.")
-        return IndexTTSAdapter(api_url_template=cast(str, api_url))
+        return IndexTTSAdapter(api_url_template=cast(str, api_url), tts_extra_params=cast(dict, current_tts_extra_params))
     elif tts_provider == "edge-tts":
         api_url = config_data.get("apiUrl")
         if not api_url:
             raise ValueError("EdgeTTS apiUrl is not configured.")
-        return EdgeTTSAdapter(api_url_template=cast(str, api_url))
+        return EdgeTTSAdapter(api_url_template=cast(str, api_url), tts_extra_params=cast(dict, current_tts_extra_params))
+
     elif tts_provider == "fish-audio":
         api_url = config_data.get("apiUrl")
         headers = config_data.get("headers")
@@ -443,10 +475,51 @@ def main():
     overview_content = _generate_overview_content(api_key, base_url, model, overview_prompt, input_prompt)
     podcast_script = _generate_podcast_script(api_key, base_url, model, podscript_prompt, overview_content)
     
-    tts_adapter = _initialize_tts_adapter(config_data, output_dir) # 初始化 TTS 适配器
+    tts_adapter = _initialize_tts_adapter(config_data) # 初始化 TTS 适配器
 
     audio_files = _generate_all_audio_files(podcast_script, config_data, tts_adapter, args.threads)
     _create_ffmpeg_file_list(audio_files)
+
+
+def generate_podcast_audio(args, config_path: str, input_txt_content: str, tts_providers_config_content: str, podUsers_json_content: str) -> str:
+    """
+    Generates a podcast audio file based on the provided parameters.
+
+    Args:
+        api_key (str): OpenAI API key.
+        base_url (str): OpenAI API base URL.
+        model (str): OpenAI model to use.
+        threads (int): Number of threads for audio generation.
+        config_path (str): Path to the configuration JSON file.
+        input_txt_content (str): Content of the input prompt.
+
+    Returns:
+        str: The path to the generated audio file.
+    """
+    print("Starting podcast audio generation...")
+    config_data = _load_configuration_path(config_path)
+    podUsers = json.loads(podUsers_json_content)
+    config_data["podUsers"] = podUsers
+
+    final_api_key, final_base_url, final_model = _prepare_openai_settings(args, config_data)
+    input_prompt, overview_prompt, original_podscript_prompt = _read_prompt_files()
+    custom_content, input_prompt = _extract_custom_content(input_txt_content)
+    podscript_prompt, pod_users, voices, turn_pattern = _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_content)
+
+    print(f"\nInput Prompt (from provided content):\n{input_prompt[:100]}...")
+    print(f"\nOverview Prompt (prompt-overview.txt):\n{overview_prompt[:100]}...")
+    print(f"\nPodscript Prompt (prompt-podscript.txt):\n{podscript_prompt[:1000]}...")
+
+    overview_content = _generate_overview_content(final_api_key, final_base_url, final_model, overview_prompt, input_prompt)
+    podcast_script = _generate_podcast_script(final_api_key, final_base_url, final_model, podscript_prompt, overview_content)
+    
+    tts_adapter = _initialize_tts_adapter(config_data, tts_providers_config_content) # 初始化 TTS 适配器
+
+    audio_files = _generate_all_audio_files(podcast_script, config_data, tts_adapter, args.threads)
+    _create_ffmpeg_file_list(audio_files)
+    
+    output_audio_filepath = merge_audio_files()
+    return output_audio_filepath
 
 
 if __name__ == "__main__":
@@ -461,4 +534,3 @@ if __name__ == "__main__":
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"\nTotal execution time: {execution_time:.2f} seconds")
-    
