@@ -364,6 +364,7 @@ def _generate_all_audio_files(podcast_script, config_data, tts_adapter: TTSAdapt
             for i, item in enumerate(transcripts)
         }
         
+        exception_caught = None
         for future in as_completed(future_to_index):
             index = future_to_index[future]
             try:
@@ -371,8 +372,17 @@ def _generate_all_audio_files(podcast_script, config_data, tts_adapter: TTSAdapt
                 if result:
                     audio_files_dict[index] = result
             except Exception as e:
-                # Re-raise the exception to propagate it to the main thread
-                raise RuntimeError(f"Error generating audio for item {index}: {e}")
+                exception_caught = RuntimeError(f"Error generating audio for item {index}: {e}")
+                # An error occurred, we should stop.
+                break
+
+        # If we broke out of the loop due to an exception, cancel other futures.
+        if exception_caught:
+            print(f"An error occurred: {exception_caught}. Cancelling outstanding tasks.")
+            for f in future_to_index:
+                if not f.done():
+                    f.cancel()
+            raise exception_caught
     
     audio_files = [audio_files_dict[i] for i in sorted(audio_files_dict.keys())]
     
@@ -459,7 +469,7 @@ def _initialize_tts_adapter(config_data: dict, tts_providers_config_content: Opt
     else:
         raise ValueError(f"Unsupported TTS provider: {tts_provider}")
 
-def main():
+def generate_podcast_audio():
     args = _parse_arguments()
     config_data = _load_configuration()
     api_key, base_url, model = _prepare_openai_settings(args, config_data)
@@ -479,9 +489,16 @@ def main():
 
     audio_files = _generate_all_audio_files(podcast_script, config_data, tts_adapter, args.threads)
     _create_ffmpeg_file_list(audio_files)
+    output_audio_filepath = merge_audio_files()
+    return {
+        "output_audio_filepath": output_audio_filepath,
+        "overview_content": overview_content,
+        "podcast_script": podcast_script,
+        "podUsers": pod_users,
+    }
 
 
-def generate_podcast_audio(args, config_path: str, input_txt_content: str, tts_providers_config_content: str, podUsers_json_content: str) -> str:
+def generate_podcast_audio_api(args, config_path: str, input_txt_content: str, tts_providers_config_content: str, podUsers_json_content: str) -> dict:
     """
     Generates a podcast audio file based on the provided parameters.
 
@@ -519,14 +536,19 @@ def generate_podcast_audio(args, config_path: str, input_txt_content: str, tts_p
     _create_ffmpeg_file_list(audio_files)
     
     output_audio_filepath = merge_audio_files()
-    return output_audio_filepath
+    task_results = {
+        "output_audio_filepath": output_audio_filepath,
+        "overview_content": overview_content,
+        "podcast_script": podcast_script,
+        "podUsers": podUsers,
+    }
+    return task_results
 
 
 if __name__ == "__main__":
     start_time = time.time()
     try:
-        main()
-        merge_audio_files()
+        generate_podcast_audio()
     except Exception as e:
         print(f"\nError: An unexpected error occurred during podcast generation: {e}", file=sys.stderr)
         sys.exit(1)
