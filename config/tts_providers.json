@@ -1,4 +1,7 @@
 {
+  "apikey": null,
+  "model": null,
+  "baseurl": null,
   "index": {
         "api_url": null
   },

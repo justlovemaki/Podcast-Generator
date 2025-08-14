@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException, Depends, Form, Header
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from typing import Optional, Dict
 import uuid
 import asyncio
@@ -13,10 +13,14 @@ import json
 import argparse
 from enum import Enum
 import shutil
+from PIL import Image, ImageDraw
+import random
 import schedule
 import threading
 from contextlib import asynccontextmanager # 导入 asynccontextmanager
 import httpx # 导入 httpx 库
+from io import BytesIO # 导入 BytesIO
+import base64 # 导入 base64
 
 from podcast_generator import generate_podcast_audio_api
 
@@ -155,7 +159,9 @@ async def _generate_podcast_task(
     podUsers_json_content: str,
     threads: int,
     tts_provider: str,
-    callback_url: Optional[str] = None # 新增回调地址参数
+    callback_url: Optional[str] = None, # 新增回调地址参数
+    output_language: Optional[str] = None,
+    usetime: Optional[str] = None,
 ):
     task_results[auth_id][task_id]["status"] = TaskStatus.RUNNING
     try:
@@ -164,6 +170,8 @@ async def _generate_podcast_task(
         parser.add_argument("--base-url", default=base_url, help="OpenAI API base URL (default: https://api.openai.com/v1).")
         parser.add_argument("--model", default=model, help="OpenAI model to use (default: gpt-3.5-turbo).")
         parser.add_argument("--threads", type=int, default=threads, help="Number of threads to use for audio generation (default: 1).")
+        parser.add_argument("--output-language", default=output_language, help="Output language for the podcast script (default: Chinese).")
+        parser.add_argument("--usetime", default=usetime, help="Time duration for the podcast script (default: 10 minutes).")
         args = parser.parse_args([])
 
         actual_config_path = tts_provider_map.get(tts_provider)
@@ -181,6 +189,11 @@ async def _generate_podcast_task(
         task_results[auth_id][task_id]["status"] = TaskStatus.COMPLETED
         task_results[auth_id][task_id].update(podcast_generation_results)
         print(f"\nPodcast generation completed for task {task_id}. Output file: {podcast_generation_results.get('output_audio_filepath')}")
+
+        # 生成并编码像素头像
+        avatar_bytes = generate_pixel_avatar(str(task_id)) # 使用 task_id 作为种子
+        avatar_base64 = base64.b64encode(avatar_bytes).decode('utf-8')
+        task_results[auth_id][task_id]["avatar_base64"] = avatar_base64 # 存储 Base64 编码的头像数据
     except Exception as e:
         task_results[auth_id][task_id]["status"] = TaskStatus.FAILED
         task_results[auth_id][task_id]["result"] = str(e)
@@ -231,7 +244,9 @@ async def generate_podcast_submission(
     podUsers_json_content: str = Form(...),
     threads: int = Form(1),
     tts_provider: str = Form("index-tts"),
-    callback_url: Optional[str] = Form(None) # 新增回调地址参数
+    callback_url: Optional[str] = Form(None),
+    output_language: Optional[str] = Form(None),
+    usetime: Optional[str] = Form(None),
 ):
     # 1. 验证 tts_provider
     if tts_provider not in tts_provider_map:
@@ -265,7 +280,9 @@ async def generate_podcast_submission(
         podUsers_json_content,
         threads,
         tts_provider,
-        callback_url # 传递回调地址
+        callback_url,
+        output_language,
+        usetime
     )
 
     return {"message": "Podcast generation started.", "task_id": task_id}
@@ -287,6 +304,10 @@ async def get_podcast_status(
             "output_audio_filepath": task_info.get("output_audio_filepath"),
             "overview_content": task_info.get("overview_content"),
             "podcast_script": task_info.get("podcast_script"),
+            "avatar_base64": task_info.get("avatar_base64"), # 添加 Base64 编码的头像数据
+            "audio_duration": task_info.get("audio_duration"),
+            "title": task_info.get("title"),
+            "tags": task_info.get("tags"),
             "error": task_info["result"] if task_info["status"] == TaskStatus.FAILED else None,
             "timestamp": task_info["timestamp"]
         })
@@ -298,6 +319,14 @@ async def download_podcast(file_name: str):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found.")
     return FileResponse(file_path, media_type='audio/mpeg', filename=file_name)
+
+@app.get("/avatar/{username}")
+async def get_avatar(username: str):
+    """
+    根据用户名生成并返回一个像素头像。
+    """
+    avatar_bytes = generate_pixel_avatar(username)
+    return StreamingResponse(BytesIO(avatar_bytes), media_type="image/png")
 
 @app.get("/get-voices")
 async def get_voices(tts_provider: str = "tts"):
@@ -324,6 +353,87 @@ async def get_voices(tts_provider: str = "tts"):
 @app.get("/")
 async def read_root():
     return {"message": "FastAPI server is running!"}
+
+def generate_pixel_avatar(seed_string: str) -> bytes:
+    """
+    根据给定的字符串生成一个48x48像素的像素头像。
+    头像具有确定性（相同输入字符串生成相同头像）和对称性。
+    """
+    size = 48
+    pixel_grid_size = 5 # 内部像素网格大小 (例如 5x5)
+    
+    # 使用SHA256哈希作为随机种子，确保确定性
+    hash_object = hashlib.sha256(seed_string.encode('utf-8'))
+    hash_hex = hash_object.hexdigest()
+    
+    # 将哈希值转换为整数，作为随机数生成器的种子
+    random.seed(int(hash_hex, 16))
+    
+    # 创建一个空白的48x48 RGBA图像
+    img = Image.new('RGBA', (size, size), (255, 255, 255, 0)) # 透明背景
+    draw = ImageDraw.Draw(img)
+    
+    # 随机生成头像的主颜色 (饱和度较高，亮度适中)
+    hue = random.randint(0, 360)
+    saturation = random.randint(70, 100) # 高饱和度
+    lightness = random.randint(40, 60)   # 适中亮度
+    
+    # 将HSL转换为RGB
+    def hsl_to_rgb(h, s, l):
+        h /= 360
+        s /= 100
+        l /= 100
+        
+        if s == 0:
+            return (int(l * 255), int(l * 255), int(l * 255), 255)
+        
+        def hue_to_rgb(p, q, t):
+            if t < 0: t += 1
+            if t > 1: t -= 1
+            if t < 1/6: return p + (q - p) * 6 * t
+            if t < 1/2: return q
+            if t < 2/3: return p + (q - p) * (2/3 - t) * 6
+            return p
+        
+        q = l * (1 + s) if l < 0.5 else l + s - l * s
+        p = 2 * l - q
+        
+        r = hue_to_rgb(p, q, h + 1/3)
+        g = hue_to_rgb(p, q, h)
+        b = hue_to_rgb(p, q, h - 1/3)
+        
+        return (int(r * 255), int(g * 255), int(b * 255), 255)
+        
+    main_color = hsl_to_rgb(hue, saturation, lightness)
+    
+    # 生成像素网格
+    # 只需生成一半的网格，然后对称复制
+    pixels = [[0 for _ in range(pixel_grid_size)] for _ in range(pixel_grid_size)]
+    
+    for y in range(pixel_grid_size):
+        for x in range((pixel_grid_size + 1) // 2): # 只生成左半部分或中间列
+            if random.random() > 0.5: # 50% 的几率填充像素
+                pixels[y][x] = 1 # 填充
+                pixels[y][pixel_grid_size - 1 - x] = 1 # 对称填充
+    
+    # 计算每个内部像素在最终图像中的大小
+    pixel_width = size // pixel_grid_size
+    pixel_height = size // pixel_grid_size
+    
+    # 绘制像素
+    for y in range(pixel_grid_size):
+        for x in range(pixel_grid_size):
+            if pixels[y][x] == 1:
+                draw.rectangle(
+                    [x * pixel_width, y * pixel_height, (x + 1) * pixel_width, (y + 1) * pixel_height],
+                    fill=main_color
+                )
+    
+    # 将图像转换为字节流
+    from io import BytesIO
+    byte_io = BytesIO()
+    img.save(byte_io, format='PNG')
+    return byte_io.getvalue()
 
 def run_scheduler():
     """在循环中运行调度器，直到设置停止事件。"""

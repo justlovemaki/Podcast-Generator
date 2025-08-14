@@ -156,6 +156,39 @@ def merge_audio_files():
             print(f"Error removing file list {file_list_path}: {e}") # This should not stop the process
         print("Cleaned up temporary files.")
 
+def get_audio_duration(filepath: str) -> Optional[float]:
+    """
+    Uses ffprobe to get the duration of an audio file in seconds.
+    Returns None if duration cannot be determined.
+    """
+    try:
+        # Check if ffprobe is available
+        subprocess.run(["ffprobe", "-version"], check=True, capture_output=True, text=True)
+    except FileNotFoundError:
+        print("Error: ffprobe is not installed or not in your PATH. Please install FFmpeg (which includes ffprobe) to get audio duration.")
+        return None
+
+    try:
+        command = [
+            "ffprobe",
+            "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            filepath
+        ]
+        result = subprocess.run(command, check=True, capture_output=True, text=True)
+        duration = float(result.stdout.strip())
+        return duration
+    except subprocess.CalledProcessError as e:
+        print(f"Error calling ffprobe for {filepath}: {e.stderr}")
+        return None
+    except ValueError:
+        print(f"Could not parse duration from ffprobe output for {filepath}.")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred while getting audio duration for {filepath}: {e}")
+        return None
+
 def _parse_arguments():
     """Parses command-line arguments."""
     parser = argparse.ArgumentParser(description="Generate podcast script and audio using OpenAI and local TTS.")
@@ -163,6 +196,8 @@ def _parse_arguments():
     parser.add_argument("--base-url", default="https://api.openai.com/v1", help="OpenAI API base URL (default: https://api.openai.com/v1).")
     parser.add_argument("--model", default="gpt-3.5-turbo", help="OpenAI model to use (default: gpt-3.5-turbo).")
     parser.add_argument("--threads", type=int, default=1, help="Number of threads to use for audio generation (default: 1).")
+    parser.add_argument("--output-language", type=str, default="Chinese", help="Language for the podcast overview and script (default: Chinese).")
+    parser.add_argument("--usetime", type=str, default=None, help="Specific time to be mentioned in the podcast script, e.g., '今天', '昨天'.")
     return parser.parse_args()
 
 def _load_configuration():
@@ -227,7 +262,7 @@ def _extract_custom_content(input_prompt_content):
             input_prompt_content = input_prompt_content[end_index + len(custom_end_tag):].strip()
     return custom_content, input_prompt_content
 
-def _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_content):
+def _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_content, usetime: Optional[str] = None, output_language: Optional[str] = None):
     """Prepares the podcast script prompts with speaker info and placeholders."""
     pod_users = config_data.get("podUsers", [])
     voices = config_data.get("voices", [])
@@ -235,21 +270,36 @@ def _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_cont
 
     original_podscript_prompt = original_podscript_prompt.replace("{{numSpeakers}}", str(len(pod_users)))
     original_podscript_prompt = original_podscript_prompt.replace("{{turnPattern}}", turn_pattern)
+    original_podscript_prompt = original_podscript_prompt.replace("{{usetime}}", usetime if usetime is not None else "5-6 minutes")
+    original_podscript_prompt = original_podscript_prompt.replace("{{outlang}}", output_language if output_language is not None else "Make sure the input language is set as the output language")
 
     speaker_id_info = generate_speaker_id_text(pod_users, voices)
-    podscript_prompt = speaker_id_info + "\n\n" + original_podscript_prompt + "\n\n" + custom_content
+    podscript_prompt = speaker_id_info  + "\n\n" + custom_content + "\n\n" + original_podscript_prompt
     return podscript_prompt, pod_users, voices, turn_pattern # Return voices for potential future use or consistency
 
-def _generate_overview_content(api_key, base_url, model, overview_prompt, input_prompt):
-    """Generates overview content using OpenAI CLI."""
-    print("\nGenerating overview with OpenAI CLI...")
+def _generate_overview_content(api_key, base_url, model, overview_prompt, input_prompt, output_language: Optional[str] = None) -> Tuple[str, str, str]:
+    """Generates overview content using OpenAI CLI, and extracts title and tags."""
+    print(f"\nGenerating overview with OpenAI CLI (Output Language: {output_language})...")
     try:
-        openai_client_overview = OpenAICli(api_key=api_key, base_url=base_url, model=model, system_message=overview_prompt)
+        # Replace the placeholder with the actual output language
+        formatted_overview_prompt = overview_prompt.replace("{{outlang}}", output_language if output_language is not None else "Make sure the input language is set as the output language")
+        
+        openai_client_overview = OpenAICli(api_key=api_key, base_url=base_url, model=model, system_message=formatted_overview_prompt)
         overview_response_generator = openai_client_overview.chat_completion(messages=[{"role": "user", "content": input_prompt}])
         overview_content = "".join([chunk.choices[0].delta.content for chunk in overview_response_generator if chunk.choices and chunk.choices[0].delta.content])
+        
         print("Generated Overview:")
         print(overview_content[:100])
-        return overview_content
+
+        # Extract title (first line) and tags (second line)
+        lines = overview_content.strip().split('\n')
+        title = lines[0].strip() if len(lines) > 0 else ""
+        tags = lines[1].strip() if len(lines) > 1 else ""
+
+        print(f"Extracted Title: {title}")
+        print(f"Extracted Tags: {tags}")
+        
+        return overview_content, title, tags
     except Exception as e:
         raise RuntimeError(f"Error generating overview: {e}")
 
@@ -476,15 +526,15 @@ def generate_podcast_audio():
     
     input_prompt_content, overview_prompt, original_podscript_prompt = _read_prompt_files()
     custom_content, input_prompt = _extract_custom_content(input_prompt_content)
-    podscript_prompt, pod_users, voices, turn_pattern = _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_content)
+    podscript_prompt, pod_users, voices, turn_pattern = _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_content, args.usetime, args.output_language)
 
     print(f"\nInput Prompt (input.txt):\n{input_prompt[:100]}...")
     print(f"\nOverview Prompt (prompt-overview.txt):\n{overview_prompt[:100]}...")
     print(f"\nPodscript Prompt (prompt-podscript.txt):\n{podscript_prompt[:1000]}...")
 
-    overview_content = _generate_overview_content(api_key, base_url, model, overview_prompt, input_prompt)
+    overview_content, title, tags = _generate_overview_content(api_key, base_url, model, overview_prompt, input_prompt, args.output_language)
     podcast_script = _generate_podcast_script(api_key, base_url, model, podscript_prompt, overview_content)
-    
+
     tts_adapter = _initialize_tts_adapter(config_data) # 初始化 TTS 适配器
 
     audio_files = _generate_all_audio_files(podcast_script, config_data, tts_adapter, args.threads)
@@ -509,6 +559,7 @@ def generate_podcast_audio_api(args, config_path: str, input_txt_content: str, t
         threads (int): Number of threads for audio generation.
         config_path (str): Path to the configuration JSON file.
         input_txt_content (str): Content of the input prompt.
+        output_language (str): Language for the podcast overview and script (default: Chinese).
 
     Returns:
         str: The path to the generated audio file.
@@ -521,13 +572,15 @@ def generate_podcast_audio_api(args, config_path: str, input_txt_content: str, t
     final_api_key, final_base_url, final_model = _prepare_openai_settings(args, config_data)
     input_prompt, overview_prompt, original_podscript_prompt = _read_prompt_files()
     custom_content, input_prompt = _extract_custom_content(input_txt_content)
-    podscript_prompt, pod_users, voices, turn_pattern = _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_content)
+    # Assuming `output_language` is passed directly to the function
+    podscript_prompt, pod_users, voices, turn_pattern = _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_content, args.usetime, args.output_language)
+
 
     print(f"\nInput Prompt (from provided content):\n{input_prompt[:100]}...")
     print(f"\nOverview Prompt (prompt-overview.txt):\n{overview_prompt[:100]}...")
     print(f"\nPodscript Prompt (prompt-podscript.txt):\n{podscript_prompt[:1000]}...")
 
-    overview_content = _generate_overview_content(final_api_key, final_base_url, final_model, overview_prompt, input_prompt)
+    overview_content, title, tags = _generate_overview_content(final_api_key, final_base_url, final_model, overview_prompt, input_prompt, args.output_language)
     podcast_script = _generate_podcast_script(final_api_key, final_base_url, final_model, podscript_prompt, overview_content)
     
     tts_adapter = _initialize_tts_adapter(config_data, tts_providers_config_content) # 初始化 TTS 适配器
@@ -536,11 +589,22 @@ def generate_podcast_audio_api(args, config_path: str, input_txt_content: str, t
     _create_ffmpeg_file_list(audio_files)
     
     output_audio_filepath = merge_audio_files()
+    
+    audio_duration_seconds = get_audio_duration(os.path.join(output_dir, output_audio_filepath))
+    formatted_duration = "00:00"
+    if audio_duration_seconds is not None:
+        minutes = int(audio_duration_seconds // 60)
+        seconds = int(audio_duration_seconds % 60)
+        formatted_duration = f"{minutes:02}:{seconds:02}"
+
     task_results = {
         "output_audio_filepath": output_audio_filepath,
         "overview_content": overview_content,
         "podcast_script": podcast_script,
         "podUsers": podUsers,
+        "audio_duration": formatted_duration,
+        "title": title,
+        "tags": tags,
     }
     return task_results
 

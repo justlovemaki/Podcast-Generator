@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 品牌色彩变量 */
+    --brand-purple: #A076F9;
+    --brand-purple-hover: #8b5cf6;
+    --brand-pink: #E893CF;
+    --radius: 0.5rem;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+    overflow-x: hidden; /* 防止水平滚动条 */
+  }
+  
+  body {
+    @apply bg-white text-black font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* 自定义滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400;
+  }
+  
+  /* 音频播放器样式 */
+  audio::-webkit-media-controls-panel {
+    background-color: white;
+  }
+  
+  /* 渐变背景工具类 */
+  .gradient-brand {
+    background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-pink) 100%);
+  }
+  
+  /* 文本渐变 */
+  .text-gradient-brand {
+    background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* 卡片悬浮效果 */
+  .card-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .card-hover:hover {
+    @apply transform -translate-y-1 shadow-large;
+  }
+  
+  /* 文本截断工具类 */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* 隐藏滚动条 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* 毛玻璃效果 */
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+  
+  .backdrop-blur {
+    backdrop-filter: blur(8px);
+  }
+}
+
+@layer components {
+  /* 按钮样式 */
+  .btn-primary {
+    @apply bg-black text-white px-6 py-3 rounded-full font-medium transition-all duration-200 hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-black border border-neutral-200 px-6 py-3 rounded-full font-medium transition-all duration-200 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-neutral-200 focus:ring-offset-2;
+  }
+  
+  /* 输入框样式 */
+  .input-primary {
+    @apply w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200;
+  }
+  
+  /* 导航项样式 */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-600 hover:text-black hover:bg-neutral-50 transition-all duration-200;
+  }
+  
+  .nav-item.active {
+    @apply bg-white text-black shadow-soft;
+  }
+
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl; /* Adjust max-width as needed */
+  }
+}
+
+/* 响应式断点优化 */
+@media (max-width: 768px) {
+  /* No specific rules here anymore, as .container is handled by Tailwind */
+}
+
+/* 深色模式支持（预留） */
+@media (prefers-color-scheme: dark) {
+  /* 深色模式样式将在未来版本中添加 */
+}
