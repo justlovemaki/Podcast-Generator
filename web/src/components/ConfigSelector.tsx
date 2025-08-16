@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Settings, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { getItem } from '@/lib/storage';
-import type { TTSConfig } from '@/types';
+import { Check } from 'lucide-react';
+import { usePreventDuplicateCall } from '@/hooks/useApiCall';
+import type { TTSConfig, Voice } from '@/types';
+import { getTTSProviders } from '@/lib/config';
+const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
 interface ConfigFile {
   name: string;
@@ -13,7 +14,7 @@ interface ConfigFile {
 }
 
 interface ConfigSelectorProps {
-  onConfigChange?: (config: TTSConfig, name: string) => void; // 添加 name 参数
+  onConfigChange?: (config: TTSConfig, name: string, voices: Voice[]) => void; // 添加 name 和 voices 参数
   className?: string;
 }
 
@@ -24,16 +25,16 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
   const [configFiles, setConfigFiles] = useState<ConfigFile[]>([]);
   const [selectedConfig, setSelectedConfig] = useState<string>('');
   const [currentConfig, setCurrentConfig] = useState<TTSConfig | null>(null);
+  const [voices, setVoices] = useState<Voice[]>([]); // 新增 voices 状态
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { executeOnce } = usePreventDuplicateCall();
 
   // 检查TTS配置是否已设置
-  const isTTSConfigured = (configName: string): boolean => {
-    const settings = getItem<any>('podcast-settings');
+  const isTTSConfigured = (configName: string, settings: any): boolean => {
     if (!settings) return false;
     
     const configKey = configName.replace('.json', '').split('-')[0];
-    // console.log('configKey', configKey);
     
     switch (configKey) {
       case 'index':
@@ -53,16 +54,23 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
     }
   };
 
-  // 加载配置文件列表
+  // 加载配置文件列表 - 使用防重复调用机制
   const loadConfigFiles = async () => {
-    try {
+    const result = await executeOnce(async () => {
       const response = await fetch('/api/config');
-      const result = await response.json();
-      
+      return response.json();
+    });
+
+    if (!result) {
+      return; // 如果是重复调用，直接返回
+    }
+
+    try {
       if (result.success && Array.isArray(result.data)) {
         // 过滤出已配置的TTS选项
-        const availableConfigs = result.data.filter((config: ConfigFile) => 
-          isTTSConfigured(config.name)
+        const settings = await getTTSProviders();
+        const availableConfigs = result.data.filter((config: ConfigFile) =>
+          isTTSConfigured(config.name, settings)
         );
         
         setConfigFiles(availableConfigs);
@@ -74,24 +82,26 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
           // 如果没有可用配置，清空当前选择
           setSelectedConfig('');
           setCurrentConfig(null);
-          onConfigChange?.(null as any, '');
+          onConfigChange?.(null as any, '', []); // 传递空数组作为 voices
         }
       } else {
         console.error('Invalid config files data:', result);
         setConfigFiles([]);
       }
     } catch (error) {
-      console.error('Failed to load config files:', error);
+      console.error('Failed to process config files:', error);
       setConfigFiles([]);
     }
   };
 
   useEffect(() => {
     loadConfigFiles();
-  }, []);
+  }, [executeOnce]); // 添加 executeOnce 到依赖项
 
   // 监听localStorage变化，重新加载配置
   useEffect(() => {
+    if (!enableTTSConfigPage) return;
+
     const handleStorageChange = () => {
       loadConfigFiles();
     };
@@ -104,13 +114,13 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('settingsUpdated', handleStorageChange);
     };
-  }, [selectedConfig]);
+  }, [selectedConfig, executeOnce]);
 
   // 加载特定配置文件
   const loadConfig = async (configFile: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/config', {
+      const configResponse = await fetch('/api/config', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,13 +128,17 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
         body: JSON.stringify({ configFile }),
       });
 
-      const result = await response.json();
-      if (result.success) {
-        setCurrentConfig(result.data);
-        onConfigChange?.(result.data, configFile); // 传递 configFile 作为 name
+      const configResult = await configResponse.json();
+
+      let fetchedVoices: Voice[] = [];
+      if (configResult.success) {
+        fetchedVoices = configResult.data.voices;
+        setVoices(fetchedVoices); // 更新 voices 状态
+        setCurrentConfig(configResult.data);
+        onConfigChange?.(configResult.data, configFile, fetchedVoices); // 传递 fetchedVoices
       }
     } catch (error) {
-      console.error('Failed to load config:', error);
+      console.error('Failed to load config or voices:', error);
     } finally {
       setIsLoading(false);
     }

@@ -1,22 +1,29 @@
 'use client';
 
-import React from 'react';
-import { 
-  Home, 
-  Library, 
-  Compass, 
-  DollarSign, 
-  Coins, 
+import React, { useState, useEffect } from 'react'; // 导入 useState 和 useEffect 钩子
+import {
+  Home,
+  Library,
+  Compass,
+  DollarSign,
+  Coins,
   Settings,
   Twitter,
   MessageCircle,
   Mail,
   Cloud,
   Smartphone,
-  PanelLeftClose,
-  PanelLeftOpen
+PanelLeftClose,
+  PanelLeftOpen,
+  LogIn, // 导入 LogIn 图标用于登录按钮
+  LogOut, // 导入 LogOut 图标用于注销按钮
+  User2 // 导入 User2 图标用于默认头像
 } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react'; // 导入 useSession 和 signOut 钩子
 import { cn } from '@/lib/utils';
+import LoginModal from './LoginModal'; // 导入 LoginModal 组件
+
+const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
 interface SidebarProps {
   currentView: string;
@@ -40,8 +47,26 @@ const Sidebar: React.FC<SidebarProps> = ({
   collapsed = false,
   onToggleCollapse,
   mobileOpen = false, // 解构移动端侧边栏状态属性
-  credits // 解构 credits 属性
+credits // 解构 credits 属性
 }) => {
+  const [showLoginModal, setShowLoginModal] = useState(false); // 控制登录模态框的显示状态
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // 控制注销确认模态框的显示状态
+  const { data: session } = useSession(); // 获取用户会话数据
+
+  useEffect(() => {
+    if (session?.expires) {
+      const expirationTime = new Date(session.expires).getTime();
+      const currentTime = new Date().getTime();
+
+      if (currentTime > expirationTime) {
+        console.log('Session expired, logging out...');
+        signOut(); // 会话过期，执行注销
+      }
+    }
+  }, [session]); // 监听 session 变化
+
+  console.log('session', session);
+
   const mainNavItems: NavItem[] = [
     { id: 'home', label: '首页', icon: Home },
     // 隐藏资料库和探索
@@ -53,8 +78,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     // 隐藏定价和积分
     // { id: 'pricing', label: '定价', icon: DollarSign },
     // { id: 'credits', label: '积分', icon: Coins, badge: credits.toString() }, // 动态设置 badge
-    { id: 'settings', label: 'TTS设置', icon: Settings },
+    ...(enableTTSConfigPage ? [{ id: 'settings', label: 'TTS设置', icon: Settings }] : [])
   ];
+
 
   const socialLinks = [
     { icon: Twitter, href: '#', label: 'Twitter' },
@@ -151,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* 底部区域 */}
       <div className={cn("p-6", collapsed && "px-2")}>
         {/* 底部导航 */}
-        <nav className="space-y-2 mb-6">
+        <nav className="space-y-2 mb-2">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
@@ -215,7 +241,107 @@ const Sidebar: React.FC<SidebarProps> = ({
             })}
           </div>
         </div>
+
+        {/* 用户认证区域 */}
+        <div className={cn("mt-2", "flex", "justify-center")}>
+          {session?.user ? (
+            // 用户已登录
+            <div className={cn(
+              "flex items-center transition-all duration-200",
+              collapsed ? "flex-col" : "flex-row py-2 pr-2 gap-1", // 调整：collapsed时移除gap，展开时添加gap
+            )}>
+              {/* 用户头像 - 添加点击事件 */}
+              <button
+                onClick={() => {
+                  if (!collapsed) { // 只有在展开状态下点击头像才弹出确认
+                    setShowLogoutConfirm(true);
+                  } else { // 折叠状态下，点击头像可以考虑不做任何事或做其他提示
+                    // 可以在这里添加其他逻辑，例如提示“展开侧边栏以注销”
+                  }
+                }}
+                className={cn(
+                  "flex items-center justify-center rounded-full overflow-hidden cursor-pointer",
+                  collapsed ? "w-8 h-8" : "w-10 h-10",
+                  !collapsed && "hover:opacity-80 transition-opacity" // 展开时添加悬停效果
+                )}
+                title={collapsed ? (session.user.name || session.user.email || '用户') : "点击头像注销"}
+              >
+                {session.user.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={session.user.image}
+                    alt="User Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
+                    <User2 className="w-5 h-5 text-neutral-500" />
+                  </div>
+                )}
+              </button>
+
+              {/* 用户名 */}
+              <div className={cn(
+                "overflow-hidden transition-all duration-500 ease-in-out",
+                collapsed ? "hidden" : "w-auto flex-grow ml-3" // 收缩时添加 hidden class，不占用空间
+              )}>
+                <span className={cn(
+                  "whitespace-nowrap transition-all duration-500 ease-in-out transform-gpu",
+                  collapsed ? "opacity-0 scale-x-0" : "opacity-100 scale-x-100 text-neutral-800 font-medium" // 收缩时文字也隐藏
+                )}>
+                  {session.user.name || session.user.email || '用户'}
+                </span>
+              </div>
+            </div>
+          ) : (
+            // 用户未登录
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className={cn(
+                "flex items-center rounded-lg transition-all duration-200",
+                collapsed ? "justify-center w-8 h-8 px-0 text-neutral-600 hover:text-black hover:bg-neutral-50" : "justify-center w-[95%] mx-auto py-2 bg-black text-white hover:opacity-80"
+              )}
+              title={collapsed ? "登录" : undefined}
+            >
+              <LogIn className="w-5 h-5 flex-shrink-0" />
+              <div className={cn(
+                "overflow-hidden transition-all duration-500 ease-in-out",
+                collapsed ? "w-0 ml-0" : "w-auto ml-3"
+              )}>
+                <span className={cn(
+                  "text-sm whitespace-nowrap transition-all duration-500 ease-in-out transform-gpu",
+                  collapsed ? "opacity-0 scale-x-0" : "opacity-100 scale-x-100"
+                )}>登录</span>
+              </div>
+            </button>
+          )}
+        </div>
+        {/* 注销确认模态框 */}
+        {showLogoutConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-xl text-center">
+              <p className="mb-4 text-lg font-semibold">确定要注销吗？</p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="px-4 py-2 rounded-lg bg-neutral-200 text-neutral-800 hover:bg-neutral-300 transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={() => signOut()}
+                  className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+                >
+                  注销
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* 登录模态框 */}
+      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </div>
   );
 };

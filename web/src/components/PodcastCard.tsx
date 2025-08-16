@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Play, Clock, Eye, User, Heart, MoreHorizontal } from 'lucide-react';
+import { Play, Pause, Clock, Eye, User, Heart, MoreHorizontal } from 'lucide-react';
 import { cn, formatTime, formatRelativeTime } from '@/lib/utils';
 import type { PodcastItem } from '@/types';
 
@@ -11,16 +11,22 @@ interface PodcastCardProps {
   onPlay?: (podcast: PodcastItem) => void;
   className?: string;
   variant?: 'default' | 'compact';
+  currentPodcast?: PodcastItem | null;
+  isPlaying?: boolean;
 }
 
-const PodcastCard: React.FC<PodcastCardProps> = ({ 
-  podcast, 
+const PodcastCard: React.FC<PodcastCardProps> = ({
+  podcast,
   onPlay,
   className,
-  variant = 'default'
+  variant = 'default',
+  currentPodcast,
+  isPlaying,
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  const isCurrentlyPlaying = currentPodcast?.id === podcast.id && isPlaying;
 
   const handlePlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -42,15 +48,15 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   if (variant === 'compact') {
     return (
       <div className={cn(
-        "group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-large hover:-translate-y-1 cursor-pointer w-full max-w-[320px] h-24",
+        "group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-large hover:-translate-y-1 cursor-pointer w-full max-w-[320px] h-24 relative", // Added relative
         "sm:max-w-[350px] sm:h-28",
         "md:max-w-[320px] md:h-24",
         "lg:max-w-[350px] lg:h-28",
         className
       )}>
-        <div className="flex gap-4 p-4 h-full">
+        <div className="flex items-center gap-4 p-4 h-full">
           {/* 缩略图 */}
-          <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-brand-purple to-brand-pink flex-shrink-0">
+          <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-brand-purple to-brand-pink">
             {podcast.thumbnail ? (
               <Image
                 src={podcast.thumbnail}
@@ -71,31 +77,43 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
                 onClick={handlePlayClick}
                 className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transform scale-90 hover:scale-100 transition-all duration-200"
               >
-                <Play className="w-3 h-3 text-black ml-0.5" />
+                {isCurrentlyPlaying ? (
+                  <Pause className="w-3 h-3 text-black" />
+                ) : (
+                  <Play className="w-3 h-3 text-black ml-0.5" />
+                )}
               </button>
             </div>
           </div>
 
           {/* 内容 */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-black text-base mb-1 truncate">
+            <h3 className="font-semibold text-black text-base mb-1 line-clamp-2 leading-tight">
               {podcast.title}
             </h3>
-            <p className="text-sm text-neutral-600 mb-2 truncate">
-              {podcast.author.name}
+            <p className="text-sm text-neutral-600 mb-2 line-clamp-1">
+              {podcast.description}
             </p>
             <div className="flex items-center gap-3 text-xs text-neutral-500">
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {formatTime(podcast.duration)}
               </span>
-              <span className="flex items-center gap-1">
+              {/* <span className="flex items-center gap-1">
                 <Eye className="w-3 h-3" />
                 {podcast.playCount.toLocaleString()}
-              </span>
+              </span> */}
             </div>
           </div>
         </div>
+        {/* 遮罩层 */}
+        {(podcast.status === 'pending' || podcast.status === 'running') && (
+          <div className="absolute inset-0 bg-black/100 z-10 flex flex-col items-center justify-center text-white text-lg font-semibold p-4 text-center">
+            <p className="mb-2">
+              {podcast.status === 'pending' ? '播客生成排队中...' : '播客生成中...'}
+            </p>
+          </div>
+        )}
       </div>
     );
   }
@@ -105,7 +123,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   return (
     <div
       className={cn(
-        "group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-large hover:-translate-y-1 cursor-pointer w-full max-w-sm",
+        "group bg-white border border-neutral-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-large hover:-translate-y-1 cursor-pointer w-full max-w-sm relative", // Added relative
         "sm:max-w-md",
         "md:max-w-lg",
         "lg:max-w-xl",
@@ -138,7 +156,11 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
             onClick={handlePlayClick}
             className="w-14 h-14 bg-white/95 hover:bg-white rounded-full flex items-center justify-center transform scale-90 hover:scale-100 transition-all duration-300 shadow-medium"
           >
-            <Play className="w-6 h-6 text-black ml-0.5" />
+            {isCurrentlyPlaying ? (
+              <Pause className="w-6 h-6 text-black" />
+            ) : (
+              <Play className="w-6 h-6 text-black ml-0.5" />
+            )}
           </button>
         </div>
 
@@ -151,8 +173,8 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
             onClick={handleLikeClick}
             className={cn(
               "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm",
-              isLiked 
-                ? "bg-red-500 text-white" 
+              isLiked
+                ? "bg-red-500 text-white"
                 : "bg-white/90 hover:bg-white text-neutral-600 hover:text-red-500"
             )}
           >
@@ -206,10 +228,10 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
 
         {/* 元数据 */}
         <div className="flex items-center gap-4 text-sm text-neutral-500 mb-4">
-          <div className="flex items-center gap-1.5">
+          {/* <div className="flex items-center gap-1.5">
             <Eye className="w-4 h-4" />
             <span>{podcast.playCount.toLocaleString()}</span>
-          </div>
+          </div> */}
           <div className="w-1 h-1 bg-neutral-300 rounded-full"></div>
           <span>{formatRelativeTime(podcast.createdAt)}</span>
         </div>

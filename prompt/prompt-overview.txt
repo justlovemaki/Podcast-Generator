@@ -1,6 +1,6 @@
 <Additional Customizations>
     - {{outlang}}
-    - Based on the key content of the document, without using content from titles or subtitles, create a document summary of around 150 characters. Then, based on the summary's content, generate a title and place it on the first line of the output.
+    - Create a summary of approximately 150 characters based on the core content of the document, without using the title or subtitle. Then, generate a title of approximately 15-20 characters based on the summary, such as "The Four Mirrors of Human Nature: See Through Selfishness and Admiration for Strength, and Live More Transparently." Place this title on the first line of the output.
     - Generate tags based on the document's content, without using the content from titles or subtitles, separated by the # symbol. Generate 3-5 tags. The tags should not be summative; they should be excerpted from words within the document and placed on the second line of the output.
 </Additional Customizations>
 

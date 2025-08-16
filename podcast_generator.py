@@ -112,8 +112,11 @@ def generate_speaker_id_text(pod_users, voices_list):
     return "。".join(speaker_info) + "。"
 
 def merge_audio_files():
-    output_audio_filename = f"podcast_{int(time.time())}.wav"
-    output_audio_filepath = "/".join([output_dir, output_audio_filename])
+    timestamp = int(time.time())
+    output_audio_filename_wav = f"podcast_{timestamp}.wav"
+    output_audio_filepath_wav = os.path.join(output_dir, output_audio_filename_wav)
+    output_audio_filename_mp3 = f"podcast_{timestamp}.mp3"
+    output_audio_filepath_mp3 = os.path.join(output_dir, output_audio_filename_mp3)
 
     # Use ffmpeg to concatenate audio files
     # Check if ffmpeg is available
@@ -122,7 +125,7 @@ def merge_audio_files():
     except FileNotFoundError:
         raise RuntimeError("FFmpeg is not installed or not in your PATH. Please install FFmpeg to merge audio files. You can download FFmpeg from: https://ffmpeg.org/download.html")
 
-    print(f"\nMerging audio files into {output_audio_filename}...")
+    print(f"\nMerging audio files into {output_audio_filename_wav}...")
     try:
         command = [
             "ffmpeg",
@@ -132,18 +135,34 @@ def merge_audio_files():
             "-acodec", "pcm_s16le",
             "-ar", "44100",
             "-ac", "2",
-            output_audio_filename
+            output_audio_filename_wav # Output to WAV first
         ]
         # Execute ffmpeg from the output_dir to correctly resolve file paths in file_list.txt
         process = subprocess.run(command, check=True, cwd=output_dir, capture_output=True, text=True)
-        print(f"Audio files merged successfully into {output_audio_filepath}!")
+        print(f"Audio files merged successfully into {output_audio_filepath_wav}!")
         print("FFmpeg stdout:\n", process.stdout)
         print("FFmpeg stderr:\n", process.stderr)
-        return output_audio_filename
+
+        # Convert WAV to MP3
+        print(f"Converting {output_audio_filename_wav} to {output_audio_filename_mp3} (high quality)...")
+        mp3_command = [
+            "ffmpeg",
+            "-i", output_audio_filename_wav,
+            "-vn", # No video
+            "-b:a", "192k", # Audio bitrate to 192kbps for high quality
+            "-acodec", "libmp3lame", # Use libmp3lame for MP3 encoding
+            output_audio_filename_mp3
+        ]
+        mp3_process = subprocess.run(mp3_command, check=True, cwd=output_dir, capture_output=True, text=True)
+        print(f"Conversion to MP3 successful! Output: {output_audio_filepath_mp3}")
+        print("FFmpeg MP3 stdout:\n", mp3_process.stdout)
+        print("FFmpeg MP3 stderr:\n", mp3_process.stderr)
+        
+        return output_audio_filename_mp3 # Return the MP3 filename
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Error merging audio files with FFmpeg: {e.stderr}")
+        raise RuntimeError(f"Error merging or converting audio files with FFmpeg: {e.stderr}")
     finally:
-        # Clean up temporary audio files and the file list
+        # Clean up temporary audio files, the file list, and the intermediate WAV file
         for item in os.listdir(output_dir):
             if item.startswith("temp_audio"):
                 try:
@@ -154,6 +173,12 @@ def merge_audio_files():
             os.remove(file_list_path)
         except OSError as e:
             print(f"Error removing file list {file_list_path}: {e}") # This should not stop the process
+        try:
+            if os.path.exists(output_audio_filepath_wav):
+                os.remove(output_audio_filepath_wav)
+                print(f"Cleaned up intermediate WAV file: {output_audio_filename_wav}")
+        except OSError as e:
+            print(f"Error removing intermediate WAV file {output_audio_filepath_wav}: {e}")
         print("Cleaned up temporary files.")
 
 def get_audio_duration(filepath: str) -> Optional[float]:
@@ -574,7 +599,6 @@ def generate_podcast_audio_api(args, config_path: str, input_txt_content: str, t
     custom_content, input_prompt = _extract_custom_content(input_txt_content)
     # Assuming `output_language` is passed directly to the function
     podscript_prompt, pod_users, voices, turn_pattern = _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_content, args.usetime, args.output_language)
-
 
     print(f"\nInput Prompt (from provided content):\n{input_prompt[:100]}...")
     print(f"\nOverview Prompt (prompt-overview.txt):\n{overview_prompt[:100]}...")

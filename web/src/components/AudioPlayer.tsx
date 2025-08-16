@@ -20,25 +20,32 @@ import type { AudioPlayerState, PodcastItem } from '@/types';
 
 interface AudioPlayerProps {
   podcast: PodcastItem;
+  isPlaying: boolean;
+  onPlayPause: () => void;
+  onEnded: () => void;
   className?: string;
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({
   podcast,
-  className
+  isPlaying,
+  onPlayPause,
+  onEnded,
+  className,
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   
-  const [playerState, setPlayerState] = useState<AudioPlayerState>({
-    isPlaying: false,
+  const [playerState, setPlayerState] = useState<Omit<AudioPlayerState, 'isPlaying'>>({
     currentTime: 0,
     duration: 0,
     volume: 1,
-    playbackRate: 1,
+    playbackRate: 1, // 将 playbackRate 设回 playerState
   });
+  const [currentPlaybackRate, setCurrentPlaybackRate] = useState<number>(1); // 保持独立倍速状态用于UI显示
+  const playbackRates = [0.5, 1, 1.25, 1.5, 2.0]; // 定义可选倍速
   
-  const [isCollapsed, setIsCollapsed] = useState(false); // 用户控制的折叠状态
+  const [isCollapsed, setIsCollapsed] = useState(true); // 用户控制的折叠状态
   const isSmallScreen = useIsSmallScreen(); // 获取小屏幕状态
 
   // 定义一个“生效的”折叠状态，它会服从 isSmallScreen 的约束
@@ -46,6 +53,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   
   const [isLoading, setIsLoading] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+  const [canPlay, setCanPlay] = useState(false); // 新增状态，表示音频是否可以播放
+
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -61,11 +70,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     };
 
     const handleEnded = () => {
-      setPlayerState(prev => ({ ...prev, isPlaying: false, currentTime: 0 }));
+      onEnded();
+      setPlayerState(prev => ({ ...prev, currentTime: 0 }));
     };
 
-    const handleLoadStart = () => setIsLoading(true);
-    const handleCanPlay = () => setIsLoading(false);
+    const handleLoadStart = () => { setIsLoading(true); setCanPlay(false); }; // 加载开始时重置 canPlay
+    const handleCanPlay = () => { setIsLoading(false); setCanPlay(true); }; // 可以播放时设置 canPlay
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -73,9 +83,18 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     audio.addEventListener('loadstart', handleLoadStart);
     audio.addEventListener('canplay', handleCanPlay);
 
-    // 自动播放音频（仅在用户交互后有效）
-    if (playerState.isPlaying) {
-      audio.play().catch(e => console.error("Audio play failed:", e));
+    // 播放状态由外部 props 控制，并且只有当音频可以播放时才尝试播放
+    if (isPlaying && canPlay) {
+      audio.play().catch(e => {
+        // 只有当不是 AbortError 时才输出错误
+        if (e.name !== 'AbortError') {
+          console.error("Audio play failed:", e);
+        }
+      });
+      // 确保音频播放速度与状态一致
+      audio.playbackRate = currentPlaybackRate;
+    } else {
+      audio.pause();
     }
 
 
@@ -86,42 +105,32 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       audio.removeEventListener('loadstart', handleLoadStart);
       audio.removeEventListener('canplay', handleCanPlay);
     };
-  }, []);
+  }, [isPlaying, podcast.audioUrl, canPlay]); // 将 canPlay 加入依赖，确保状态变化时触发播放
 
-  // 当播客URL变化时，重置并加载新音频
+  // 当播客URL变化时，更新audio元素的src
   useEffect(() => {
     const audio = audioRef.current;
-    if (audio && podcast.audioUrl) {
-      // 停止当前播放
-      audio.pause(); 
-      // 重新设置src，这将触发loadedmetadata事件
+    if (audio && podcast.audioUrl && audio.src !== podcast.audioUrl) { // 避免不必要的SRC更新
       audio.src = podcast.audioUrl;
-      audio.load();
-      // 重置播放器状态
-      setPlayerState({
-        isPlaying: false,
+      audio.load(); // 强制重新加载媒体
+      setPlayerState(prev => ({ // 重置时间，保持音量
+        ...prev,
         currentTime: 0,
-        duration: 0,
-        volume: audio.volume,
-        playbackRate: 1,
-      });
-      setIsLoading(true); // 开始加载，显示加载状态
-      setIsMuted(audio.muted || audio.volume === 0);
+        duration: 0, // 重置duration直到loadedmetadata
+        playbackRate: 1, // 重置playerState中的playbackRate
+      }));
+      setCurrentPlaybackRate(1); // 重置倍速状态
+      if (audio) {
+        audio.playbackRate = 1; // 确保实际音频倍速也重置
+      }
+      setIsLoading(true);
+      setCanPlay(false); // 重新加载时重置 canPlay
     }
   }, [podcast.audioUrl]);
 
 
   const togglePlayPause = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (playerState.isPlaying) {
-      audio.pause();
-    } else {
-      audio.play().catch(e => console.error("Audio play failed:", e)); // 捕获播放错误
-    }
-    
-    setPlayerState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+    onPlayPause();
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -217,11 +226,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           onClick={togglePlayPause}
           disabled={isLoading}
           className="w-8 h-8 flex-shrink-0 bg-black text-white rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors disabled:opacity-50"
-          title={playerState.isPlaying ? "暂停" : "播放"}
+          title={isPlaying ? "暂停" : "播放"}
         >
           {isLoading ? (
             <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : playerState.isPlaying ? (
+          ) : isPlaying ? (
             <Pause className="w-3 h-3" />
           ) : (
             <Play className="w-3 h-3 ml-0.5" />
@@ -241,14 +250,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             )}
           </div>
           
-          {!effectiveIsCollapsed && ( // 根据 effectiveIsCollapsed 隐藏可视化器
+          {/* {!effectiveIsCollapsed && ( // 根据 effectiveIsCollapsed 隐藏可视化器
             <AudioVisualizer
               audioElement={audioRef.current}
-              isPlaying={playerState.isPlaying}
+              isPlaying={isPlaying}
               className="flex-grow min-w-[50px] max-w-[150px]" // 响应式宽度，适应扁平布局
               height={20} // 更扁平的高度
             />
-          )}
+          )} */}
         </div>
       </div>
 
@@ -291,6 +300,23 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               title="前进10秒"
             >
               <SkipForward className="w-4 h-4" />
+            </button>
+
+            {/* 倍速控制按钮 */}
+            <button
+              onClick={() => {
+                const currentIndex = playbackRates.indexOf(currentPlaybackRate);
+                const nextIndex = (currentIndex + 1) % playbackRates.length;
+                const newRate = playbackRates[nextIndex];
+                setCurrentPlaybackRate(newRate);
+                if (audioRef.current) {
+                  audioRef.current.playbackRate = newRate;
+                }
+              }}
+              className="p-1 text-neutral-600 hover:text-black transition-colors min-w-[40px] text-xs"
+              title={`当前倍速: ${currentPlaybackRate.toFixed(2)}x`}
+            >
+              {currentPlaybackRate.toFixed(2)}x
             </button>
 
             {/* 音量控制 */}

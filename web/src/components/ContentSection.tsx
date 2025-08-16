@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, RotateCw } from 'lucide-react';
 import PodcastCard from './PodcastCard';
 import type { PodcastItem } from '@/types';
 
@@ -11,9 +11,13 @@ interface ContentSectionProps {
   items: PodcastItem[];
   onViewAll?: () => void;
   onPlayPodcast?: (podcast: PodcastItem) => void;
+  currentPodcast?: PodcastItem | null;
+  isPlaying?: boolean;
   loading?: boolean;
   variant?: 'default' | 'compact';
   layout?: 'grid' | 'horizontal';
+  showRefreshButton?: boolean; // 新增刷新按钮属性
+  onRefresh?: () => void; // 新增刷新回调函数
 }
 
 const ContentSection: React.FC<ContentSectionProps> = ({
@@ -22,9 +26,13 @@ const ContentSection: React.FC<ContentSectionProps> = ({
   items,
   onViewAll,
   onPlayPodcast,
+  currentPodcast,
+  isPlaying,
   loading = false,
   variant = 'default',
-  layout = 'grid'
+  layout = 'grid',
+  showRefreshButton, // 直接解构
+  onRefresh // 直接解构
 }) => {
   if (loading) {
     return (
@@ -89,7 +97,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-1 sm:py-8">
       {/* 标题栏 */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
         <div className="flex flex-col">
@@ -98,15 +106,27 @@ const ContentSection: React.FC<ContentSectionProps> = ({
             <p className="text-sm text-neutral-600 mt-1">{subtitle}</p>
           )}
         </div>
-        {onViewAll && (
-          <button
-            onClick={onViewAll}
-            className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm group whitespace-nowrap"
-          >
-            查看全部
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        )}
+        <div className="flex items-center gap-2"> {/* 包装刷新按钮和查看全部按钮 */}
+          {showRefreshButton && onRefresh && (
+            <button
+              onClick={onRefresh}
+              className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm group whitespace-nowrap"
+              title="刷新"
+            >
+              <RotateCw className="w-4 h-4" />
+              刷新
+            </button>
+          )}
+          {onViewAll && (
+            <button
+              onClick={onViewAll}
+              className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm group whitespace-nowrap"
+            >
+              查看全部
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 内容布局 */}
@@ -130,6 +150,8 @@ const ContentSection: React.FC<ContentSectionProps> = ({
               podcast={item}
               onPlay={onPlayPodcast}
               variant={variant}
+              currentPodcast={currentPodcast}
+              isPlaying={isPlaying}
             />
           ))}
         </div>

@@ -3,6 +3,15 @@ import path from 'path';
 import fs from 'fs/promises';
 import type { TTSConfig } from '@/types';
 
+const TTS_PROVIDER_ORDER = [
+  'edge-tts',
+  'doubao-tts',
+  'minimax',
+  'fish-audio',
+  'gemini-tts',
+  'index-tts',
+];
+
 // 获取配置文件列表
 export async function GET() {
   try {
@@ -16,6 +25,21 @@ export async function GET() {
         displayName: file.replace('.json', ''),
         path: file,
       }));
+
+    // 根据预定义顺序排序
+    configFiles.sort((a, b) => {
+      const aName = a.name.replace('.json', '');
+      const bName = b.name.replace('.json', '');
+      const aIndex = TTS_PROVIDER_ORDER.indexOf(aName);
+      const bIndex = TTS_PROVIDER_ORDER.indexOf(bName);
+      
+      // 未知提供商排在已知提供商之后，并保持其相对顺序
+      if (aIndex === -1 && bIndex === -1) return 0;
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      
+      return aIndex - bIndex;
+    });
 
     return NextResponse.json({
       success: true,

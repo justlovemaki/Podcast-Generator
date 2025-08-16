@@ -173,7 +173,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
                 }}
               >
                 <div className="flex items-center space-x-3">
-                  {voice.sample_audio_url && voice.sample_audio_url.length > 0 && voice.sample_audio_url !== 'undefined' && (
+                  {voice.audio && voice.audio.length > 0 && voice.audio !== 'undefined' && (
                     <div className="flex-shrink-0">
                       <button
                         onClick={(e) => {
@@ -201,7 +201,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
                           if (el) audioRefs.current.set(voice.code!, el);
                           else audioRefs.current.delete(voice.code!);
                         }}
-                        src={voice.sample_audio_url}
+                        src={voice.audio}
                         onEnded={() => setPlayingVoiceId(null)}
                         onPause={() => setPlayingVoiceId(null)}
                         preload="none"

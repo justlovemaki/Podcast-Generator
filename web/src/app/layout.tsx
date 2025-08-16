@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import AuthProviders from '@/components/AuthProviders';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -39,13 +40,15 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <div id="root" className="min-h-screen bg-white">
-          {children}
-        </div>
-        {/* Toast容器 */}
-        <div id="toast-root" />
-        {/* Modal容器 */}
-        <div id="modal-root" />
+        <AuthProviders>
+          <div id="root" className="min-h-screen bg-white">
+            {children}
+          </div>
+          {/* Toast容器 */}
+          <div id="toast-root" />
+          {/* Modal容器 */}
+          <div id="modal-root" />
+        </AuthProviders>
       </body>
     </html>
   );

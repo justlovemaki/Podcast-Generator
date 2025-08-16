@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
     os.makedirs(output_dir, exist_ok=True)
     
     # 安排清理任务每30分钟运行一次
-    schedule.every(30).minutes.do(clean_output_directory)
+    schedule.every(time_after).minutes.do(clean_output_directory)
     
     # 在单独的线程中启动调度器
     scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
@@ -74,6 +74,7 @@ stop_scheduler_event = threading.Event()
 
 # 全局配置
 output_dir = "output"
+time_after = 30
 
 # 定义一个函数来清理输出目录
 def clean_output_directory():
@@ -81,7 +82,10 @@ def clean_output_directory():
     print(f"Cleaning output directory: {output_dir}")
     now = time.time()
     # 30 minutes in seconds
-    threshold = 30 * 60 
+    threshold = time_after * 60 
+
+    # 存储需要删除的 task_results 中的任务，避免在迭代时修改
+    tasks_to_remove_from_memory = []
 
     for filename in os.listdir(output_dir):
         file_path = os.path.join(output_dir, filename)
@@ -91,12 +95,33 @@ def clean_output_directory():
                 if now - os.path.getmtime(file_path) > threshold:
                     os.unlink(file_path)
                     print(f"Deleted old file: {file_path}")
+
+                    # 遍历 task_results，查找匹配的文件名
+                    # 注意：task_info["output_audio_filepath"] 存储的是文件名，不是完整路径
+                    for auth_id, tasks_by_auth in task_results.items():
+                        # 使用 list() 创建副本，以安全地在循环中删除元素
+                        for task_id, task_info in list(tasks_by_auth.items()):
+                            # 检查文件名是否匹配，并且任务状态为 COMPLETED
+                            # 只有 COMPLETED 的任务才应该被清理，PENDING/RUNNING 任务的输出文件可能还未生成或正在使用
+                            task_output_filename = task_info.get("output_audio_filepath")
+                            if task_output_filename == filename and task_info["status"] == TaskStatus.COMPLETED:
+                                tasks_to_remove_from_memory.append((auth_id, task_id))
             elif os.path.isdir(file_path):
                 # 可选地，递归删除旧的子目录或其中的文件
                 # 目前只跳过目录
                 pass
         except Exception as e:
             print(f"Failed to delete {file_path}. Reason: {e}")
+
+    # 在文件删除循环结束后统一处理 task_results 的删除
+    for auth_id, task_id in tasks_to_remove_from_memory:
+        if auth_id in task_results and task_id in task_results[auth_id]:
+            del task_results[auth_id][task_id]
+            print(f"Removed task {task_id} for auth_id {auth_id} from task_results.")
+            # 如果该 auth_id 下没有其他任务，则删除 auth_id 的整个条目
+            if not task_results[auth_id]:
+                del task_results[auth_id]
+                print(f"Removed empty auth_id {auth_id} from task_results.")
 
 # 内存中存储任务结果
 # {task_id: {"auth_id": auth_id, "status": TaskStatus, "result": any, "timestamp": float}}
@@ -337,7 +362,7 @@ async def get_voices(tts_provider: str = "tts"):
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             config_data = json.load(f)
-
+            
         voices = config_data.get("voices")
         if voices is None:
             raise HTTPException(status_code=404, detail=f"No 'voices' key found in config for {tts_provider}.")

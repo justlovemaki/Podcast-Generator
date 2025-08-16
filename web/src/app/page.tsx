@@ -5,94 +5,106 @@ import Sidebar from '@/components/Sidebar';
 import PodcastCreator from '@/components/PodcastCreator';
 import ContentSection from '@/components/ContentSection';
 import AudioPlayer from '@/components/AudioPlayer';
-import ProgressModal from '@/components/ProgressModal';
 import SettingsForm from '@/components/SettingsForm';
 import { ToastContainer, useToast } from '@/components/Toast';
-import type { PodcastGenerationRequest, PodcastItem, UIState, PodcastGenerationResponse } from '@/types';
+import { usePreventDuplicateCall } from '@/hooks/useApiCall';
+import { trackedFetch } from '@/utils/apiCallTracker';
+import type { PodcastGenerationRequest, PodcastItem, UIState, PodcastGenerationResponse, SettingsFormData } from '@/types';
+import { getTTSProviders } from '@/lib/config';
+import { useSession, signOut } from 'next-auth/react'; // 导入 useSession 和 signOut
+import LoginModal from '@/components/LoginModal'; // 导入 LoginModal
 
-// 模拟数据
-const mockPodcasts: PodcastItem[] = [
-  {
-    id: '1',
-    title: 'AI技术的未来发展趋势',
-    description: '探讨人工智能在各个领域的应用前景',
-    thumbnail: '',
-    author: {
-      name: 'AI研究员',
-      avatar: '',
-    },
-    duration: 1200, // 20分钟
-    playCount: 15420,
-    createdAt: '2024-01-15T10:00:00Z',
-    audioUrl: '/api/audio/sample1.mp3',
-    tags: ['AI', '技术', '未来'],
-  },
-  {
-    id: '2',
-    title: '创业路上的那些坑',
-    description: '分享创业过程中的经验教训',
-    thumbnail: '',
-    author: {
-      name: '创业导师',
-      avatar: '',
-    },
-    duration: 900, // 15分钟
-    playCount: 8750,
-    createdAt: '2024-01-14T15:30:00Z',
-    audioUrl: '/api/audio/sample2.mp3',
-    tags: ['创业', '经验', '商业'],
-  },
-  {
-    id: '3',
-    title: '健康生活方式指南',
-    description: '如何在忙碌的生活中保持健康',
-    thumbnail: '',
-    author: {
-      name: '健康专家',
-      avatar: '',
-    },
-    duration: 1800, // 30分钟
-    playCount: 12300,
-    createdAt: '2024-01-13T09:15:00Z',
-    audioUrl: '/api/audio/sample3.mp3',
-    tags: ['健康', '生活', '养生'],
-  },
-];
+const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
 export default function HomePage() {
   const { toasts, success, error, warning, info, removeToast } = useToast();
-  
+  const { executeOnce } = usePreventDuplicateCall();
+
   const [uiState, setUIState] = useState<UIState>({
-    sidebarCollapsed: false,
+    sidebarCollapsed: true,
     currentView: 'home',
     theme: 'light',
   });
-  
+
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // 控制登录模态框的显示
+
   const [isGenerating, setIsGenerating] = useState(false);
-  const [libraryPodcasts, setLibraryPodcasts] = useState<PodcastItem[]>(mockPodcasts);
-  const [explorePodcasts, setExplorePodcasts] = useState<PodcastItem[]>(mockPodcasts);
-  const [credits, setCredits] = useState(0); // 新增积分状态
-  
+  const [libraryPodcasts, setLibraryPodcasts] = useState<PodcastItem[]>([]);
+  const [explorePodcasts, setExplorePodcasts] = useState<PodcastItem[]>([]);
+  const [credits, setCredits] = useState(0); // 积分状态
+  const [settings, setSettings] = useState<SettingsFormData | null>(null); // 加载设置的状态
+
   // 音频播放器状态
   const [currentPodcast, setCurrentPodcast] = useState<PodcastItem | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   
-  // 进度模态框状态
-  const [progressModal, setProgressModal] = useState<{
-    isOpen: boolean;
-    taskId: string | null;
-  }>({
-    isOpen: false,
-    taskId: null,
-  });
 
-  // 模拟从后端获取积分数据
+  // 模拟从后端获取积分数据和初始化数据加载
   useEffect(() => {
     // 实际应用中，这里会发起API请求获取用户积分
     // 例如：fetch('/api/user/credits').then(res => res.json()).then(data => setCredits(data.credits));
     setCredits(100000); // 模拟初始积分100
+    
+    // 首次加载时获取播客列表
+    fetchRecentPodcasts();
+    
+    // 设置定时器每20秒刷新一次
+    const interval = setInterval(() => {
+      fetchRecentPodcasts();
+    }, 20000);
+
+    // 清理定时器
+    return () => clearInterval(interval);
+  }, []); // 空依赖数组，只在组件挂载时执行一次
+
+  // 加载设置
+  useEffect(() => {
+    const loadSettings = async () => {
+      const savedSettings = await getTTSProviders();
+      if (savedSettings) {
+        // 确保从 localStorage 加载的设置中，所有预期的字符串字段都为字符串
+        const normalizedSettings: SettingsFormData = {
+          apikey: savedSettings.apikey || '',
+          model: savedSettings.model || '',
+          baseurl: savedSettings.baseurl || '',
+          index: {
+            api_url: savedSettings.index?.api_url || '',
+          },
+          edge: {
+            api_url: savedSettings.edge?.api_url || '',
+          },
+          doubao: {
+            'X-Api-App-Id': savedSettings.doubao?.['X-Api-App-Id'] || '',
+            'X-Api-Access-Key': savedSettings.doubao?.['X-Api-Access-Key'] || '',
+          },
+          fish: {
+            api_key: savedSettings.fish?.api_key || '',
+          },
+          minimax: {
+            group_id: savedSettings.minimax?.group_id || '',
+            api_key: savedSettings.minimax?.api_key || '',
+          },
+          gemini: {
+            api_key: savedSettings.gemini?.api_key || '',
+          },
+        };
+        setSettings(normalizedSettings);
+      }
+    };
+
+    loadSettings(); // 页面加载时加载一次
+    if(enableTTSConfigPage){
+      window.addEventListener('settingsUpdated', loadSettings as EventListener); // 监听设置更新事件
+    }
+    // 清理事件监听器
+    return () => {
+      if(enableTTSConfigPage){
+        window.removeEventListener('settingsUpdated', loadSettings as EventListener);
+      }
+    };
   }, []);
+
 
   const handleViewChange = (view: string) => {
     setUIState(prev => ({ ...prev, currentView: view as UIState['currentView'] }));
@@ -110,8 +122,15 @@ export default function HomePage() {
     setIsGenerating(true);
     
     try {
-      info('开始生成播客', '正在处理您的请求...');
+      // info('开始生成播客', '正在处理您的请求...');
       
+      if (!settings || !settings.apikey || !settings.model) {
+        error('配置错误', 'API Key 或模型未设置，请前往设置页填写。');
+        setIsGenerating(false);
+        return;
+      }
+
+      // 直接发送JSON格式的请求体
       const response = await fetch('/api/generate-podcast', {
         method: 'POST',
         headers: {
@@ -121,20 +140,26 @@ export default function HomePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate podcast');
+        if(response.status === 401) { 
+          throw new Error('生成播客失败，请检查API Key是否正确');
+        }
+        if(response.status === 409) {
+          throw new Error(`生成播客失败，有正在进行中的任务 (状态码: ${response.status})`);
+        }
+        throw new Error(`生成播客失败，请检查后端服务或配置 (状态码: ${response.status})`);
       }
 
-      const result = await response.json();
+      const apiResponse: { success: boolean; data?: PodcastGenerationResponse; error?: string } = await response.json();
       
-      if (result.success) {
-        success('任务已创建', '播客生成任务已启动，请查看进度');
-        // 显示进度模态框
-        setProgressModal({
-          isOpen: true,
-          taskId: result.data.id,
-        });
+      if (!apiResponse.success) {
+        throw new Error(apiResponse.error || '生成播客失败');
+      }
+
+      if (apiResponse.data && apiResponse.data.id) {
+        success('任务已创建', `播客生成任务已启动，任务ID: ${apiResponse.data.id}`);
+        await fetchRecentPodcasts(); // 刷新最近生成列表
       } else {
-        throw new Error(result.error || 'Generation failed');
+        throw new Error('生成任务失败，未返回任务ID');
       }
       
     } catch (err) {
@@ -146,37 +171,78 @@ export default function HomePage() {
   };
 
   const handlePlayPodcast = (podcast: PodcastItem) => {
-    setCurrentPodcast(podcast);
+    if (currentPodcast?.id === podcast.id) {
+      setIsPlaying(prev => !prev);
+    } else {
+      setCurrentPodcast(podcast);
+      // 强制设置为 true，确保在切换播客时立即播放
+      setIsPlaying(true);
+    }
   };
 
-  const handleProgressComplete = (result: PodcastGenerationResponse) => {
-    // 生成完成后，可以将新的播客添加到库中
-    if (result.audioUrl) {
-      success('播客生成完成！', '您的播客已成功生成并添加到资料库');
-      
-      const newPodcast: PodcastItem = {
-        id: result.id,
-        title: result.script?.title || '新生成的播客',
-        description: '使用AI生成的播客内容',
-        thumbnail: '',
-        author: {
-          name: '我',
-          avatar: '',
+  const handleTogglePlayPause = () => {
+    setIsPlaying(prev => !prev);
+  };
+
+
+  // 获取最近播客列表 - 使用防重复调用机制
+  const fetchRecentPodcasts = async () => {
+    const result = await executeOnce(async () => {
+      const response = await trackedFetch('/api/podcast-status', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        duration: result.script?.totalDuration || 0,
-        playCount: 0,
-        createdAt: result.createdAt,
-        audioUrl: result.audioUrl,
-        tags: ['AI生成'],
-      };
-      
-      setLibraryPodcasts(prev => [newPodcast, ...prev]);
-      
-      // 自动播放新生成的播客
-      setCurrentPodcast(newPodcast);
-    } else {
-      warning('生成完成但无音频', '播客生成过程完成，但未找到音频文件');
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch podcast status');
+      }
+      return response.json();
+    });
+
+    if (!result) {
+      return; // 如果是重复调用，直接返回
     }
+
+    try {
+      const apiResponse: { success: boolean; tasks?: { message: string; tasks: PodcastGenerationResponse[]; }; error?: string } = result;
+      if (apiResponse.success && apiResponse.tasks && Array.isArray(apiResponse.tasks)) { // 检查 tasks 属性是否存在且为数组
+        const newPodcasts: PodcastItem[] = apiResponse.tasks.map((task: any) => ({ // 遍历 tasks 属性
+            id: task.task_id, // 使用 task_id
+            title: task.title ? task.title : task.status === 'failed' ? '播客生成失败，请重试' : ' ',
+            description: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()).join(', ') : task.status === 'failed' ? task.error || '待生成的播客标签' : '待生成的播客标签', 
+            thumbnail: task.avatar_base64 ? `data:image/png;base64,${task.avatar_base64}` : '',
+            author: {
+                name: '', 
+                avatar: '',
+            },
+            duration: parseDurationToSeconds(task.audio_duration || '00:00'),
+            playCount: 0,
+            createdAt: task.timestamp ? new Date(task.timestamp * 1000).toISOString() : new Date().toISOString(),
+            audioUrl: task.audioUrl ? task.audioUrl : '',
+            tags: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()) : task.status === 'failed' ? [task.error] : ['待生成的播客标签'],
+            status: task.status,
+        }));
+        // 直接倒序，确保最新生成的播客排在前面
+        const reversedPodcasts = newPodcasts.reverse();
+        setExplorePodcasts(reversedPodcasts);
+        // 如果有最新生成的播客，自动播放
+      }
+    } catch (err) {
+      console.error('Error processing podcast data:', err);
+      error('数据处理失败', err instanceof Error ? err.message : '无法处理播客列表数据');
+    }
+  };
+
+  // 辅助函数：解析时长字符串为秒数
+  const parseDurationToSeconds = (durationStr: string): number => {
+    const parts = durationStr.split(':');
+    if (parts.length === 2) {
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    } else if (parts.length === 3) { // 支持 HH:MM:SS 格式
+      return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+    }
+    return 0;
   };
 
   const renderMainContent = () => {
@@ -188,24 +254,30 @@ export default function HomePage() {
             <PodcastCreator
               onGenerate={handlePodcastGeneration}
               isGenerating={isGenerating}
-              credits={credits} // 将积分传递给PodcastCreator
+              credits={credits}
+              settings={settings} // 传递 settings
             />
-            
             
             {/* 最近生成 - 紧凑布局 */}
-            <ContentSection
-              title="最近生成"
-              subtitle="数据只保留30分钟，请尽快下载保存"
-              items={explorePodcasts}
-              onPlayPodcast={handlePlayPodcast}
-              variant="compact"
-              layout="grid"
-            />
+            {explorePodcasts.length > 0 && (
+              <ContentSection
+                title="最近生成"
+                subtitle="数据只保留30分钟，请尽快下载保存"
+                items={explorePodcasts}
+                onPlayPodcast={handlePlayPodcast}
+                currentPodcast={currentPodcast}
+                isPlaying={isPlaying}
+                variant="compact"
+                layout="grid"
+                showRefreshButton={true}
+                onRefresh={fetchRecentPodcasts}
+              />
+            )}
             
             {/* 推荐播客 - 水平滚动 */}
             {/* <ContentSection
               title="为你推荐"
-              items={[...libraryPodcasts, ...explorePodcasts].slice(0, 6)}
+              items={[...explorePodcasts].slice(0, 6)}
               onPlayPodcast={handlePlayPodcast}
               variant="default"
               layout="horizontal"
@@ -242,7 +314,7 @@ export default function HomePage() {
         mobileOpen={mobileSidebarOpen} // 传递移动端侧边栏状态
         credits={credits} // 将积分传递给Sidebar
       />
-      
+
       {/* 移动端菜单按钮 */}
       <button
         className="fixed top-4 left-4 z-30 p-2 bg-white border border-neutral-200 rounded-lg shadow-md md:hidden"
@@ -259,7 +331,7 @@ export default function HomePage() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
-      
+
       {/* 移动端侧边栏遮罩 */}
       {mobileSidebarOpen && (
         <div
@@ -267,12 +339,12 @@ export default function HomePage() {
           onClick={handleToggleMobileSidebar}
         ></div>
       )}
-      
+
       {/* 主内容区域 */}
       <main className={`flex-1 transition-all duration-300 ${
         uiState.sidebarCollapsed ? 'ml-16' : 'ml-64'
       } max-md:ml-0`}>
-        <div className="py-8 px-4 sm:px-6">
+        <div className="pb-8 pt-8 sm:pt-32 px-4 sm:px-6">
           {renderMainContent()}
         </div>
       </main>
@@ -281,15 +353,16 @@ export default function HomePage() {
       {currentPodcast && (
           <AudioPlayer
             podcast={currentPodcast}
+            isPlaying={isPlaying}
+            onPlayPause={handleTogglePlayPause}
+            onEnded={() => setIsPlaying(false)}
           />
       )}
 
-      {/* 进度模态框 */}
-      <ProgressModal
-        taskId={progressModal.taskId || ''}
-        isOpen={progressModal.isOpen}
-        onClose={() => setProgressModal({ isOpen: false, taskId: null })}
-        onComplete={handleProgressComplete}
+      {/* 登录模态框 */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
       />
 
       {/* Toast通知容器 */}
