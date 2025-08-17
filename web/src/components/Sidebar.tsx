@@ -1,28 +1,26 @@
 'use client';
 
-import React, { useState, useEffect } from 'react'; // 导入 useState 和 useEffect 钩子
+import React, { useState, useEffect, useRef } from 'react'; // 导入 useState, useEffect, 和 useRef 钩子
 import {
   Home,
-  Library,
-  Compass,
-  DollarSign,
-  Coins,
   Settings,
-  Twitter,
+  X,
   MessageCircle,
   Mail,
   Cloud,
   Smartphone,
 PanelLeftClose,
   PanelLeftOpen,
+  Coins,
   LogIn, // 导入 LogIn 图标用于登录按钮
-  LogOut, // 导入 LogOut 图标用于注销按钮
   User2 // 导入 User2 图标用于默认头像
 } from 'lucide-react';
-import { useSession, signOut } from 'next-auth/react'; // 导入 useSession 和 signOut 钩子
+import { signOut } from '@/lib/auth-client'; // 导入 signOut 函数
+import { useRouter } from 'next/navigation'; // 导入 useRouter 钩子
+import { getSessionData } from '@/lib/server-actions';
 import { cn } from '@/lib/utils';
 import LoginModal from './LoginModal'; // 导入 LoginModal 组件
-
+import type { PodcastItem } from '@/types';
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
 interface SidebarProps {
@@ -32,6 +30,8 @@ interface SidebarProps {
   onToggleCollapse?: () => void;
   mobileOpen?: boolean; // 添加移动端侧边栏状态属性
   credits: number; // 添加 credits 属性
+  onPodcastExplore: (podcasts: PodcastItem[]) => void; // 添加刷新播客函数
+  onCreditsChange: (newCredits: number) => void; // 添加 onCreditsChange 回调函数
 }
 
 interface NavItem {
@@ -46,26 +46,48 @@ const Sidebar: React.FC<SidebarProps> = ({
   onViewChange,
   collapsed = false,
   onToggleCollapse,
-  mobileOpen = false, // 解构移动端侧边栏状态属性
-credits // 解构 credits 属性
+  mobileOpen, // 解构移动端侧边栏状态属性
+  credits, // 解构 credits 属性
+  onPodcastExplore, // 解构刷新播客函数
+  onCreditsChange, // 解构 onCreditsChange 属性
 }) => {
   const [showLoginModal, setShowLoginModal] = useState(false); // 控制登录模态框的显示状态
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // 控制注销确认模态框的显示状态
-  const { data: session } = useSession(); // 获取用户会话数据
+  const [session, setSession] = useState<any>(null); // 使用 useState 管理 session
+  const didFetch = useRef(false); // 使用 useRef 确保 useEffect 只在组件挂载时执行一次
+  const router = useRouter(); // 初始化 useRouter 钩子
 
   useEffect(() => {
-    if (session?.expires) {
-      const expirationTime = new Date(session.expires).getTime();
+    if (!didFetch.current) {
+      didFetch.current = true; // 标记为已执行，避免在开发模式下重复执行
+      const fetchSession = async () => {
+        const { session: fetchedSession, user: fetchedUser } = await getSessionData();
+        setSession(fetchedSession);
+        console.log('session', fetchedSession); // 确保只在 session 数据获取并设置后打印
+      };
+      fetchSession();
+    }
+  }, []); // 空依赖数组表示只在组件挂载时执行一次
+  
+  useEffect(() => {
+    if (session?.expiresAt) {
+      const expirationTime = session.expiresAt.getTime();
       const currentTime = new Date().getTime();
 
       if (currentTime > expirationTime) {
         console.log('Session expired, logging out...');
-        signOut(); // 会话过期，执行注销
+        signOut({
+          fetchOptions: {
+            onSuccess: () => {
+              setSession(null); // 会话过期，注销成功后清空本地 session 状态
+              onCreditsChange(0); // 清空积分
+              router.push("/"); // 会话过期，执行注销并重定向到主页
+            },
+          },
+        });
       }
     }
-  }, [session]); // 监听 session 变化
-
-  console.log('session', session);
+  }, [session, router]); // 监听 session 变化和 router（因为 signOut 中使用了 router.push）
 
   const mainNavItems: NavItem[] = [
     { id: 'home', label: '首页', icon: Home },
@@ -77,13 +99,13 @@ credits // 解构 credits 属性
   const bottomNavItems: NavItem[] = [
     // 隐藏定价和积分
     // { id: 'pricing', label: '定价', icon: DollarSign },
-    // { id: 'credits', label: '积分', icon: Coins, badge: credits.toString() }, // 动态设置 badge
+    { id: 'credits', label: '积分', icon: Coins, badge: credits.toString() }, // 动态设置 badge
     ...(enableTTSConfigPage ? [{ id: 'settings', label: 'TTS设置', icon: Settings }] : [])
   ];
 
 
   const socialLinks = [
-    { icon: Twitter, href: '#', label: 'Twitter' },
+    { icon: X, href: '#', label: 'Twitter' },
     { icon: MessageCircle, href: '#', label: 'Discord' },
     { icon: Mail, href: '#', label: 'Email' },
     { icon: Cloud, href: '#', label: 'Cloud' },
@@ -185,7 +207,13 @@ credits // 解构 credits 属性
             return (
               <div key={item.id} className={cn(collapsed && "flex justify-center")}>
                 <button
-                  onClick={() => onViewChange(item.id)}
+                  onClick={() => {
+                    if (item.id === 'credits' && !session) {
+                      setShowLoginModal(true);
+                    } else {
+                      onViewChange(item.id);
+                    }
+                  }}
                   className={cn(
                     "flex items-center rounded-lg text-neutral-600 hover:text-black hover:bg-neutral-50 transition-all duration-200",
                     isActive && "bg-white text-black shadow-soft",
@@ -329,7 +357,19 @@ credits // 解构 credits 属性
                   取消
                 </button>
                 <button
-                  onClick={() => signOut()}
+                  onClick={() => {
+                    signOut({
+                      fetchOptions: {
+                        onSuccess: () => {
+                          setSession(null); // 注销成功后清空本地 session 状态
+                          onPodcastExplore([]); // 注销后清空播客卡片
+                          onCreditsChange(0); // 清空积分
+                          router.push("/"); // 注销成功后重定向到主页
+                        },
+                      },
+                    });
+                    setShowLogoutConfirm(false); // 关闭确认模态框
+                  }}
                   className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
                 >
                   注销

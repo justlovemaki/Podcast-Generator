@@ -2,7 +2,7 @@
 "use client"; // 标记为客户端组件，因为需要交互性
 
 import React, { FC, MouseEventHandler, useCallback, useRef } from "react";
-import { signIn } from "next-auth/react";
+import { signIn } from '@/lib/auth-client';
 import { createPortal } from "react-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline"; // 导入关闭图标
 import { Chrome, Github } from "lucide-react"; // 从 lucide-react 导入 Google 和 GitHub 图标
@@ -55,7 +55,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
         <div className="space-y-4">
           <button
-            onClick={() => signIn('google')}
+            onClick={() => signIn.social({ provider: "google" , newUserCallbackURL: "/api/newuser?provider=google"})}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <Chrome className="h-6 w-6" />
@@ -63,7 +63,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose }) => {
           </button>
 
           <button
-            onClick={() => signIn('github')}
+            onClick={() => signIn.social({ provider: "github" , newUserCallbackURL: "/api/newuser?provider=github" })}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <Github className="h-6 w-6" />

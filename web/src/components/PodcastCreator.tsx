@@ -19,7 +19,7 @@ import { setItem, getItem } from '@/lib/storage'; // 引入 localStorage 工具
 import type { PodcastGenerationRequest, TTSConfig, Voice, SettingsFormData } from '@/types';
 
 interface PodcastCreatorProps {
-  onGenerate: (request: PodcastGenerationRequest) => void;
+  onGenerate: (request: PodcastGenerationRequest) => Promise<void>; // 修改为返回 Promise<void>
   isGenerating?: boolean;
   credits: number;
   settings: SettingsFormData | null; // 新增 settings 属性
@@ -47,6 +47,18 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
    const [topic, setTopic] = useState('');
    const [customInstructions, setCustomInstructions] = useState('');
    const [selectedMode, setSelectedMode] = useState<'ai-podcast' | 'flowspeech'>('ai-podcast');
+
+   // 初始化时从 localStorage 加载 topic 和 customInstructions
+   useEffect(() => {
+     const cachedTopic = getItem<string>('podcast-topic');
+     if (cachedTopic) {
+       setTopic(cachedTopic);
+     }
+     const cachedCustomInstructions = getItem<string>('podcast-custom-instructions');
+     if (cachedCustomInstructions) {
+       setCustomInstructions(cachedCustomInstructions);
+     }
+   }, []);
    const [language, setLanguage] = useState(languageOptions[0].value);
    const [duration, setDuration] = useState(durationOptions[0].value);
    const [showVoicesModal, setShowVoicesModal] = useState(false); // 新增状态
@@ -60,9 +72,9 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
    const [selectedConfigName, setSelectedConfigName] = useState<string>(''); // 新增状态来存储配置文件的名称
    const fileInputRef = useRef<HTMLInputElement>(null);
 
-   const { toasts, error } = useToast(); // 使用 useToast hook
+   const { toasts, error } = useToast(); // 使用 useToast hook, 引入 success
 
-   const handleSubmit = () => {
+   const handleSubmit = async () => { // 修改为 async 函数
      if (!topic.trim()) {
          error("主题不能为空", "请输入播客主题。"); // 使用 toast.error
          return;
@@ -90,12 +102,21 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
         api_key: settings?.apikey,
         base_url: settings?.baseurl,
         model: settings?.model,
-        callback_url: "https://your-callback-url.com/podcast-status", // Assuming a fixed callback URL
+        callback_url: process.env.NEXT_PUBLIC_PODCAST_CALLBACK_URL || "https://your-callback-url.com/podcast-status", // 从环境变量获取
         usetime: duration,
         output_language: language,
     };
 
-    onGenerate(request);
+    try {
+        await onGenerate(request); // 等待 API 调用完成
+        // 清空 topic 和 customInstructions，并更新 localStorage
+        setTopic('');
+        setItem('podcast-topic', '');
+        setCustomInstructions('');
+        setItem('podcast-custom-instructions', '');
+    } catch (err) {
+        console.error("播客生成失败:", err);
+    }
 };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,7 +189,10 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
           <div className="p-6">
             <textarea
               value={topic}
-              onChange={(e) => setTopic(e.target.value)}
+              onChange={(e) => {
+                setTopic(e.target.value);
+                setItem('podcast-topic', e.target.value); // 实时保存到 localStorage
+              }}
               placeholder="输入文字、上传文件或粘贴链接..."
               className="w-full h-32 resize-none border-none outline-none text-lg placeholder-neutral-400"
               disabled={isGenerating}
@@ -179,7 +203,10 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
               <div className="mt-4 pt-4 border-t border-neutral-100">
                 <textarea
                   value={customInstructions}
-                  onChange={(e) => setCustomInstructions(e.target.value)}
+                  onChange={(e) => {
+                    setCustomInstructions(e.target.value);
+                    setItem('podcast-custom-instructions', e.target.value); // 实时保存到 localStorage
+                  }}
                   placeholder="添加自定义指令（可选）..."
                   className="w-full h-16 resize-none border-none outline-none text-sm placeholder-neutral-400"
                   disabled={isGenerating}
@@ -312,7 +339,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                 {isGenerating ? (
                   <>
                     <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
-                    <span className=" xs:inline">生成中...</span>
+                    <span className=" xs:inline">Biu!</span>
                   </>
                 ) : (
                   <>
@@ -356,6 +383,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
           }}
         />
       )}
+
       <ToastContainer toasts={toasts} onRemove={() => {}} /> {/* 添加 ToastContainer */}
     </div>
   );

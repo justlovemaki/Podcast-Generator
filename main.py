@@ -230,7 +230,7 @@ async def _generate_podcast_task(
                 "task_id": str(task_id),
                 "auth_id": auth_id,
                 "task_results": task_results[auth_id][task_id],
-                "timestamp": time.time(),
+                "timestamp": int(time.time()), # 确保发送整数秒级时间戳
             }
             
             MAX_RETRIES = 3 # 定义最大重试次数
@@ -239,7 +239,7 @@ async def _generate_podcast_task(
             for attempt in range(MAX_RETRIES + 1): # 尝试次数从0到MAX_RETRIES
                 try:
                     async with httpx.AsyncClient() as client:
-                        response = await client.post(callback_url, json=callback_data, timeout=30.0)
+                        response = await client.put(callback_url, json=callback_data, timeout=30.0)
                         response.raise_for_status() # 对 4xx/5xx 响应抛出异常
                         print(f"Callback successfully sent for task {task_id} on attempt {attempt + 1}. Status: {response.status_code}")
                         break # 成功发送，跳出循环

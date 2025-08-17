@@ -6,13 +6,14 @@ import PodcastCreator from '@/components/PodcastCreator';
 import ContentSection from '@/components/ContentSection';
 import AudioPlayer from '@/components/AudioPlayer';
 import SettingsForm from '@/components/SettingsForm';
+import PointsOverview from '@/components/PointsOverview'; // 导入 PointsOverview
 import { ToastContainer, useToast } from '@/components/Toast';
 import { usePreventDuplicateCall } from '@/hooks/useApiCall';
 import { trackedFetch } from '@/utils/apiCallTracker';
 import type { PodcastGenerationRequest, PodcastItem, UIState, PodcastGenerationResponse, SettingsFormData } from '@/types';
 import { getTTSProviders } from '@/lib/config';
-import { useSession, signOut } from 'next-auth/react'; // 导入 useSession 和 signOut
 import LoginModal from '@/components/LoginModal'; // 导入 LoginModal
+import { getSessionData } from '@/lib/server-actions';
 
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
@@ -33,6 +34,8 @@ export default function HomePage() {
   const [libraryPodcasts, setLibraryPodcasts] = useState<PodcastItem[]>([]);
   const [explorePodcasts, setExplorePodcasts] = useState<PodcastItem[]>([]);
   const [credits, setCredits] = useState(0); // 积分状态
+  const [pointHistory, setPointHistory] = useState<any[]>([]); // 积分历史
+  const [user, setUser] = useState<any>(null); // 用户信息
   const [settings, setSettings] = useState<SettingsFormData | null>(null); // 加载设置的状态
 
   // 音频播放器状态
@@ -40,22 +43,25 @@ export default function HomePage() {
   const [isPlaying, setIsPlaying] = useState(false);
   
 
-  // 模拟从后端获取积分数据和初始化数据加载
+  // 从后端获取积分数据和初始化数据加载
+  const initialized = React.useRef(false); // 使用 useRef 追踪是否已初始化
+
   useEffect(() => {
-    // 实际应用中，这里会发起API请求获取用户积分
-    // 例如：fetch('/api/user/credits').then(res => res.json()).then(data => setCredits(data.credits));
-    setCredits(100000); // 模拟初始积分100
-    
-    // 首次加载时获取播客列表
-    fetchRecentPodcasts();
+    // 确保只在组件首次挂载时执行一次
+    if (!initialized.current) {
+      initialized.current = true;
+
+      // 首次加载时获取播客列表
+      fetchRecentPodcasts();
+    }
     
     // 设置定时器每20秒刷新一次
-    const interval = setInterval(() => {
-      fetchRecentPodcasts();
-    }, 20000);
+    // const interval = setInterval(() => {
+    //   fetchRecentPodcasts();
+    // }, 20000);
 
-    // 清理定时器
-    return () => clearInterval(interval);
+    // // 清理定时器
+    // return () => clearInterval(interval);
   }, []); // 空依赖数组，只在组件挂载时执行一次
 
   // 加载设置
@@ -110,6 +116,10 @@ export default function HomePage() {
     setUIState(prev => ({ ...prev, currentView: view as UIState['currentView'] }));
   };
 
+  const handleCreditsChange = (newCredits: number) => {
+    setCredits(newCredits);
+  };
+
   const handleToggleSidebar = () => {
     setUIState(prev => ({ ...prev, sidebarCollapsed: !prev.sidebarCollapsed }));
   };
@@ -140,8 +150,12 @@ export default function HomePage() {
       });
 
       if (!response.ok) {
-        if(response.status === 401) { 
-          throw new Error('生成播客失败，请检查API Key是否正确');
+        if(response.status === 401) {
+          throw new Error('生成播客失败，请检查API Key是否正确，或登录状态。');
+        }
+        if(response.status === 403) {
+          setIsLoginModalOpen(true); // 显示登录模态框
+          throw new Error('生成播客失败，请登录后重试。');
         }
         if(response.status === 409) {
           throw new Error(`生成播客失败，有正在进行中的任务 (状态码: ${response.status})`);
@@ -165,6 +179,7 @@ export default function HomePage() {
     } catch (err) {
       console.error('Error generating podcast:', err);
       error('生成失败', err instanceof Error ? err.message : '未知错误');
+      throw new Error(err instanceof Error ? err.message : '未知错误');
     } finally {
       setIsGenerating(false);
     }
@@ -232,6 +247,51 @@ export default function HomePage() {
       console.error('Error processing podcast data:', err);
       error('数据处理失败', err instanceof Error ? err.message : '无法处理播客列表数据');
     }
+
+    const fetchCredits = async () => {
+        try {
+          const pointsResponse = await fetch('/api/points');
+          if (pointsResponse.ok) {
+            const data = await pointsResponse.json();
+            if (data.success) {
+              setCredits(data.points);
+            } else {
+              console.error('Failed to fetch credits:', data.error);
+              setCredits(0); // 获取失败则设置为0
+            }
+          } else {
+            console.error('Failed to fetch credits with status:', pointsResponse.status);
+            setCredits(0); // 获取失败则设置为0
+          }
+        } catch (error) {
+          console.error('Error fetching credits:', error);
+          setCredits(0); // 发生错误则设置为0
+        }
+
+        try {
+          const transactionsResponse = await fetch('/api/points/transactions');
+          if (transactionsResponse.ok) {
+            const data = await transactionsResponse.json();
+            if (data.success) {
+              setPointHistory(data.transactions);
+            } else {
+              console.error('Failed to fetch point transactions:', data.error);
+              setPointHistory([]);
+            }
+          } else {
+            console.error('Failed to fetch point transactions with status:', transactionsResponse.status);
+            setPointHistory([]);
+          }
+        } catch (error) {
+          console.error('Error fetching point transactions:', error);
+          setPointHistory([]);
+        }
+
+        const { session, user } = await getSessionData();
+        setUser(user); // 设置用户信息
+    };
+
+    fetchCredits(); // 调用获取积分函数
   };
 
   // 辅助函数：解析时长字符串为秒数
@@ -292,6 +352,15 @@ export default function HomePage() {
             onError={(message) => error('保存失败', message)}
           />
         );
+
+      case 'credits':
+        return (
+          <PointsOverview
+            totalPoints={credits}
+            user={user}
+            pointHistory={pointHistory}
+          />
+        );
         
       default:
         return (
@@ -313,6 +382,8 @@ export default function HomePage() {
         onToggleCollapse={handleToggleSidebar}
         mobileOpen={mobileSidebarOpen} // 传递移动端侧边栏状态
         credits={credits} // 将积分传递给Sidebar
+        onPodcastExplore={setExplorePodcasts} // 传递刷新播客函数
+        onCreditsChange={handleCreditsChange} // 传递积分更新函数
       />
 
       {/* 移动端菜单按钮 */}

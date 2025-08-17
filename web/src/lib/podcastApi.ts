@@ -6,13 +6,14 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_PODCAST_API_BASE_URL || 'http://192
 /**
  * 启动播客生成任务
  */
-export async function startPodcastGenerationTask(body: PodcastGenerationRequest): Promise<ApiResponse<PodcastGenerationResponse>> {
+export async function startPodcastGenerationTask(body: PodcastGenerationRequest, userId: string): Promise<ApiResponse<PodcastGenerationResponse>> {
+
   try {
     const response = await fetch(`${API_BASE_URL}/generate-podcast`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-Auth-Id': '7788414',
+        'X-Auth-Id': userId,
       },
       body: new URLSearchParams(Object.entries(body).map(([key, value]) => [key, String(value)])),
     });
@@ -37,13 +38,13 @@ export async function startPodcastGenerationTask(body: PodcastGenerationRequest)
 /**
  * 获取播客生成任务状态
  */
-export async function getPodcastStatus(): Promise<ApiResponse<PodcastStatusResponse>> {
+export async function getPodcastStatus(userId: string): Promise<ApiResponse<PodcastStatusResponse>> {
   try {
     const response = await fetch(`${API_BASE_URL}/podcast-status`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Auth-Id': '7788414',
+        'X-Auth-Id': userId,
       },
       cache: 'no-store', // 禁用客户端缓存
     });

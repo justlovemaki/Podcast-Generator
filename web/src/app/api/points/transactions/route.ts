@@ -1,0 +1,29 @@
+import { getUserPointsTransactions } from "@/lib/points";
+import { NextResponse, NextRequest } from "next/server";
+import { getSessionData } from "@/lib/server-actions";
+
+export async function GET(request: NextRequest) {
+  const session = await getSessionData();
+  if (!session || !session.user || !session.user.id) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const userId = session.user.id;
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const pageSize = parseInt(searchParams.get('pageSize') || '20', 10);
+
+    // 校验 page 和 pageSize 是否为有效数字
+    if (isNaN(page) || page < 1 || isNaN(pageSize) || pageSize < 1) {
+      return NextResponse.json({ success: false, error: "Invalid pagination parameters" }, { status: 400 });
+    }
+
+    const transactions = await getUserPointsTransactions(userId, page, pageSize);
+
+    return NextResponse.json({ success: true, transactions });
+  } catch (error) {
+    console.error("Error fetching user points transactions:", error);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+  }
+}
