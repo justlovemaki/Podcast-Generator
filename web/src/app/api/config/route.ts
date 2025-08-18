@@ -3,6 +3,27 @@ import path from 'path';
 import fs from 'fs/promises';
 import type { TTSConfig } from '@/types';
 
+// 缓存对象，存储响应数据和时间戳
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 30 * 60 * 1000; // 30 分钟
+
+function getCache(key: string) {
+  const entry = cache.get(key);
+  if (!entry) {
+    return null;
+  }
+  // 检查缓存是否过期
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    cache.delete(key); // 缓存过期，删除
+    return null;
+  }
+  return entry.data;
+}
+
+function setCache(key: string, data: any) {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
 const TTS_PROVIDER_ORDER = [
   'edge-tts',
   'doubao-tts',
@@ -14,6 +35,17 @@ const TTS_PROVIDER_ORDER = [
 
 // 获取配置文件列表
 export async function GET() {
+  const cacheKey = 'config_files_list';
+  const cachedData = getCache(cacheKey);
+
+  if (cachedData) {
+    console.log('Returning config files list from cache.');
+    return NextResponse.json({
+      success: true,
+      data: cachedData,
+    });
+  }
+
   try {
     const configDir = path.join(process.cwd(), '..', 'config');
     const files = await fs.readdir(configDir);
@@ -41,6 +73,8 @@ export async function GET() {
       return aIndex - bIndex;
     });
 
+    setCache(cacheKey, configFiles); // 存储到缓存
+
     return NextResponse.json({
       success: true,
       data: configFiles,
@@ -56,9 +90,19 @@ export async function GET() {
 
 // 获取特定配置文件内容
 export async function POST(request: NextRequest) {
+  const { configFile } = await request.json();
+  const cacheKey = `config_file_${configFile}`;
+  const cachedData = getCache(cacheKey);
+
+  if (cachedData) {
+    console.log(`Returning config file "${configFile}" from cache.`);
+    return NextResponse.json({
+      success: true,
+      data: cachedData,
+    });
+  }
+
   try {
-    const { configFile } = await request.json();
-    
     if (!configFile || !configFile.endsWith('.json')) {
       return NextResponse.json(
         { success: false, error: '无效的配置文件名' },
@@ -69,6 +113,8 @@ export async function POST(request: NextRequest) {
     const configPath = path.join(process.cwd(), '..', 'config', configFile);
     const configContent = await fs.readFile(configPath, 'utf-8');
     const config: TTSConfig = JSON.parse(configContent);
+
+    setCache(cacheKey, config); // 存储到缓存
 
     return NextResponse.json({
       success: true,

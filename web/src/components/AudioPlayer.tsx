@@ -17,6 +17,7 @@ import { cn, formatTime, downloadFile } from '@/lib/utils';
 import AudioVisualizer from './AudioVisualizer';
 import { useIsSmallScreen } from '@/hooks/useMediaQuery'; // 导入新的 Hook
 import type { AudioPlayerState, PodcastItem } from '@/types';
+import { useToast } from '@/components/Toast';
 
 interface AudioPlayerProps {
   podcast: PodcastItem;
@@ -35,7 +36,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  
+  const { success: toastSuccess } = useToast(); // 使用 useToast Hook
+
   const [playerState, setPlayerState] = useState<Omit<AudioPlayerState, 'isPlaying'>>({
     currentTime: 0,
     duration: 0,
@@ -185,21 +187,32 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   };
 
   const handleShare = async () => {
+    // 从 podcast.audioUrl 中提取文件名
+    const audioFileName = podcast.file_name;
+    if (!audioFileName) {
+      console.error("无法获取音频文件名进行分享。");
+      toastSuccess('分享失败：无法获取音频文件名。');
+      return;
+    }
+
+    // 构建分享链接：网站根目录 + podcast/路径 + 音频文件名
+    const shareUrl = `${window.location.origin}/podcast/${audioFileName}`;
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: podcast.title,
           text: podcast.description,
-          url: window.location.href,
+          url: shareUrl, // 使用构建的分享链接
         });
       } catch (err) {
         console.log('Share cancelled', err);
       }
     } else {
-      // 降级到复制链接
-      await navigator.clipboard.writeText(window.location.href);
-      // 这里可以显示一个toast提示
-      alert('链接已复制到剪贴板！'); // 简单替代Toast
+      // 降级到复制音频链接
+      await navigator.clipboard.writeText(shareUrl); // 使用构建的分享链接
+      // 使用Toast提示
+      toastSuccess('播放链接已复制到剪贴板！');
     }
   };
 

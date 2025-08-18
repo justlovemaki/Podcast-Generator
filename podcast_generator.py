@@ -112,10 +112,14 @@ def generate_speaker_id_text(pod_users, voices_list):
     return "。".join(speaker_info) + "。"
 
 def merge_audio_files():
+    # 生成一个唯一的UUID
+    unique_id = str(uuid.uuid4())
+    # 获取当前时间戳
     timestamp = int(time.time())
-    output_audio_filename_wav = f"podcast_{timestamp}.wav"
+    # 组合UUID和时间戳作为文件名，去掉 'podcast_' 前缀
+    output_audio_filename_wav = f"{unique_id}{timestamp}.wav"
     output_audio_filepath_wav = os.path.join(output_dir, output_audio_filename_wav)
-    output_audio_filename_mp3 = f"podcast_{timestamp}.mp3"
+    output_audio_filename_mp3 = f"{unique_id}{timestamp}.mp3"
     output_audio_filepath_mp3 = os.path.join(output_dir, output_audio_filename_mp3)
 
     # Use ffmpeg to concatenate audio files
@@ -221,7 +225,7 @@ def _parse_arguments():
     parser.add_argument("--base-url", default="https://api.openai.com/v1", help="OpenAI API base URL (default: https://api.openai.com/v1).")
     parser.add_argument("--model", default="gpt-3.5-turbo", help="OpenAI model to use (default: gpt-3.5-turbo).")
     parser.add_argument("--threads", type=int, default=1, help="Number of threads to use for audio generation (default: 1).")
-    parser.add_argument("--output-language", type=str, default="Chinese", help="Language for the podcast overview and script (default: Chinese).")
+    parser.add_argument("--output-language", type=str, default=None, help="Language for the podcast overview and script (default: Chinese).")
     parser.add_argument("--usetime", type=str, default=None, help="Specific time to be mentioned in the podcast script, e.g., '今天', '昨天'.")
     return parser.parse_args()
 

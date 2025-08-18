@@ -5,3 +5,4 @@ excalidraw.log
 config/tts_providers-local.json
 .claude
 .serena
+/node_modules

@@ -1,25 +1,77 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import PodcastCreator from '@/components/PodcastCreator';
 import ContentSection from '@/components/ContentSection';
 import AudioPlayer from '@/components/AudioPlayer';
 import SettingsForm from '@/components/SettingsForm';
 import PointsOverview from '@/components/PointsOverview'; // 导入 PointsOverview
+import LoginModal from '@/components/LoginModal'; // 导入 LoginModal
 import { ToastContainer, useToast } from '@/components/Toast';
 import { usePreventDuplicateCall } from '@/hooks/useApiCall';
 import { trackedFetch } from '@/utils/apiCallTracker';
 import type { PodcastGenerationRequest, PodcastItem, UIState, PodcastGenerationResponse, SettingsFormData } from '@/types';
 import { getTTSProviders } from '@/lib/config';
-import LoginModal from '@/components/LoginModal'; // 导入 LoginModal
 import { getSessionData } from '@/lib/server-actions';
 
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
+// 辅助函数：规范化设置数据
+const normalizeSettings = (savedSettings: any): SettingsFormData => {
+  return {
+    apikey: savedSettings.apikey || '',
+    model: savedSettings.model || '',
+    baseurl: savedSettings.baseurl || '',
+    index: {
+      api_url: savedSettings.index?.api_url || '',
+    },
+    edge: {
+      api_url: savedSettings.edge?.api_url || '',
+    },
+    doubao: {
+      'X-Api-App-Id': savedSettings.doubao?.['X-Api-App-Id'] || '',
+      'X-Api-Access-Key': savedSettings.doubao?.['X-Api-Access-Key'] || '',
+    },
+    fish: {
+      api_key: savedSettings.fish?.api_key || '',
+    },
+    minimax: {
+      group_id: savedSettings.minimax?.group_id || '',
+      api_key: savedSettings.minimax?.api_key || '',
+    },
+    gemini: {
+      api_key: savedSettings.gemini?.api_key || '',
+    },
+  };
+};
+
 export default function HomePage() {
   const { toasts, success, error, warning, info, removeToast } = useToast();
   const { executeOnce } = usePreventDuplicateCall();
+  const router = useRouter(); // Initialize useRouter
+
+  // 辅助函数：将 API 响应映射为 PodcastItem 数组
+  const mapApiResponseToPodcasts = (tasks: PodcastGenerationResponse[]): PodcastItem[] => {
+    return tasks.map((task: any) => ({
+      id: task.task_id,
+      title: task.title ? task.title : task.status === 'failed' ? '播客生成失败，请重试' : ' ',
+      description: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()).filter((tag: string) => !!tag).join(', ') : task.status === 'failed' ? task.error || '待生成的播客标签' : '待生成的播客标签',
+      thumbnail: task.avatar_base64 ? `data:image/png;base64,${task.avatar_base64}` : '',
+      author: {
+        name: '',
+        avatar: '',
+      },
+      audio_duration: task.audio_duration || '00:00',
+      playCount: 0,
+      createdAt: task.timestamp ? new Date(task.timestamp * 1000).toISOString() : new Date().toISOString(),
+      audioUrl: task.audioUrl ? task.audioUrl : '',
+      tags: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()).filter((tag: string) => !!tag) : task.status === 'failed' ? [task.error] : ['待生成的播客标签'],
+      status: task.status,
+      file_name: task.output_audio_filepath || '',
+    }));
+  };
 
   const [uiState, setUIState] = useState<UIState>({
     sidebarCollapsed: true,
@@ -41,7 +93,8 @@ export default function HomePage() {
   // 音频播放器状态
   const [currentPodcast, setCurrentPodcast] = useState<PodcastItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  
+
+  // 播客详情页状态
 
   // 从后端获取积分数据和初始化数据加载
   const initialized = React.useRef(false); // 使用 useRef 追踪是否已初始化
@@ -51,8 +104,10 @@ export default function HomePage() {
     if (!initialized.current) {
       initialized.current = true;
 
-      // 首次加载时获取播客列表
+      // 首次加载时获取播客列表和积分/用户信息
       fetchRecentPodcasts();
+      // fetchCreditsAndUserInfo(); // 在fetchRecentPodcasts中调用
+
     }
     
     // 设置定时器每20秒刷新一次
@@ -69,32 +124,7 @@ export default function HomePage() {
     const loadSettings = async () => {
       const savedSettings = await getTTSProviders();
       if (savedSettings) {
-        // 确保从 localStorage 加载的设置中，所有预期的字符串字段都为字符串
-        const normalizedSettings: SettingsFormData = {
-          apikey: savedSettings.apikey || '',
-          model: savedSettings.model || '',
-          baseurl: savedSettings.baseurl || '',
-          index: {
-            api_url: savedSettings.index?.api_url || '',
-          },
-          edge: {
-            api_url: savedSettings.edge?.api_url || '',
-          },
-          doubao: {
-            'X-Api-App-Id': savedSettings.doubao?.['X-Api-App-Id'] || '',
-            'X-Api-Access-Key': savedSettings.doubao?.['X-Api-Access-Key'] || '',
-          },
-          fish: {
-            api_key: savedSettings.fish?.api_key || '',
-          },
-          minimax: {
-            group_id: savedSettings.minimax?.group_id || '',
-            api_key: savedSettings.minimax?.api_key || '',
-          },
-          gemini: {
-            api_key: savedSettings.gemini?.api_key || '',
-          },
-        };
+        const normalizedSettings = normalizeSettings(savedSettings);
         setSettings(normalizedSettings);
       }
     };
@@ -153,6 +183,9 @@ export default function HomePage() {
         if(response.status === 401) {
           throw new Error('生成播客失败，请检查API Key是否正确，或登录状态。');
         }
+        if(response.status === 402) {
+          throw new Error('生成播客失败，请检查积分是否足够。');
+        }
         if(response.status === 403) {
           setIsLoginModalOpen(true); // 显示登录模态框
           throw new Error('生成播客失败，请登录后重试。');
@@ -183,6 +216,11 @@ export default function HomePage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // 处理播客标题点击
+  const handleTitleClick = (podcast: PodcastItem) => {
+    router.push(`/podcast/${podcast.file_name.split(".")[0]}`);
   };
 
   const handlePlayPodcast = (podcast: PodcastItem) => {
@@ -221,91 +259,65 @@ export default function HomePage() {
 
     try {
       const apiResponse: { success: boolean; tasks?: { message: string; tasks: PodcastGenerationResponse[]; }; error?: string } = result;
-      if (apiResponse.success && apiResponse.tasks && Array.isArray(apiResponse.tasks)) { // 检查 tasks 属性是否存在且为数组
-        const newPodcasts: PodcastItem[] = apiResponse.tasks.map((task: any) => ({ // 遍历 tasks 属性
-            id: task.task_id, // 使用 task_id
-            title: task.title ? task.title : task.status === 'failed' ? '播客生成失败，请重试' : ' ',
-            description: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()).join(', ') : task.status === 'failed' ? task.error || '待生成的播客标签' : '待生成的播客标签', 
-            thumbnail: task.avatar_base64 ? `data:image/png;base64,${task.avatar_base64}` : '',
-            author: {
-                name: '', 
-                avatar: '',
-            },
-            duration: parseDurationToSeconds(task.audio_duration || '00:00'),
-            playCount: 0,
-            createdAt: task.timestamp ? new Date(task.timestamp * 1000).toISOString() : new Date().toISOString(),
-            audioUrl: task.audioUrl ? task.audioUrl : '',
-            tags: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()) : task.status === 'failed' ? [task.error] : ['待生成的播客标签'],
-            status: task.status,
-        }));
-        // 直接倒序，确保最新生成的播客排在前面
+      if (apiResponse.success && apiResponse.tasks && Array.isArray(apiResponse.tasks)) {
+        const newPodcasts = mapApiResponseToPodcasts(apiResponse.tasks);
         const reversedPodcasts = newPodcasts.reverse();
         setExplorePodcasts(reversedPodcasts);
-        // 如果有最新生成的播客，自动播放
       }
     } catch (err) {
       console.error('Error processing podcast data:', err);
       error('数据处理失败', err instanceof Error ? err.message : '无法处理播客列表数据');
     }
 
-    const fetchCredits = async () => {
-        try {
-          const pointsResponse = await fetch('/api/points');
-          if (pointsResponse.ok) {
-            const data = await pointsResponse.json();
-            if (data.success) {
-              setCredits(data.points);
-            } else {
-              console.error('Failed to fetch credits:', data.error);
-              setCredits(0); // 获取失败则设置为0
-            }
-          } else {
-            console.error('Failed to fetch credits with status:', pointsResponse.status);
-            setCredits(0); // 获取失败则设置为0
-          }
-        } catch (error) {
-          console.error('Error fetching credits:', error);
-          setCredits(0); // 发生错误则设置为0
-        }
-
-        try {
-          const transactionsResponse = await fetch('/api/points/transactions');
-          if (transactionsResponse.ok) {
-            const data = await transactionsResponse.json();
-            if (data.success) {
-              setPointHistory(data.transactions);
-            } else {
-              console.error('Failed to fetch point transactions:', data.error);
-              setPointHistory([]);
-            }
-          } else {
-            console.error('Failed to fetch point transactions with status:', transactionsResponse.status);
-            setPointHistory([]);
-          }
-        } catch (error) {
-          console.error('Error fetching point transactions:', error);
-          setPointHistory([]);
-        }
-
-        const { session, user } = await getSessionData();
-        setUser(user); // 设置用户信息
-    };
-
-    fetchCredits(); // 调用获取积分函数
+    fetchCreditsAndUserInfo();
   };
 
-  // 辅助函数：解析时长字符串为秒数
-  const parseDurationToSeconds = (durationStr: string): number => {
-    const parts = durationStr.split(':');
-    if (parts.length === 2) {
-      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-    } else if (parts.length === 3) { // 支持 HH:MM:SS 格式
-      return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-    }
-    return 0;
+  // 新增辅助函数：获取积分和用户信息
+  const fetchCreditsAndUserInfo = async () => {
+      try {
+          const pointsResponse = await fetch('/api/points');
+          if (pointsResponse.ok) {
+              const data = await pointsResponse.json();
+              if (data.success) {
+                  setCredits(data.points);
+              } else {
+                  console.error('Failed to fetch credits:', data.error);
+                  setCredits(0); // 获取失败则设置为0
+              }
+          } else {
+              console.error('Failed to fetch credits with status:', pointsResponse.status);
+              setCredits(0); // 获取失败则设置为0
+          }
+      } catch (error) {
+          console.error('Error fetching credits:', error);
+          setCredits(0); // 发生错误则设置为0
+      }
+
+      try {
+          const transactionsResponse = await fetch('/api/points/transactions');
+          if (transactionsResponse.ok) {
+              const data = await transactionsResponse.json();
+              if (data.success) {
+                  setPointHistory(data.transactions);
+              } else {
+                  console.error('Failed to fetch point transactions:', data.error);
+                  setPointHistory([]);
+              }
+          } else {
+              console.error('Failed to fetch point transactions with status:', transactionsResponse.status);
+              setPointHistory([]);
+          }
+      } catch (error) {
+          console.error('Error fetching point transactions:', error);
+          setPointHistory([]);
+      }
+
+      const { session, user } = await getSessionData();
+      setUser(user); // 设置用户信息
   };
 
   const renderMainContent = () => {
+
     switch (uiState.currentView) {
       case 'home':
         return (
@@ -325,8 +337,9 @@ export default function HomePage() {
                 subtitle="数据只保留30分钟，请尽快下载保存"
                 items={explorePodcasts}
                 onPlayPodcast={handlePlayPodcast}
-                currentPodcast={currentPodcast}
-                isPlaying={isPlaying}
+                onTitleClick={handleTitleClick} // 传递 handleTitleClick
+                currentPodcast={currentPodcast} // 继续传递给 ContentSection
+                isPlaying={isPlaying} // 继续传递给 ContentSection
                 variant="compact"
                 layout="grid"
                 showRefreshButton={true}
@@ -339,6 +352,7 @@ export default function HomePage() {
               title="为你推荐"
               items={[...explorePodcasts].slice(0, 6)}
               onPlayPodcast={handlePlayPodcast}
+              onTitleClick={handleTitleClick} // 传递 handleTitleClick
               variant="default"
               layout="horizontal"
             /> */}
@@ -415,7 +429,7 @@ export default function HomePage() {
       <main className={`flex-1 transition-all duration-300 ${
         uiState.sidebarCollapsed ? 'ml-16' : 'ml-64'
       } max-md:ml-0`}>
-        <div className="pb-8 pt-8 sm:pt-32 px-4 sm:px-6">
+        <div className="pb-8 pt-8 sm:pt-16 px-4 sm:px-6">
           {renderMainContent()}
         </div>
       </main>

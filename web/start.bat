@@ -21,8 +21,8 @@ if %errorlevel% neq 0 (
 
 echo.
 echo 3. 启动开发服务器...
-echo 应用将在 http://localhost:3000 启动
+echo 应用将在 http://localhost:3001 启动
 echo 按 Ctrl+C 停止服务器
 echo.
 
-npm run dev
+set PORT=3001 && npm run dev

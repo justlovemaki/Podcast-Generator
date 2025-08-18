@@ -16,10 +16,10 @@ export interface PodcastGenerationResponse {
   id?: string; // 任务ID
   status: 'pending' | 'running' | 'completed' | 'failed' ;
   task_id?: string;
-  podUsers?: Array<{ role: string; code: string; }>;
+  podUsers?: Array<{ role: string; code: string; name: string; usedname: string; }>;
   output_audio_filepath?: string;
   overview_content?: string;
-  podcast_script?: { podcast_transcripts: Array<{ speaker_id: number; dialog: string; }>; };
+  podcast_script?: { podcast_transcripts: Array<{ speaker_id: number; dialog: string; }>; }; // Changed from string to Array
   avatar_base64?: string;
   audio_duration?: string;
   title?: string;
@@ -29,6 +29,14 @@ export interface PodcastGenerationResponse {
   audioUrl?: string;
   estimatedTime?: number; // 新增预估时间
   progress?: number; // 新增进度百分比
+  auth_id?: string; // 新增 auth_id
+  callback_url?: string; // 新增 callback_url
+  user?: {
+    name: string;
+    email: string;
+    image: string;
+  };
+  listens?: number;
 }
 
 export interface PodcastScript {
@@ -116,12 +124,13 @@ export interface PodcastItem {
     name: string;
     avatar: string;
   };
-  duration: number;
+  audio_duration: string;
   playCount: number;
   createdAt: string;
   audioUrl: string;
   tags: string[];
   status: 'pending' | 'running' | 'completed' | 'failed'; // 添加status属性
+  file_name: string;
 }
 
 // 设置表单数据类型 - 从 SettingsForm.tsx 复制过来并导出

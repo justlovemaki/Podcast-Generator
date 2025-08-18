@@ -13,6 +13,7 @@ interface PodcastCardProps {
   variant?: 'default' | 'compact';
   currentPodcast?: PodcastItem | null;
   isPlaying?: boolean;
+  onTitleClick?: (podcast: PodcastItem) => void; // 新增 onTitleClick 回调
 }
 
 const PodcastCard: React.FC<PodcastCardProps> = ({
@@ -22,6 +23,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   variant = 'default',
   currentPodcast,
   isPlaying,
+  onTitleClick, // 解构 onTitleClick
 }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -42,6 +44,10 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   const handleMoreClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     // 更多操作菜单
+  };
+
+  const handleTitleClick = () => {
+    onTitleClick?.(podcast); // 调用传入的 onTitleClick 回调
   };
 
   // 根据变体返回不同的布局
@@ -88,7 +94,10 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
 
           {/* 内容 */}
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-black text-base mb-1 line-clamp-2 leading-tight">
+            <h3
+              className="font-semibold text-black text-base mb-1 line-clamp-2 leading-tight cursor-pointer hover:underline"
+              onClick={handleTitleClick}
+            >
               {podcast.title}
             </h3>
             <p className="text-sm text-neutral-600 mb-2 line-clamp-1">
@@ -97,7 +106,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
             <div className="flex items-center gap-3 text-xs text-neutral-500">
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {formatTime(podcast.duration)}
+                {podcast.audio_duration}
               </span>
               {/* <span className="flex items-center gap-1">
                 <Eye className="w-3 h-3" />
@@ -190,15 +199,18 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
 
         {/* 时长标签 */}
         <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/70 text-white text-xs rounded-md backdrop-blur-sm">
-          {formatTime(podcast.duration)}
+          {podcast.audio_duration}
         </div>
       </div>
 
       {/* 内容区域 */}
       <div className="p-5">
         {/* 标题 */}
-        <h3 className="font-semibold text-black text-lg mb-3 line-clamp-2 leading-tight group-hover:text-brand-purple transition-colors duration-200
-                     sm:text-xl sm:mb-4">
+        <h3
+          className="font-semibold text-black text-lg mb-3 line-clamp-2 leading-tight group-hover:text-brand-purple transition-colors duration-200 cursor-pointer hover:underline
+                     sm:text-xl sm:mb-4"
+          onClick={handleTitleClick}
+        >
           {podcast.title}
         </h3>
 

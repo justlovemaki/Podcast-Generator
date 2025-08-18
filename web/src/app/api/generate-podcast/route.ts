@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (currentPoints === null || currentPoints < POINTS_PER_PODCAST) {
       return NextResponse.json(
         { success: false, error: `积分不足，生成一个播客需要 ${POINTS_PER_PODCAST} 积分，您当前只有 ${currentPoints || 0} 积分。` },
-        { status: 403 } // 403 Forbidden - 权限不足，因为积分不足
+        { status: 402 } // 402 Forbidden - 权限不足，因为积分不足
       );
     }
 

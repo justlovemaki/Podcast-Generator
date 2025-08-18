@@ -26,8 +26,11 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  const { task_id, auth_id, timestamp, status } = await request.json();
   try {
-    const { task_id, auth_id, timestamp } = await request.json();
+    if(status !== 'completed') {
+      return NextResponse.json({ success: false, error: "Invalid status" }, { status: 400 });
+    }
 
     // 1. 参数校验
     if (!task_id || !auth_id || typeof timestamp !== 'number') {
@@ -67,7 +70,8 @@ export async function PUT(request: NextRequest) {
     if (error instanceof Error) {
         // 区分积分不足的错误
         if (error.message.includes("积分不足")) {
-            return NextResponse.json({ success: false, error: error.message }, { status: 403 }); // Forbidden
+            console.error("积分不足错误: %s %s %s", auth_id, task_id, error);
+            return NextResponse.json({ success: false, error: error.message }, { status: 402 }); // Forbidden
         }
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }

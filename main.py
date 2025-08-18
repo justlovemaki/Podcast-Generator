@@ -76,13 +76,31 @@ stop_scheduler_event = threading.Event()
 output_dir = "output"
 time_after = 30
 
+# 内存中存储任务结果
+# {task_id: {"auth_id": auth_id, "status": TaskStatus, "result": any, "timestamp": float}}
+task_results: Dict[str, Dict[UUID, Dict]] = {}
+# 新增字典对象，key为音频文件名，value为task_results[auth_id][task_id]的值
+audio_file_mapping: Dict[str, Dict] = {}
+
+# 签名验证配置
+SECRET_KEY = os.getenv("PODCAST_API_SECRET_KEY", "your-super-secret-key") # 在生产环境中请务必修改!
+# 定义从 tts_provider 名称到其配置文件路径的映射
+tts_provider_map = {
+    "index-tts": "config/index-tts.json",
+    "doubao-tts": "config/doubao-tts.json",
+    "edge-tts": "config/edge-tts.json",
+    "fish-audio": "config/fish-audio.json",
+    "gemini-tts": "config/gemini-tts.json",
+    "minimax": "config/minimax.json",
+}
+
 # 定义一个函数来清理输出目录
 def clean_output_directory():
     """Removes files from the output directory that are older than 30 minutes."""
     print(f"Cleaning output directory: {output_dir}")
     now = time.time()
     # 30 minutes in seconds
-    threshold = time_after * 60 
+    threshold = time_after * 60
 
     # 存储需要删除的 task_results 中的任务，避免在迭代时修改
     tasks_to_remove_from_memory = []
@@ -105,7 +123,7 @@ def clean_output_directory():
                             # 只有 COMPLETED 的任务才应该被清理，PENDING/RUNNING 任务的输出文件可能还未生成或正在使用
                             task_output_filename = task_info.get("output_audio_filepath")
                             if task_output_filename == filename and task_info["status"] == TaskStatus.COMPLETED:
-                                tasks_to_remove_from_memory.append((auth_id, task_id))
+                                tasks_to_remove_from_memory.append((auth_id, task_id, task_info))
             elif os.path.isdir(file_path):
                 # 可选地，递归删除旧的子目录或其中的文件
                 # 目前只跳过目录
@@ -114,30 +132,20 @@ def clean_output_directory():
             print(f"Failed to delete {file_path}. Reason: {e}")
 
     # 在文件删除循环结束后统一处理 task_results 的删除
-    for auth_id, task_id in tasks_to_remove_from_memory:
+    for auth_id, task_id, task_info_to_remove in tasks_to_remove_from_memory:
         if auth_id in task_results and task_id in task_results[auth_id]:
             del task_results[auth_id][task_id]
             print(f"Removed task {task_id} for auth_id {auth_id} from task_results.")
+            # 从 audio_file_mapping 中删除对应的条目
+            task_output_filename = task_info_to_remove.get("output_audio_filepath")
+            if task_output_filename and task_output_filename in audio_file_mapping:
+                del audio_file_mapping[task_output_filename]
+                print(f"Removed audio_file_mapping entry for {task_output_filename}.")
             # 如果该 auth_id 下没有其他任务，则删除 auth_id 的整个条目
             if not task_results[auth_id]:
                 del task_results[auth_id]
                 print(f"Removed empty auth_id {auth_id} from task_results.")
 
-# 内存中存储任务结果
-# {task_id: {"auth_id": auth_id, "status": TaskStatus, "result": any, "timestamp": float}}
-task_results: Dict[str, Dict[UUID, Dict]] = {}
-
-# 签名验证配置
-SECRET_KEY = os.getenv("PODCAST_API_SECRET_KEY", "your-super-secret-key") # 在生产环境中请务必修改!
-# 定义从 tts_provider 名称到其配置文件路径的映射
-tts_provider_map = {
-    "index-tts": "config/index-tts.json",
-    "doubao-tts": "config/doubao-tts.json",
-    "edge-tts": "config/edge-tts.json",
-    "fish-audio": "config/fish-audio.json",
-    "gemini-tts": "config/gemini-tts.json",
-    "minimax": "config/minimax.json",
-}
 
 async def get_auth_id(x_auth_id: str = Header(..., alias="X-Auth-Id")):
     """
@@ -214,6 +222,14 @@ async def _generate_podcast_task(
         task_results[auth_id][task_id]["status"] = TaskStatus.COMPLETED
         task_results[auth_id][task_id].update(podcast_generation_results)
         print(f"\nPodcast generation completed for task {task_id}. Output file: {podcast_generation_results.get('output_audio_filepath')}")
+        # 更新 audio_file_mapping
+        output_audio_filepath = podcast_generation_results.get('output_audio_filepath')
+        if output_audio_filepath:
+            # 从完整路径中提取文件名
+            filename = os.path.basename(output_audio_filepath)
+            filename = filename.split(".")[0]
+            # 将任务信息添加到 audio_file_mapping
+            audio_file_mapping[filename] = task_results[auth_id][task_id]
 
         # 生成并编码像素头像
         avatar_bytes = generate_pixel_avatar(str(task_id)) # 使用 task_id 作为种子
@@ -230,7 +246,8 @@ async def _generate_podcast_task(
                 "task_id": str(task_id),
                 "auth_id": auth_id,
                 "task_results": task_results[auth_id][task_id],
-                "timestamp": int(time.time()), # 确保发送整数秒级时间戳
+                "timestamp": int(time.time()), 
+                "status": task_results[auth_id][task_id]["status"],
             }
             
             MAX_RETRIES = 3 # 定义最大重试次数
@@ -290,7 +307,8 @@ async def generate_podcast_submission(
         "status": TaskStatus.PENDING,
         "result": None,
         "timestamp": time.time(),
-        "callback_url": callback_url # 存储回调地址
+        "callback_url": callback_url, # 存储回调地址
+        "auth_id": auth_id, # 存储 auth_id
     }
 
     background_tasks.add_task(
@@ -344,6 +362,21 @@ async def download_podcast(file_name: str):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found.")
     return FileResponse(file_path, media_type='audio/mpeg', filename=file_name)
+
+@app.get("/get-audio-info/")
+async def get_audio_info(file_name: str):
+    """
+    根据文件名从 audio_file_mapping 中获取对应的任务信息。
+    """
+    # 移除文件扩展名（如果存在），因为 audio_file_mapping 的键是文件名（不含扩展名）
+    base_file_name = os.path.splitext(file_name)[0]
+
+    audio_info = audio_file_mapping.get(base_file_name)
+    if audio_info:
+        # 返回任务信息的副本，避免直接暴露内部字典引用
+        return JSONResponse(content={k: str(v) if isinstance(v, UUID) else v for k, v in audio_info.items()})
+    else:
+        raise HTTPException(status_code=404, detail="Audio file information not found.")
 
 @app.get("/avatar/{username}")
 async def get_avatar(username: str):

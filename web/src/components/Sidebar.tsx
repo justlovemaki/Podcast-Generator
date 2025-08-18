@@ -58,6 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const router = useRouter(); // 初始化 useRouter 钩子
 
   useEffect(() => {
+    // 首次加载时获取 session
     if (!didFetch.current) {
       didFetch.current = true; // 标记为已执行，避免在开发模式下重复执行
       const fetchSession = async () => {
@@ -67,9 +68,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       };
       fetchSession();
     }
-  }, []); // 空依赖数组表示只在组件挂载时执行一次
-  
-  useEffect(() => {
+
+    // 检查 session 是否过期
     if (session?.expiresAt) {
       const expirationTime = session.expiresAt.getTime();
       const currentTime = new Date().getTime();
@@ -87,7 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         });
       }
     }
-  }, [session, router]); // 监听 session 变化和 router（因为 signOut 中使用了 router.push）
+  }, [session, router, onCreditsChange]); // 监听 session 变化和 router（因为 signOut 中使用了 router.push），并添加 onCreditsChange
 
   const mainNavItems: NavItem[] = [
     { id: 'home', label: '首页', icon: Home },

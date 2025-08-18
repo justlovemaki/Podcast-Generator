@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import { ChevronRight, RotateCw } from 'lucide-react';
 import PodcastCard from './PodcastCard';
-import type { PodcastItem } from '@/types';
+import type { PodcastItem } from '@/types'; // 移除了 PodcastGenerationResponse
 
 interface ContentSectionProps {
   title: string;
@@ -11,13 +11,14 @@ interface ContentSectionProps {
   items: PodcastItem[];
   onViewAll?: () => void;
   onPlayPodcast?: (podcast: PodcastItem) => void;
-  currentPodcast?: PodcastItem | null;
-  isPlaying?: boolean;
   loading?: boolean;
   variant?: 'default' | 'compact';
   layout?: 'grid' | 'horizontal';
-  showRefreshButton?: boolean; // 新增刷新按钮属性
-  onRefresh?: () => void; // 新增刷新回调函数
+  showRefreshButton?: boolean;
+  onRefresh?: () => void;
+  onTitleClick?: (podcast: PodcastItem) => void; // 确保传入 onTitleClick
+  currentPodcast?: PodcastItem | null; // Keep this prop for PodcastCard
+  isPlaying?: boolean; // Keep this prop for PodcastCard
 }
 
 const ContentSection: React.FC<ContentSectionProps> = ({
@@ -26,14 +27,16 @@ const ContentSection: React.FC<ContentSectionProps> = ({
   items,
   onViewAll,
   onPlayPodcast,
-  currentPodcast,
-  isPlaying,
   loading = false,
   variant = 'default',
   layout = 'grid',
-  showRefreshButton, // 直接解构
-  onRefresh // 直接解构
+  showRefreshButton,
+  onRefresh,
+  onTitleClick, // 确保解构
+  currentPodcast, // 确保解构
+  isPlaying // 确保解构
 }) => {
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-6">
@@ -136,6 +139,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
           items={items}
           onPlayPodcast={onPlayPodcast}
           variant={variant}
+          onTitleClick={onTitleClick}
         />
       ) : (
         // 网格布局
@@ -152,6 +156,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
               variant={variant}
               currentPodcast={currentPodcast}
               isPlaying={isPlaying}
+              onTitleClick={onTitleClick}
             />
           ))}
         </div>
@@ -165,12 +170,14 @@ interface HorizontalScrollSectionProps {
   items: PodcastItem[];
   onPlayPodcast?: (podcast: PodcastItem) => void;
   variant?: 'default' | 'compact';
+  onTitleClick?: (podcast: PodcastItem) => void;
 }
 
 const HorizontalScrollSection: React.FC<HorizontalScrollSectionProps> = ({
   items,
   onPlayPodcast,
-  variant = 'default'
+  variant = 'default',
+  onTitleClick
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -250,6 +257,7 @@ const HorizontalScrollSection: React.FC<HorizontalScrollSectionProps> = ({
             className={`flex-shrink-0 ${
               variant === 'compact' ? 'w-80' : 'w-72'
             }`}
+            onTitleClick={onTitleClick}
           />
         ))}
       </div>
