@@ -13,7 +13,7 @@ export async function createPointsAccount(userId: string, initialPoints: number 
     await db.insert(schema.pointsAccounts).values({
       userId: userId,
       totalPoints: initialPoints,
-      updatedAt: sql`CURRENT_TIMESTAMP`,
+      updatedAt: new Date().toISOString(),
     });
     console.log(`用户 ${userId} 的积分账户初始化成功，初始积分：${initialPoints}`);
   } catch (error) {
@@ -42,7 +42,7 @@ export async function recordPointsTransaction(
       pointsChange: pointsChange,
       reasonCode: reasonCode,
       description: description,
-      createdAt: sql`CURRENT_TIMESTAMP`,
+      createdAt: new Date().toISOString(),
     });
     console.log(`用户 ${userId} 的积分流水记录成功: 变动 ${pointsChange}, 原因 ${reasonCode}`);
   } catch (error) {
@@ -133,7 +133,7 @@ export async function deductUserPoints(
       pointsChange: -pointsToDeduct, // 扣减为负数
       reasonCode: reasonCode,
       description: description,
-      createdAt: sql`CURRENT_TIMESTAMP`,
+      createdAt: new Date().toISOString(),
     });
 
     // 4. 更新积分账户
@@ -141,7 +141,7 @@ export async function deductUserPoints(
       .update(schema.pointsAccounts)
       .set({
         totalPoints: newPoints,
-        updatedAt: sql`CURRENT_TIMESTAMP`,
+        updatedAt: new Date().toISOString(),
       })
       .where(eq(schema.pointsAccounts.userId, userId));
 

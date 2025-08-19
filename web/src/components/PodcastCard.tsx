@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Play, Pause, Clock, Eye, User, Heart, MoreHorizontal } from 'lucide-react';
+import { AiFillPlayCircle, AiFillPauseCircle, AiOutlineClockCircle, AiOutlineEye, AiOutlineUser, AiFillHeart, AiOutlineEllipsis } from 'react-icons/ai';
 import { cn, formatTime, formatRelativeTime } from '@/lib/utils';
 import type { PodcastItem } from '@/types';
 
@@ -73,7 +73,6 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Play className="w-6 h-6 text-white" />
               </div>
             )}
             
@@ -81,12 +80,12 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
               <button
                 onClick={handlePlayClick}
-                className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transform scale-90 hover:scale-100 transition-all duration-200"
+                className="w-8 h-8 rounded-full flex items-center justify-center transform scale-100 hover:scale-100 transition-all duration-200"
               >
                 {isCurrentlyPlaying ? (
-                  <Pause className="w-3 h-3 text-black" />
+                  <AiFillPauseCircle className="w-full h-full text-white" />
                 ) : (
-                  <Play className="w-3 h-3 text-black ml-0.5" />
+                  <AiFillPlayCircle className="w-full h-full text-white" />
                 )}
               </button>
             </div>
@@ -105,11 +104,11 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
             </p>
             <div className="flex items-center gap-3 text-xs text-neutral-500">
               <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
+                <AiOutlineClockCircle className="w-3 h-3" />
                 {podcast.audio_duration}
               </span>
               {/* <span className="flex items-center gap-1">
-                <Eye className="w-3 h-3" />
+                <AiOutlineEye className="w-3 h-3" />
                 {podcast.playCount.toLocaleString()}
               </span> */}
             </div>
@@ -154,7 +153,6 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-              <Play className="w-8 h-8 text-white" />
             </div>
           </div>
         )}
@@ -163,12 +161,12 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
           <button
             onClick={handlePlayClick}
-            className="w-14 h-14 bg-white/95 hover:bg-white rounded-full flex items-center justify-center transform scale-90 hover:scale-100 transition-all duration-300 shadow-medium"
+            className="w-14 h-14 rounded-full flex items-center justify-center transform scale-90 hover:scale-100 transition-all duration-300 shadow-medium"
           >
             {isCurrentlyPlaying ? (
-              <Pause className="w-6 h-6 text-black" />
+              <AiFillPauseCircle className="w-full h-full text-white" />
             ) : (
-              <Play className="w-6 h-6 text-black ml-0.5" />
+              <AiFillPlayCircle className="w-full h-full text-white" />
             )}
           </button>
         </div>
@@ -185,15 +183,15 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
               isLiked
                 ? "bg-red-500 text-white"
                 : "bg-white/90 hover:bg-white text-neutral-600 hover:text-red-500"
-            )}
-          >
-            <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
+              )}
+            >
+              <AiFillHeart className={cn("w-4 h-4", isLiked && "fill-current")} />
           </button>
           <button
             onClick={handleMoreClick}
             className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-neutral-600 hover:text-black transition-all duration-200 backdrop-blur-sm"
           >
-            <MoreHorizontal className="w-4 h-4" />
+            <AiOutlineEllipsis className="w-4 h-4" />
           </button>
         </div>
 
@@ -227,7 +225,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
               />
             ) : (
               <div className="w-full h-full bg-neutral-300 flex items-center justify-center">
-                <User className="w-3.5 h-3.5 text-neutral-500" />
+                <AiOutlineUser className="w-3.5 h-3.5 text-neutral-500" />
               </div>
             )}
           </div>
@@ -241,7 +239,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         {/* 元数据 */}
         <div className="flex items-center gap-4 text-sm text-neutral-500 mb-4">
           {/* <div className="flex items-center gap-1.5">
-            <Eye className="w-4 h-4" />
+            <AiOutlineEye className="w-4 h-4" />
             <span>{podcast.playCount.toLocaleString()}</span>
           </div> */}
           <div className="w-1 h-1 bg-neutral-300 rounded-full"></div>

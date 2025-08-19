@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { AiOutlineArrowLeft, AiOutlineCloudDownload } from 'react-icons/ai';
 import { getAudioInfo, getUserInfo } from '@/lib/podcastApi';
 import AudioPlayerControls from './AudioPlayerControls';
 import PodcastTabs from './PodcastTabs';
@@ -69,10 +69,22 @@ export default async function PodcastContent({ fileName }: PodcastContentProps) 
           href="/"
           className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm"
         >
-          <ArrowLeft className="w-5 h-5 mr-1" />
+          <AiOutlineArrowLeft className="w-5 h-5 mr-1" />
           返回首页
         </a>
-        <ShareButton /> {/* 添加分享按钮 */}
+        <div className="flex items-center gap-4"> {/* 使用 flex 容器包裹分享和下载按钮 */}
+          <ShareButton /> {/* 添加分享按钮 */}
+          {audioInfo.audioUrl && (
+            <a
+              href={audioInfo.audioUrl}
+              download
+              className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm"
+              aria-label="下载音频"
+            >
+              <AiOutlineCloudDownload className="w-5 h-5" />
+            </a>
+          )}
+        </div>
       </div>
       {/* 1. 顶部信息区 */}
       <div className="flex flex-col items-center text-center">
@@ -91,6 +103,17 @@ export default async function PodcastContent({ fileName }: PodcastContentProps) 
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight break-words">
           {audioInfo.title}
         </h1>
+
+        {/* 标签 */}
+        {audioInfo.tags && audioInfo.tags.split('#').map((tag: string) => tag.trim()).filter((tag: string) => !!tag).length > 0 && (
+          <div className="flex flex-wrap justify-center gap-2 mt-4">
+            {audioInfo.tags.split('#').filter((tag: string) => !!tag).map((tag: string) => (
+              <span key={tag.trim()} className="px-3 py-1 rounded-full bg-gray-100 text-sm font-medium text-gray-600">
+                {tag.trim()}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* 元数据栏 */}
         <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-2 mt-4 text-gray-500">
@@ -116,7 +139,7 @@ export default async function PodcastContent({ fileName }: PodcastContentProps) 
       {/* 3. 内容导航区和内容展示区 - 使用客户端组件 */}
       <PodcastTabs
         parsedScript={parsedScript}
-        overviewContent={audioInfo.overview_content}
+        overviewContent={audioInfo.overview_content ? audioInfo.overview_content.split('\n').slice(2).join('\n') : ''}
       />
     </main>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { ChevronRight, RotateCw } from 'lucide-react';
+import { AiOutlineRight, AiOutlineReload } from 'react-icons/ai';
 import PodcastCard from './PodcastCard';
 import type { PodcastItem } from '@/types'; // 移除了 PodcastGenerationResponse
 
@@ -88,7 +88,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
               className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm"
             >
               查看全部
-              <ChevronRight className="w-4 h-4" />
+              <AiOutlineRight className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -116,7 +116,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
               className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm group whitespace-nowrap"
               title="刷新"
             >
-              <RotateCw className="w-4 h-4" />
+              <AiOutlineReload className="w-4 h-4" />
               刷新
             </button>
           )}
@@ -126,7 +126,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
               className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm group whitespace-nowrap"
             >
               查看全部
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              <AiOutlineRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </button>
           )}
         </div>

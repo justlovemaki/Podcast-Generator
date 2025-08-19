@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause } from 'lucide-react';
+import { AiFillPlayCircle, AiFillPauseCircle } from 'react-icons/ai';
 
 interface AudioPlayerControlsProps {
   audioUrl: string;
@@ -43,9 +43,9 @@ export default function AudioPlayerControls({ audioUrl, audioDuration }: AudioPl
         className="bg-gray-900 text-white rounded-full px-6 py-3 inline-flex items-center gap-2 font-semibold hover:bg-gray-700 transition-colors shadow-md"
       >
         {isPlaying ? (
-          <Pause className="w-5 h-5" />
+          <AiFillPauseCircle className="w-5 h-5" />
         ) : (
-          <Play className="w-5 h-5" />
+          <AiFillPlayCircle className="w-5 h-5" />
         )}
         <span>{isPlaying ? '暂停' : '播放'} ({audioDuration ?? '00:00'})</span>
       </button>

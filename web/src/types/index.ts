@@ -185,3 +185,20 @@ export interface PodcastStatusResponse {
   message: string;
   tasks: PodcastGenerationResponse[]; // 包含任务列表
 }
+
+export interface Feature {
+  name: string;
+  included: boolean;
+  notes?: string; // 例如 "即将推出"
+}
+
+export interface PricingPlan {
+  name: string;
+  price: number; // 原始价格，按月或年计
+  currency: string;
+  period: 'monthly' | 'annually';
+  features: readonly Feature[];
+  isMostPopular?: boolean;
+  ctaText: string;
+  buttonVariant: 'primary' | 'secondary';
+}

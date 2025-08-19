@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import FooterLinks from '../components/FooterLinks';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -9,18 +10,18 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'PodcastHub - 把你的创意转为播客',
+  title: 'PodcastHub - 给创意一个真实的声音',
   description: '使用AI技术将您的想法和内容转换为高质量的播客音频，支持多种语音和风格选择。',
   keywords: ['播客', 'AI', '语音合成', 'TTS', '音频生成'],
   authors: [{ name: 'PodcastHub Team' }],
   viewport: 'width=device-width, initial-scale=1',
   themeColor: '#000000',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: '/favicon.webp',
+    apple: '/favicon.webp',
   },
   openGraph: {
-    title: 'PodcastHub - 把你的创意转为播客',
+    title: 'PodcastHub - 给创意一个真实的声音',
     description: '使用AI技术将您的想法和内容转换为高质量的播客音频',
     type: 'website',
     locale: 'zh_CN',
@@ -46,6 +47,9 @@ export default function RootLayout({
           <div id="toast-root" />
           {/* Modal容器 */}
           <div id="modal-root" />
+          <footer className="py-8">
+            <FooterLinks />
+          </footer>
       </body>
     </html>
   );

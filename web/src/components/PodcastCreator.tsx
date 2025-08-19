@@ -2,14 +2,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Play,
+  AiFillPlayCircle,
+  AiOutlineLink,
+  AiOutlineCopy,
+  AiOutlineUpload,
+  AiOutlineGlobal,
+  AiOutlineDown,
+  AiOutlineLoading3Quarters,
+ } from 'react-icons/ai';
+ import {
   Wand2,
-  Link,
-  Copy,
-  Upload,
-  Globe,
-  ChevronDown,
-  Loader2,
  } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ConfigSelector from './ConfigSelector';
@@ -17,6 +19,14 @@ import VoicesModal from './VoicesModal'; // 引入 VoicesModal
 import { useToast, ToastContainer } from './Toast'; // 引入 Toast Hook 和 Container
 import { setItem, getItem } from '@/lib/storage'; // 引入 localStorage 工具
 import type { PodcastGenerationRequest, TTSConfig, Voice, SettingsFormData } from '@/types';
+import { Satisfy } from 'next/font/google'; // 导入艺术字体 Satisfy
+
+// 定义艺术字体，预加载并设置 fallback
+const satisfy = Satisfy({
+  weight: '400', // Satisfy 只有 400 权重
+  subsets: ['latin'], // 根据需要选择子集，这里选择拉丁字符集
+  display: 'swap', // 字体加载策略
+});
 
 interface PodcastCreatorProps {
   onGenerate: (request: PodcastGenerationRequest) => Promise<void>; // 修改为返回 Promise<void>
@@ -145,17 +155,46 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
         {/* 品牌标题区域 */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 gradient-brand rounded-xl flex items-center justify-center">
-              <div className="w-6 h-6 bg-white rounded opacity-90" />
-            </div>
-            <h1 className="text-3xl font-bold text-black break-words">PodcastHub</h1>
+            <svg className="h-[80px] w-[300px] sm:h-[100px] sm:w-[600px]" viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="waveGradient" x1="49" y1="98" x2="140" y2="98" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#8E54E9"/>
+                  <stop offset="1" stop-color="#C26AE6"/>
+                </linearGradient>
+
+                <linearGradient id="textGradient" x1="175" y1="0" x2="810" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0.05" stop-color="#D069E6"/>
+                  <stop offset="0.35" stop-color="#FB866C"/>
+                  <stop offset="0.55" stop-color="#FA6F7E"/>
+                  <stop offset="0.85" stop-color="#E968E2"/>
+                  <stop offset="1" stop-color="#D869E5"/>
+                </linearGradient>
+              </defs>
+
+              <g>
+                <path 
+                  d="M49 98.5 C 56 56.5, 65 56.5, 73 90.5 C 79 120.5, 85 125.5, 91 100.5 C 96 80.5, 100 75.5, 106 95.5 C 112 115.5, 118 108.5, 125 98.5"
+                  className="fill-none stroke-[10] stroke-round stroke-join-round" // 调整描边宽度为 7
+                  stroke="url(#waveGradient)"
+                />
+
+                <text
+                  x="140"
+                  y="125"
+                  className={`${satisfy.className} text-[95px]`} // 应用艺术字体
+                  fill="url(#textGradient)"
+                >
+                  PodcastHub
+                </text>
+              </g>
+            </svg>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-black mb-6 break-words">
-            把你的创意转为播客
+          <h2 className="text-2xl sm:text-3xl text-black mb-6 break-words">
+            给创意一个真实的声音
           </h2>
           
-          {/* 模式切换按钮 */}
-          <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 flex-wrap">
+          {/* 模式切换按钮 todo */}
+          {/* <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 flex-wrap">
             <button
               onClick={() => setSelectedMode('ai-podcast')}
               className={cn(
@@ -165,7 +204,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                   : "btn-secondary"
               )}
             >
-              <Play className="w-4 h-4" />
+              <AiFillPlayCircle className="w-4 h-4" />
               AI播客
             </button>
             <button
@@ -177,10 +216,10 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                   : "btn-secondary"
               )}
             >
-              <Wand2 className="w-4 h-4" />
+              <AiOutlineStar className="w-4 h-4" />
               FlowSpeech
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* 主要创作区域 */}
@@ -193,8 +232,8 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                 setTopic(e.target.value);
                 setItem('podcast-topic', e.target.value); // 实时保存到 localStorage
               }}
-              placeholder="输入文字、上传文件或粘贴链接..."
-              className="w-full h-32 resize-none border-none outline-none text-lg placeholder-neutral-400"
+              placeholder="输入文字，支持Markdown格式..."
+              className="w-full h-32 resize-none border-none outline-none text-lg placeholder-neutral-400 bg-white"
               disabled={isGenerating}
             />
             
@@ -208,7 +247,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                     setItem('podcast-custom-instructions', e.target.value); // 实时保存到 localStorage
                   }}
                   placeholder="添加自定义指令（可选）..."
-                  className="w-full h-16 resize-none border-none outline-none text-sm placeholder-neutral-400"
+                  className="w-full h-16 resize-none border-none outline-none text-sm placeholder-neutral-400 bg-white"
                   disabled={isGenerating}
                 />
               </div>
@@ -259,7 +298,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-neutral-400 pointer-events-none" />
+              <AiOutlineDown className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-neutral-400 pointer-events-none" />
             </div>
 
             {/* 时长选择 */}
@@ -276,20 +315,20 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-neutral-400 pointer-events-none" />
+              <AiOutlineDown className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-neutral-400 pointer-events-none" />
             </div>
           </div>
 
-          {/* 右侧操作按钮 */}
+          {/* 右侧操作按钮 todo */}
           <div className="flex items-center gap-6 sm:gap-1 flex-wrap justify-center sm:justify-right w-full sm:w-auto">
             {/* 文件上传 */}
-            <button
+            {/* <button
               onClick={() => fileInputRef.current?.click()}
               className="p-1 sm:p-2 text-neutral-500 hover:text-black transition-colors"
               title="上传文件"
               disabled={isGenerating}
             >
-              <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
+              <AiOutlineUpload className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <input
               ref={fileInputRef}
@@ -297,29 +336,30 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
               accept=".txt,.md,.doc,.docx"
               onChange={handleFileUpload}
               className="hidden"
-            />
+            /> */}
 
             {/* 粘贴链接 */}
-            <button
+            {/* <button
               onClick={handlePaste}
               className="p-1 sm:p-2 text-neutral-500 hover:text-black transition-colors"
               title="粘贴内容"
               disabled={isGenerating}
             >
-              <Link className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+              <AiOutlineLink className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button> */}
 
             {/* 复制 */}
-            <button
+            {/* <button
               onClick={() => navigator.clipboard.writeText(topic)}
               className="p-1 sm:p-2 text-neutral-500 hover:text-black transition-colors"
               title="复制内容"
               disabled={isGenerating || !topic}
             >
-              <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+              <AiOutlineCopy className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button> */}
+            
             {/* 积分显示 */}
-              <div className="flex items-center justify-end gap-1 text-xs text-neutral-500 w-20 flex-shrink-0">
+              <div className="flex items-center justify-center gap-1 text-xs text-neutral-500 w-20 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-gem flex-shrink-0">
                   <path d="M6 3v18l6-4 6 4V3z"/>
                   <path d="M12 3L20 9L12 15L4 9L12 3Z"/>
@@ -338,7 +378,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
               >
                 {isGenerating ? (
                   <>
-                    <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
+                    <AiOutlineLoading3Quarters className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                     <span className=" xs:inline">Biu!</span>
                   </>
                 ) : (

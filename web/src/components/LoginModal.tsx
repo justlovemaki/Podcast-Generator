@@ -5,7 +5,7 @@ import React, { FC, MouseEventHandler, useCallback, useRef } from "react";
 import { signIn } from '@/lib/auth-client';
 import { createPortal } from "react-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline"; // 导入关闭图标
-import { Chrome, Github } from "lucide-react"; // 从 lucide-react 导入 Google 和 GitHub 图标
+import { AiOutlineChrome, AiOutlineGithub } from "react-icons/ai"; // 从 react-icons/ai 导入 Google 和 GitHub 图标
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -58,7 +58,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose }) => {
             onClick={() => signIn.social({ provider: "google" , newUserCallbackURL: "/api/newuser?provider=google"})}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
-            <Chrome className="h-6 w-6" />
+            <AiOutlineChrome className="h-6 w-6" />
             <span className="text-lg">使用 Google 登录</span>
           </button>
 
@@ -66,7 +66,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose }) => {
             onClick={() => signIn.social({ provider: "github" , newUserCallbackURL: "/api/newuser?provider=github" })}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
-            <Github className="h-6 w-6" />
+            <AiOutlineGithub className="h-6 w-6" />
             <span className="text-lg">使用 GitHub 登录</span>
           </button>
         </div>

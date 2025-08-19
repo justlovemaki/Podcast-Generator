@@ -20,26 +20,29 @@ OpenAI CLI - 纯命令行OpenAI接口调用工具
      {
        "api_key": "你的API密钥",
        "base_url": "https://api.openai.com/v1",
-       "model": "gpt-3.5-turbo"
+       "model": "gpt-3.5-turbo",
+       "temperature": 0.7,
+       "top_p": 1.0
      }
      然后通过 --config config.json 加载
 
 3. 运行脚本:
 
-   - 交互式聊天模式:
-     python openai_cli.py [可选参数: --api-key VAL --base-url VAL --model VAL]
-     在交互模式中，输入 'quit' 或 'exit' 退出，输入 'clear' 清空对话历史。
+  - 交互式聊天模式:
+    python openai_cli.py [可选参数: --api-key VAL --base-url VAL --model VAL --temperature VAL --top-p VAL]
+    在交互模式中，输入 'quit' 或 'exit' 退出，输入 'clear' 清空对话历史。
 
-   - 单次查询模式:
-     python openai_cli.py --query "你的问题" [可选参数: --api-key VAL --base-url VAL --model VAL --temperature VAL --max-tokens VAL --system-message VAL]
+  - 单次查询模式:
+    python openai_cli.py --query "你的问题" [可选参数: --api-key VAL --base-url VAL --model VAL --temperature VAL --top-p VAL --max-tokens VAL --system-message VAL]
 
-   - 使用配置文件:
-     python openai_cli.py --config config.json --query "你的问题"
+  - 使用配置文件:
+    python openai_cli.py --config config.json --query "你的问题"
 
 示例:
-   python openai_cli.py
-   python openai_cli.py -q "你好，世界" -m gpt-4
-   python openai_cli.py --config my_config.json
+  python openai_cli.py
+  python openai_cli.py -q "你好，世界" -m gpt-4
+  python openai_cli.py -q "你好，世界" --temperature 0.8 --top-p 0.9
+  python openai_cli.py --config my_config.json
 """
 
 import argparse
@@ -72,7 +75,7 @@ class OpenAICli:
         
         self.client = openai.OpenAI(api_key=self.api_key, base_url=effective_base_url)
     
-    def chat_completion(self, messages: List[ChatCompletionMessageParam], temperature: float = 0.7, max_tokens: Optional[int] = None) -> Any:
+    def chat_completion(self, messages: List[ChatCompletionMessageParam], temperature: float = 0.7, top_p: float = 1.0, max_tokens: Optional[int] = None) -> Any:
         """发送聊天完成请求"""
         # 处理系统提示词
         messages_to_send = list(messages)  # 创建一个副本以避免修改原始列表
@@ -94,6 +97,7 @@ class OpenAICli:
                 model=self.model,
                 messages=messages_to_send,  # 使用包含系统提示词的列表
                 temperature=temperature,
+                top_p=top_p,
                 max_tokens=max_tokens,
                 stream=True
             )
@@ -146,14 +150,14 @@ class OpenAICli:
             except Exception as e:
                 print(f"\n❌ 错误: {str(e)}")
     
-    def single_query(self, query: str, temperature: float = 0.7, max_tokens: Optional[int] = None):
+    def single_query(self, query: str, temperature: float = 0.7, top_p: float = 1.0, max_tokens: Optional[int] = None):
         """单次查询模式"""
         messages: List[ChatCompletionMessageParam] = []
         # 移除此处添加system_message的逻辑，因为它已在chat_completion中处理
         messages.append({"role": "user", "content": query})
         
         try:
-            response_generator = self.chat_completion(messages, temperature, max_tokens)
+            response_generator = self.chat_completion(messages, temperature, top_p, max_tokens)
             for chunk in response_generator:
                 if chunk.choices and chunk.choices[0].delta.content:
                     print(chunk.choices[0].delta.content, end="", flush=True)
@@ -173,7 +177,8 @@ def main():
     
     # 查询参数
     parser.add_argument("--query", "-q", help="单次查询的问题")
-    parser.add_argument("--temperature", "-t", type=float, default=0.7, help="温度参数 (0.0-2.0)")
+    parser.add_argument("--temperature", "-t", type=float, default=1, help="温度参数 (0.0-2.0)")
+    parser.add_argument("--top-p", type=float, default=0.95, help="Top-p采样参数 (0.0-1.0)")
     parser.add_argument("--max-tokens", type=int, help="最大token数")
     parser.add_argument("--system-message", "-s", help="系统提示词")
     
@@ -197,13 +202,15 @@ def main():
     base_url = args.base_url or config.get("base_url")
     model = args.model or config.get("model", "gpt-3.5-turbo")
     system_message = args.system_message or config.get("system_message")
+    temperature = args.temperature or config.get("temperature", 1)
+    top_p = args.top_p or config.get("top_p", 0.95)
     
     try:
         cli = OpenAICli(api_key=api_key, base_url=base_url, model=model, system_message=system_message)
         
         if args.query:
             # 单次查询模式
-            cli.single_query(args.query, args.temperature, args.max_tokens)
+            cli.single_query(args.query, temperature, top_p, args.max_tokens)
         else:
             # 交互式模式
             cli.interactive_chat()

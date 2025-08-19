@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { AiOutlineClose, AiFillCheckCircle, AiFillWarning, AiFillInfoCircle } from 'react-icons/ai';
 import { cn } from '@/lib/utils';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -20,7 +20,7 @@ const Toast: React.FC<ToastProps> = ({
   type,
   title,
   message,
-  duration = 5000,
+  duration = 3000,
   onClose,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -28,7 +28,8 @@ const Toast: React.FC<ToastProps> = ({
 
   useEffect(() => {
     // 进入动画
-    const timer = setTimeout(() => setIsVisible(true), 10);
+    // 进入动画
+    const timer = setTimeout(() => setIsVisible(true), 10); // 短暂延迟，确保CSS动画生效
     
     // 自动关闭
     const autoCloseTimer = setTimeout(() => {
@@ -45,91 +46,90 @@ const Toast: React.FC<ToastProps> = ({
     setIsLeaving(true);
     setTimeout(() => {
       onClose(id);
-    }, 300);
+    }, 200); // 调整动画时长，保持流畅
   };
-
-  const getIcon = () => {
-    switch (type) {
-      case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
-      case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case 'info':
-        return <Info className="w-5 h-5 text-blue-500" />;
-      default:
-        return <Info className="w-5 h-5 text-blue-500" />;
-    }
-  };
-
-  const getStyles = () => {
-    const baseStyles = "border-l-4";
-    switch (type) {
-      case 'success':
-        return `${baseStyles} border-green-500 bg-green-50`;
-      case 'error':
-        return `${baseStyles} border-red-500 bg-red-50`;
-      case 'warning':
-        return `${baseStyles} border-yellow-500 bg-yellow-50`;
-      case 'info':
-        return `${baseStyles} border-blue-500 bg-blue-50`;
-      default:
-        return `${baseStyles} border-blue-500 bg-blue-50`;
-    }
-  };
-
-  return (
-    <div
-      className={cn(
-        "flex items-start gap-3 p-4 rounded-lg shadow-large max-w-sm w-full transition-all duration-300 ease-out",
-        getStyles(),
-        isVisible && !isLeaving ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-      )}
-    >
-      {getIcon()}
-      
-      <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-sm text-black mb-1">
-          {title}
-        </h4>
-        {message && (
-          <p className="text-xs text-neutral-600 leading-relaxed">
-            {message}
-          </p>
-        )}
-      </div>
-
-      <button
-        onClick={handleClose}
-        className="p-1 text-neutral-400 hover:text-neutral-600 transition-colors flex-shrink-0"
-      >
-        <X className="w-4 h-4" />
-      </button>
-    </div>
-  );
-};
-
-// Toast容器组件
-export interface ToastContainerProps {
-  toasts: ToastProps[];
-  onRemove: (id: string) => void;
-}
-
-export const ToastContainer: React.FC<ToastContainerProps> = ({
-  toasts,
-  onRemove,
-}) => {
-  return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          {...toast}
-          onClose={onRemove}
-        />
-      ))}
-    </div>
+ 
+   const getIcon = () => {
+     switch (type) {
+       case 'success':
+           return <AiFillCheckCircle className="w-5 h-5 text-green-600" />; // 更深沉的绿色
+       case 'error':
+           return <AiFillWarning className="w-5 h-5 text-red-600" />; // 更深沉的红色
+       case 'warning':
+           return <AiFillWarning className="w-5 h-5 text-orange-500" />; // 调整为橙色
+       case 'info':
+           return <AiFillInfoCircle className="w-5 h-5 text-blue-600" />; // 更深沉的蓝色
+       default:
+           return <AiFillInfoCircle className="w-5 h-5 text-gray-500" />; // 默认灰色
+     }
+   };
+ 
+   const getAccentColor = () => {
+     switch (type) {
+       case 'success':
+         return 'border-green-500';
+       case 'error':
+         return 'border-red-500';
+       case 'warning':
+         return 'border-orange-400';
+       case 'info':
+         return 'border-blue-500';
+       default:
+         return 'border-gray-300';
+     }
+   };
+ 
+   return (
+     <div
+       className={cn(
+         "flex items-start gap-3 p-4 rounded-lg shadow-lg bg-white border border-gray-200 backdrop-blur-md max-w-sm w-full transition-all duration-300 ease-in-out",
+         getAccentColor(), // 添加左侧强调色边框
+         isVisible && !isLeaving ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0" // 向上弹出动画
+       )}
+     >
+       {getIcon()}
+       
+       <div className="flex-1 min-w-0">
+         <h4 className="font-semibold text-base text-gray-800 mb-1"> {/* 字体更粗，颜色更深 */}
+           {title}
+         </h4>
+         {message && (
+           <p className="text-sm text-gray-600 leading-relaxed break-words"> {/* 字体稍大，颜色更深，允许换行 */}
+             {message}
+           </p>
+         )}
+       </div>
+ 
+       <button
+         onClick={handleClose}
+         className="p-1 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+       >
+         <AiOutlineClose className="w-4 h-4" />
+       </button>
+     </div>
+   );
+ };
+ 
+ // Toast容器组件
+ export interface ToastContainerProps {
+   toasts: ToastProps[];
+   onRemove: (id: string) => void;
+ }
+ 
+ export const ToastContainer: React.FC<ToastContainerProps> = ({
+   toasts,
+   onRemove,
+ }) => {
+   return (
+     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md pointer-events-none p-4 flex flex-col items-center space-y-3"> {/* 定位到顶部水平居中，并限制宽度，使用flex布局垂直居中，增加间距 */}
+       {toasts.map((toast) => (
+         <Toast
+           key={toast.id}
+           {...toast}
+           onClose={onRemove}
+         />
+       ))}
+     </div>
   );
 };
 

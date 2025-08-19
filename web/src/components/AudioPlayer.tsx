@@ -2,17 +2,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Play, 
-  Pause, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
-  VolumeX,
-  Download,
-  Share2,
-  ChevronDown, // 用于收起播放器
-  ChevronUp,   // 用于展开播放器
-} from 'lucide-react';
+  AiFillPlayCircle,
+  AiFillPauseCircle,
+  AiOutlineStepBackward,
+  AiOutlineStepForward,
+  AiOutlineSound,
+  AiOutlineMuted,
+  AiOutlineCloudDownload,
+  AiOutlineShareAlt,
+  AiOutlineDown, // 用于收起播放器
+  AiOutlineUp,   // 用于展开播放器
+} from 'react-icons/ai';
 import { cn, formatTime, downloadFile } from '@/lib/utils';
 import AudioVisualizer from './AudioVisualizer';
 import { useIsSmallScreen } from '@/hooks/useMediaQuery'; // 导入新的 Hook
@@ -238,15 +238,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         <button
           onClick={togglePlayPause}
           disabled={isLoading}
-          className="w-8 h-8 flex-shrink-0 bg-black text-white rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors disabled:opacity-50"
+          className="w-8 h-8 flex-shrink-0 bg-white text-black rounded-full flex items-center justify-center hover:bg-neutral-400 transition-colors disabled:opacity-50"
           title={isPlaying ? "暂停" : "播放"}
         >
           {isLoading ? (
-            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+
           ) : isPlaying ? (
-            <Pause className="w-3 h-3" />
+            <AiFillPauseCircle className="w-8 h-8" />
           ) : (
-            <Play className="w-3 h-3 ml-0.5" />
+            <AiFillPlayCircle className="w-8 h-8" />
           )}
         </button>
 
@@ -305,14 +306,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               className="p-1 text-neutral-600 hover:text-black transition-colors"
               title="后退10秒"
             >
-              <SkipBack className="w-4 h-4" />
+              <AiOutlineStepBackward className="w-4 h-4" />
             </button>
             <button
               onClick={() => skipTime(10)}
               className="p-1 text-neutral-600 hover:text-black transition-colors"
               title="前进10秒"
             >
-              <SkipForward className="w-4 h-4" />
+              <AiOutlineStepForward className="w-4 h-4" />
             </button>
 
             {/* 倍速控制按钮 */}
@@ -340,9 +341,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 title={isMuted ? "取消静音" : "静音"}
               >
                 {isMuted || playerState.volume === 0 ? (
-                  <VolumeX className="w-4 h-4" />
+                  <AiOutlineMuted className="w-4 h-4" />
                 ) : (
-                  <Volume2 className="w-4 h-4" />
+                  <AiOutlineSound className="w-4 h-4" />
                 )}
               </button>
               <input
@@ -362,7 +363,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               className="p-1 text-neutral-600 hover:text-black transition-colors"
               title="分享"
             >
-              <Share2 className="w-4 h-4" />
+              <AiOutlineShareAlt className="w-4 h-4" />
             </button>
             
             <button
@@ -370,7 +371,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               className="p-1 text-neutral-600 hover:text-black transition-colors"
               title="下载"
             >
-              <Download className="w-4 h-4" />
+              <AiOutlineCloudDownload className="w-4 h-4" />
             </button>
           </>
         )}
@@ -392,9 +393,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           disabled={isSmallScreen && effectiveIsCollapsed} // 当 effectiveIsCollapsed 为 true 且是小屏幕时禁用
         >
           {effectiveIsCollapsed ? ( // 根据 effectiveIsCollapsed 决定显示哪个图标
-            <ChevronUp className="w-4 h-4" />
+            <AiOutlineUp className="w-4 h-4" />
           ) : (
-            <ChevronDown className="w-4 h-4" />
+            <AiOutlineDown className="w-4 h-4" />
           )}
         </button>
       </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Check } from 'lucide-react';
+import { AiOutlineCheck } from 'react-icons/ai';
 import type { TTSConfig, Voice } from '@/types';
 import { getTTSProviders } from '@/lib/config';
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
@@ -184,7 +184,7 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
                     </div>
                   </div>
                   {selectedConfig === config.name && (
-                    <Check className="w-4 h-4 text-green-500" />
+                    <AiOutlineCheck className="w-4 h-4 text-green-500" />
                   )}
                 </button>
               )) : (

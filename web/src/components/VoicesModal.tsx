@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { Voice } from '@/types';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
-import { X } from 'lucide-react';
+import { AiOutlineClose } from 'react-icons/ai';
 
 interface VoicesModalProps {
   isOpen: boolean;
@@ -131,7 +131,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
             className="absolute top-4 right-4 p-2 rounded-full text-neutral-600 hover:bg-neutral-100 hover:text-black transition-all duration-200 z-10"
             aria-label="关闭"
           >
-            <X className="w-5 h-5" />
+            <AiOutlineClose className="w-5 h-5" />
           </button>
         </div>
         
@@ -254,7 +254,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
                     className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-full backdrop-blur-sm"
                     aria-label="删除"
                   >
-                    <X className="w-5 h-5" />
+                    <AiOutlineClose className="w-5 h-5" />
                   </button>
                 </div>
               ))}

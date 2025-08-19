@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-console.log('🚀 ListenHub Web应用设置向导\n');
+console.log('🚀 PodcastHub Web应用设置向导\n');
 
 // 检查Node.js版本
 const nodeVersion = process.version;
@@ -72,4 +72,4 @@ console.log('\n下一步：');
 console.log('1. 编辑 .env.local 文件，配置您的OpenAI API密钥');
 console.log('2. 运行 npm run dev 启动开发服务器');
 console.log('3. 在浏览器中打开 http://localhost:3000');
-console.log('\n享受使用ListenHub！🎙️');
+console.log('\n享受使用PodcastHub！🎙️');

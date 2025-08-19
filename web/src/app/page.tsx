@@ -15,6 +15,7 @@ import { trackedFetch } from '@/utils/apiCallTracker';
 import type { PodcastGenerationRequest, PodcastItem, UIState, PodcastGenerationResponse, SettingsFormData } from '@/types';
 import { getTTSProviders } from '@/lib/config';
 import { getSessionData } from '@/lib/server-actions';
+import PricingSection from '@/components/PricingSection'; // 导入 PricingSection 组件
 
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
@@ -347,6 +348,9 @@ export default function HomePage() {
               />
             )}
             
+            {/* 定价部分 */}
+            {/* <PricingSection /> */}
+
             {/* 推荐播客 - 水平滚动 */}
             {/* <ContentSection
               title="为你推荐"

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Share2 } from 'lucide-react';
+import { AiOutlineShareAlt } from 'react-icons/ai';
 import { useToast } from './Toast'; // 确保路径正确
 import { usePathname } from 'next/navigation'; // next/navigation 用于获取当前路径
 
@@ -33,7 +33,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ className }) => {
       className={`text-neutral-500 hover:text-black transition-colors text-sm ${className}`}
       aria-label="分享页面"
     >
-      <Share2 className="w-5 h-5" />
+      <AiOutlineShareAlt className="w-5 h-5" />
     </button>
   );
 };

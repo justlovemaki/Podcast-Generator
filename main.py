@@ -74,7 +74,7 @@ stop_scheduler_event = threading.Event()
 
 # 全局配置
 output_dir = "output"
-time_after = 30
+time_after = 10
 
 # 内存中存储任务结果
 # {task_id: {"auth_id": auth_id, "status": TaskStatus, "result": any, "timestamp": float}}
@@ -96,15 +96,60 @@ tts_provider_map = {
 
 # 定义一个函数来清理输出目录
 def clean_output_directory():
-    """Removes files from the output directory that are older than 30 minutes."""
-    print(f"Cleaning output directory: {output_dir}")
+    """
+    清理 output 目录中的旧文件以及 task_results 中过期的任务。
+    优先清理过期的任务及其关联文件，确保内存和文件系统同步。
+    """
+    print(f"Cleaning output directory and expired tasks from memory: {output_dir}")
     now = time.time()
-    # 30 minutes in seconds
-    threshold = time_after * 60
+    threshold = time_after * 60  # 清理阈值，单位秒
 
-    # 存储需要删除的 task_results 中的任务，避免在迭代时修改
-    tasks_to_remove_from_memory = []
+    # 第一阶段：清理 task_results 中已完成且过期的任务及其关联文件
+    # 使用 list() 创建副本以安全地在迭代时修改原始字典
+    auth_ids_to_clean = []
+    for auth_id, tasks_by_auth in list(task_results.items()):
+        task_ids_to_clean = []
+        for task_id, task_info in list(tasks_by_auth.items()):
+            # 只要 timestamp 过期，无论任务状态如何，都进行清理
+            if (now - task_info["timestamp"] > threshold):
+                task_ids_to_clean.append(task_id)
+                
+                # 尝试删除对应的音频文件
+                output_audio_filepath = task_info.get("output_audio_filepath")
+                if output_audio_filepath:
+                    full_audio_path = os.path.join(output_dir, output_audio_filepath)
+                    try:
+                        if os.path.isfile(full_audio_path):
+                            os.unlink(full_audio_path)
+                            print(f"Deleted expired audio file: {full_audio_path}")
+                        else:
+                            print(f"Expired task {task_id} audio file {full_audio_path} not found or is not a file.")
+                    except Exception as e:
+                        print(f"Failed to delete audio file {full_audio_path}. Reason: {e}")
 
+                # 从 audio_file_mapping 中删除对应的条目
+                filename_without_ext = os.path.splitext(output_audio_filepath)[0] if output_audio_filepath else None
+                if filename_without_ext and filename_without_ext in audio_file_mapping:
+                    del audio_file_mapping[filename_without_ext]
+                    print(f"Removed audio_file_mapping entry for {filename_without_ext}.")
+
+        # 清理 task_results 中的任务
+        for task_id in task_ids_to_clean:
+            if task_id in task_results[auth_id]:
+                del task_results[auth_id][task_id]
+                print(f"Removed expired task {task_id} for auth_id {auth_id} from task_results.")
+        
+        # 如果该 auth_id 下没有其他任务，则删除 auth_id 的整个条目
+        if not task_results[auth_id]:
+            auth_ids_to_clean.append(auth_id)
+    
+    for auth_id in auth_ids_to_clean:
+        if auth_id in task_results:
+            del task_results[auth_id]
+            print(f"Removed empty auth_id {auth_id} from task_results.")
+
+    # 第二阶段：清理 output 目录中可能未被任务关联的孤立文件
+    # 或者那些任务还未过期，但文件因为某种原因在内存任务清理阶段没有被删除的文件
     for filename in os.listdir(output_dir):
         file_path = os.path.join(output_dir, filename)
         try:
@@ -112,40 +157,12 @@ def clean_output_directory():
                 # 获取最后修改时间
                 if now - os.path.getmtime(file_path) > threshold:
                     os.unlink(file_path)
-                    print(f"Deleted old file: {file_path}")
-
-                    # 遍历 task_results，查找匹配的文件名
-                    # 注意：task_info["output_audio_filepath"] 存储的是文件名，不是完整路径
-                    for auth_id, tasks_by_auth in task_results.items():
-                        # 使用 list() 创建副本，以安全地在循环中删除元素
-                        for task_id, task_info in list(tasks_by_auth.items()):
-                            # 检查文件名是否匹配，并且任务状态为 COMPLETED
-                            # 只有 COMPLETED 的任务才应该被清理，PENDING/RUNNING 任务的输出文件可能还未生成或正在使用
-                            task_output_filename = task_info.get("output_audio_filepath")
-                            if task_output_filename == filename and task_info["status"] == TaskStatus.COMPLETED:
-                                tasks_to_remove_from_memory.append((auth_id, task_id, task_info))
+                    print(f"Deleted old unassociated file: {file_path}")
             elif os.path.isdir(file_path):
                 # 可选地，递归删除旧的子目录或其中的文件
-                # 目前只跳过目录
                 pass
         except Exception as e:
             print(f"Failed to delete {file_path}. Reason: {e}")
-
-    # 在文件删除循环结束后统一处理 task_results 的删除
-    for auth_id, task_id, task_info_to_remove in tasks_to_remove_from_memory:
-        if auth_id in task_results and task_id in task_results[auth_id]:
-            del task_results[auth_id][task_id]
-            print(f"Removed task {task_id} for auth_id {auth_id} from task_results.")
-            # 从 audio_file_mapping 中删除对应的条目
-            task_output_filename = task_info_to_remove.get("output_audio_filepath")
-            if task_output_filename and task_output_filename in audio_file_mapping:
-                del audio_file_mapping[task_output_filename]
-                print(f"Removed audio_file_mapping entry for {task_output_filename}.")
-            # 如果该 auth_id 下没有其他任务，则删除 auth_id 的整个条目
-            if not task_results[auth_id]:
-                del task_results[auth_id]
-                print(f"Removed empty auth_id {auth_id} from task_results.")
-
 
 async def get_auth_id(x_auth_id: str = Header(..., alias="X-Auth-Id")):
     """

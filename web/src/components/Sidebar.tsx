@@ -2,19 +2,18 @@
 
 import React, { useState, useEffect, useRef } from 'react'; // 导入 useState, useEffect, 和 useRef 钩子
 import {
-  Home,
-  Settings,
-  X,
-  MessageCircle,
-  Mail,
-  Cloud,
-  Smartphone,
-PanelLeftClose,
-  PanelLeftOpen,
-  Coins,
-  LogIn, // 导入 LogIn 图标用于登录按钮
-  User2 // 导入 User2 图标用于默认头像
-} from 'lucide-react';
+  AiOutlineHome,
+  AiOutlineSetting,
+  AiOutlineTwitter,
+  AiOutlineTikTok,
+  AiOutlineMail,
+  AiOutlineGithub,
+  AiOutlineMenuFold,
+  AiOutlineMenuUnfold,
+  AiOutlineMoneyCollect, // 或者 AiOutlineDollarCircle
+  AiOutlineLogin, // 导入 AiOutlineLogin 图标用于登录按钮
+  AiOutlineUser // 导入 AiOutlineUser 图标用于默认头像
+} from 'react-icons/ai';
 import { signOut } from '@/lib/auth-client'; // 导入 signOut 函数
 import { useRouter } from 'next/navigation'; // 导入 useRouter 钩子
 import { getSessionData } from '@/lib/server-actions';
@@ -89,8 +88,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }, [session, router, onCreditsChange]); // 监听 session 变化和 router（因为 signOut 中使用了 router.push），并添加 onCreditsChange
 
+  // todo
   const mainNavItems: NavItem[] = [
-    { id: 'home', label: '首页', icon: Home },
+    { id: 'home', label: '首页', icon: AiOutlineHome },
     // 隐藏资料库和探索
     // { id: 'library', label: '资料库', icon: Library },
     // { id: 'explore', label: '探索', icon: Compass },
@@ -99,17 +99,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   const bottomNavItems: NavItem[] = [
     // 隐藏定价和积分
     // { id: 'pricing', label: '定价', icon: DollarSign },
-    { id: 'credits', label: '积分', icon: Coins, badge: credits.toString() }, // 动态设置 badge
-    ...(enableTTSConfigPage ? [{ id: 'settings', label: 'TTS设置', icon: Settings }] : [])
+    { id: 'credits', label: '积分', icon: AiOutlineMoneyCollect, badge: credits.toString() }, // 动态设置 badge
+    ...(enableTTSConfigPage ? [{ id: 'settings', label: 'TTS设置', icon: AiOutlineSetting }] : [])
   ];
 
 
   const socialLinks = [
-    { icon: X, href: '#', label: 'Twitter' },
-    { icon: MessageCircle, href: '#', label: 'Discord' },
-    { icon: Mail, href: '#', label: 'Email' },
-    { icon: Cloud, href: '#', label: 'Cloud' },
-    { icon: Smartphone, href: '#', label: 'Mobile' },
+    { icon: AiOutlineGithub, href: 'https://github.com/justlovemaki', label: 'Github' },
+    { icon: AiOutlineTwitter, href: 'https://x.com/justlikemaki', label: 'Twitter' }, 
+    { icon: AiOutlineTikTok, href: 'https://cdn.jsdmirror.com/gh/justlovemaki/imagehub@main/logo/7fc30805eeb831e1e2baa3a240683ca3.md.png', label: 'Douyin' },
+    { icon: AiOutlineMail, href: 'mailto:justlikemaki@foxmail.com', label: 'Email' },
   ];
 
   return (
@@ -131,20 +130,47 @@ const Sidebar: React.FC<SidebarProps> = ({
                 className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity"
                 title="展开侧边栏"
               >
-                <PanelLeftOpen className="w-4 h-4 text-white" />
+                <AiOutlineMenuUnfold className="w-4 h-4 text-white" />
               </button>
             </div>
           ) : (
             /* 展开状态 - Logo和品牌名称 */
             <>
-              {/* Logo图标 */}
-              <div className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center flex-shrink-0">
-                <div className="w-4 h-4 bg-white rounded-sm opacity-80" />
-              </div>
-              
               {/* 品牌名称容器 - 慢慢收缩动画 */}
-              <div className="overflow-hidden transition-all duration-500 ease-in-out w-auto ml-3">
-                <span className="text-xl font-semibold text-black whitespace-nowrap transition-all duration-500 ease-in-out transform-gpu opacity-100 scale-x-100">PodcastHub</span>
+              <div className="overflow-hidden transition-all duration-500 ease-in-out w-auto ">
+                <svg className="h-[30px] w-[180px] sm:h-[30px] sm:w-[180px]" viewBox="0 0 800 150" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="waveGradient" x1="49" y1="98" x2="140" y2="98" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#8E54E9"/>
+                      <stop offset="1" stop-color="#C26AE6"/>
+                    </linearGradient>
+
+                    <linearGradient id="textGradient" x1="175" y1="0" x2="810" y2="0" gradientUnits="userSpaceOnUse">
+                      <stop offset="0.05" stop-color="#D069E6"/>
+                      <stop offset="0.35" stop-color="#FB866C"/>
+                      <stop offset="0.55" stop-color="#FA6F7E"/>
+                      <stop offset="0.85" stop-color="#E968E2"/>
+                      <stop offset="1" stop-color="#D869E5"/>
+                    </linearGradient>
+                  </defs>
+
+                  <g>
+                    <path 
+                      d="M49 98.5 C 56 56.5, 65 56.5, 73 90.5 C 79 120.5, 85 125.5, 91 100.5 C 96 80.5, 100 75.5, 106 95.5 C 112 115.5, 118 108.5, 125 98.5"
+                      className="fill-none stroke-[10] stroke-round stroke-join-round" // 调整描边宽度为 7
+                      stroke="black"
+                    />
+
+                    <text
+                      x="140"
+                      y="125"
+                      className={`font-bold text-[95px]`} // 应用艺术字体
+                      fill="black"
+                    >
+                      PodcastHub
+                    </text>
+                  </g>
+                </svg>
               </div>
               
               {/* 收起按钮 */}
@@ -154,7 +180,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 border border-neutral-200 transition-all duration-200"
                   title="收起侧边栏"
                 >
-                  <PanelLeftClose className="w-4 h-4 text-neutral-500" />
+                  <AiOutlineMenuFold className="w-4 h-4 text-neutral-500" />
                 </button>
               </div>
             </>
@@ -249,7 +275,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           collapsed ? "h-0 pt-0" : "h-auto pt-4"
         )}>
           <div className={cn(
-            "flex items-center gap-3 transition-all duration-500 ease-in-out transform-gpu",
+            "flex items-center justify-center gap-3 transition-all duration-500 ease-in-out transform-gpu",
             collapsed ? "opacity-0 scale-y-0" : "opacity-100 scale-y-100"
           )}>
             {socialLinks.map((link, index) => {
@@ -303,7 +329,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   />
                 ) : (
                   <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
-                    <User2 className="w-5 h-5 text-neutral-500" />
+                    <AiOutlineUser className="w-5 h-5 text-neutral-500" />
                   </div>
                 )}
               </button>
@@ -331,7 +357,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               )}
               title={collapsed ? "登录" : undefined}
             >
-              <LogIn className="w-5 h-5 flex-shrink-0" />
+              <AiOutlineLogin className="w-5 h-5 flex-shrink-0" />
               <div className={cn(
                 "overflow-hidden transition-all duration-500 ease-in-out",
                 collapsed ? "w-0 ml-0" : "w-auto ml-3"
