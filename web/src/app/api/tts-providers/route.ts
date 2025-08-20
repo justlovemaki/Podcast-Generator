@@ -22,7 +22,11 @@ export async function GET() {
     }
 
     // 缓存无效或不存在，读取文件并更新缓存
-    const configPath = path.join(process.cwd(), '..', 'config', 'tts_providers.json');
+    const ttsProvidersName = process.env.TTS_PROVIDERS_NAME;
+    if (!ttsProvidersName) {
+      throw new Error('TTS_PROVIDERS_NAME 环境变量未设置');
+    }
+    const configPath = path.join(process.cwd(), '..', 'config', ttsProvidersName);
     const configContent = await fs.readFile(configPath, 'utf-8');
     const config = JSON.parse(configContent);
 

@@ -100,7 +100,7 @@ export default async function PodcastContent({ fileName }: PodcastContentProps) 
         </div>
         
         {/* 标题 */}
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight break-words">
+        <h1 className="text-3xl md:text-3xl font-bold text-gray-900 leading-tight break-words">
           {audioInfo.title}
         </h1>
 

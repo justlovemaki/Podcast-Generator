@@ -157,17 +157,34 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
           <div className="flex items-center justify-center gap-3 mb-4">
             <svg className="h-[80px] w-[300px] sm:h-[100px] sm:w-[600px]" viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="waveGradient" x1="49" y1="98" x2="140" y2="98" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#8E54E9"/>
-                  <stop offset="1" stop-color="#C26AE6"/>
+                <linearGradient id="waveGradient" x1="0" y1="0" x2="140" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#D869E5">
+                    <animate attributeName="stop-color" values="#D069E6;#FB866C;#FA6F7E;#E968E2;" dur="5s" repeatCount="indefinite"/>
+                  </stop>
+                  <stop offset="1" stopColor="#D069E6">
+                    <animate attributeName="stop-color" values="#FB866C;#FA6F7E;#E968E2;#D869E5;" dur="5s" repeatCount="indefinite"/>
+                  </stop>
                 </linearGradient>
 
-                <linearGradient id="textGradient" x1="175" y1="0" x2="810" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop offset="0.05" stop-color="#D069E6"/>
-                  <stop offset="0.35" stop-color="#FB866C"/>
-                  <stop offset="0.55" stop-color="#FA6F7E"/>
-                  <stop offset="0.85" stop-color="#E968E2"/>
-                  <stop offset="1" stop-color="#D869E5"/>
+                <linearGradient id="textGradient" x1="600" y1="0" x2="150" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#C75AD4">
+                    <animate attributeName="stop-color" values="#C75AD4;#D85AD1;#F85F6F;#F9765B;#C15ED5;#C75AD4" dur="10s" repeatCount="indefinite" />
+                  </stop>
+                  <stop offset="0.1818" stopColor="#D85AD1">
+                    <animate attributeName="stop-color" values="#D85AD1;#F85F6F;#F9765B;#C15ED5;#C75AD4;#D85AD1" dur="10s" repeatCount="indefinite" />
+                  </stop>
+                  <stop offset="0.3636" stopColor="#F85F6F">
+                    <animate attributeName="stop-color" values="#F85F6F;#F9765B;#C15ED5;#C75AD4;#D85AD1;#F85F6F" dur="10s" repeatCount="indefinite" />
+                  </stop>
+                  <stop offset="0.5455" stopColor="#F9765B">
+                    <animate attributeName="stop-color" values="#F9765B;#C15ED5;#C75AD4;#D85AD1;#F85F6F;#F9765B" dur="10s" repeatCount="indefinite" />
+                  </stop>
+                  <stop offset="0.7273" stopColor="#C15ED5">
+                    <animate attributeName="stop-color" values="#C15ED5;#C75AD4;#D85AD1;#F85F6F;#F9765B;#C15ED5" dur="10s" repeatCount="indefinite" />
+                  </stop>
+                  <stop offset="0.9091" stopColor="#C75AD4">
+                    <animate attributeName="stop-color" values="#C75AD4;#D85AD1;#F85F6F;#F9765B;#C15ED5;#C75AD4" dur="10s" repeatCount="indefinite" />
+                  </stop>
                 </linearGradient>
               </defs>
 

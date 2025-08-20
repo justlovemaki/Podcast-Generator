@@ -74,7 +74,7 @@ stop_scheduler_event = threading.Event()
 
 # 全局配置
 output_dir = "output"
-time_after = 10
+time_after = 30
 
 # 内存中存储任务结果
 # {task_id: {"auth_id": auth_id, "status": TaskStatus, "result": any, "timestamp": float}}
@@ -86,12 +86,12 @@ audio_file_mapping: Dict[str, Dict] = {}
 SECRET_KEY = os.getenv("PODCAST_API_SECRET_KEY", "your-super-secret-key") # 在生产环境中请务必修改!
 # 定义从 tts_provider 名称到其配置文件路径的映射
 tts_provider_map = {
-    "index-tts": "config/index-tts.json",
-    "doubao-tts": "config/doubao-tts.json",
-    "edge-tts": "config/edge-tts.json",
-    "fish-audio": "config/fish-audio.json",
-    "gemini-tts": "config/gemini-tts.json",
-    "minimax": "config/minimax.json",
+    "index-tts": "../config/index-tts.json",
+    "doubao-tts": "../config/doubao-tts.json",
+    "edge-tts": "../config/edge-tts.json",
+    "fish-audio": "../config/fish-audio.json",
+    "gemini-tts": "../config/gemini-tts.json",
+    "minimax": "../config/minimax.json",
 }
 
 # 定义一个函数来清理输出目录

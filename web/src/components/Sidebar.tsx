@@ -139,21 +139,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               {/* 品牌名称容器 - 慢慢收缩动画 */}
               <div className="overflow-hidden transition-all duration-500 ease-in-out w-auto ">
                 <svg className="h-[30px] w-[180px] sm:h-[30px] sm:w-[180px]" viewBox="0 0 800 150" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="waveGradient" x1="49" y1="98" x2="140" y2="98" gradientUnits="userSpaceOnUse">
-                      <stop stop-color="#8E54E9"/>
-                      <stop offset="1" stop-color="#C26AE6"/>
-                    </linearGradient>
-
-                    <linearGradient id="textGradient" x1="175" y1="0" x2="810" y2="0" gradientUnits="userSpaceOnUse">
-                      <stop offset="0.05" stop-color="#D069E6"/>
-                      <stop offset="0.35" stop-color="#FB866C"/>
-                      <stop offset="0.55" stop-color="#FA6F7E"/>
-                      <stop offset="0.85" stop-color="#E968E2"/>
-                      <stop offset="1" stop-color="#D869E5"/>
-                    </linearGradient>
-                  </defs>
-
                   <g>
                     <path 
                       d="M49 98.5 C 56 56.5, 65 56.5, 73 90.5 C 79 120.5, 85 125.5, 91 100.5 C 96 80.5, 100 75.5, 106 95.5 C 112 115.5, 118 108.5, 125 98.5"

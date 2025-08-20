@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   // 构建文件路径
-  const outputDir = path.join(process.cwd(), '..', 'output');
+  const outputDir = path.join(process.cwd(), '..', 'server', 'output');
   const filePath = path.join(outputDir, filename);
 
   try {

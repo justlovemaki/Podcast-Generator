@@ -82,7 +82,7 @@ const Toast: React.FC<ToastProps> = ({
    return (
      <div
        className={cn(
-         "flex items-start gap-3 p-4 rounded-lg shadow-lg bg-white border border-gray-200 backdrop-blur-md max-w-sm w-full transition-all duration-300 ease-in-out",
+         "flex items-start gap-3 p-4 rounded-lg shadow-lg bg-white border border-gray-200 backdrop-blur-md max-w-sm w-full transition-all duration-300 ease-in-out pointer-events-auto",
          getAccentColor(), // 添加左侧强调色边框
          isVisible && !isLeaving ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0" // 向上弹出动画
        )}
@@ -121,7 +121,7 @@ const Toast: React.FC<ToastProps> = ({
    onRemove,
  }) => {
    return (
-     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md pointer-events-none p-4 flex flex-col items-center space-y-3"> {/* 定位到顶部水平居中，并限制宽度，使用flex布局垂直居中，增加间距 */}
+     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md p-4 flex flex-col items-center space-y-3"> {/* 定位到顶部水平居中，并限制宽度，使用flex布局垂直居中，增加间距 */}
        {toasts.map((toast) => (
          <Toast
            key={toast.id}

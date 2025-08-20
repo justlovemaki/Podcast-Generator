@@ -6,8 +6,8 @@ import os
 import json
 
 def check_doubao_tts_voices():
-    config_file_path = "config/doubao-tts.json"
-    tts_providers_path = "config/tts_providers.json"
+    config_file_path = "../config/doubao-tts.json"
+    tts_providers_path = "../config/tts_providers.json"
     test_text = "你好"  # 测试文本
 
     try:

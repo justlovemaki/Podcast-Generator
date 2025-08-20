@@ -19,7 +19,7 @@ from tts_adapters import TTSAdapter, IndexTTSAdapter, EdgeTTSAdapter, FishAudioA
 # Global configuration
 output_dir = "output"
 file_list_path = os.path.join(output_dir, "file_list.txt")
-tts_providers_config_path = 'config/tts_providers.json'
+tts_providers_config_path = '../config/tts_providers.json'
 
 def read_file_content(filepath):
     """Reads content from a given file path."""
@@ -39,7 +39,7 @@ def _load_json_config(file_path: str) -> dict:
     except json.JSONDecodeError as e:
         raise ValueError(f"Error decoding JSON from {file_path}: {e}")
 
-def select_json_config(config_dir='config', return_file_path=False):
+def select_json_config(config_dir='../config', return_file_path=False):
     """
     Reads JSON files from the specified directory and allows the user to select one.
     Returns the content of the selected JSON file.
@@ -114,6 +114,7 @@ def generate_speaker_id_text(pod_users, voices_list):
 def merge_audio_files():
     # 生成一个唯一的UUID
     unique_id = str(uuid.uuid4())
+    unique_id = unique_id.replace("-", "")
     # 获取当前时间戳
     timestamp = int(time.time())
     # 组合UUID和时间戳作为文件名，去掉 'podcast_' 前缀
