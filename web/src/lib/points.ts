@@ -150,6 +150,62 @@ export async function deductUserPoints(
 }
 
 /**
+ * 增加用户积分。
+ * @param userId 用户ID
+ * @param pointsToAdd 要增加的积分数量
+ * @param reasonCode 交易原因代码 (例如: "initial_bonus", "purchase")
+ * @param description 交易描述 (可选)
+ * @returns Promise<void>
+ * @throws Error 如果操作失败
+ */
+export async function addPointsToUser(
+  userId: string,
+  pointsToAdd: number,
+  reasonCode: string,
+  description?: string
+): Promise<void> {
+  
+  // if (pointsToAdd <= 0) {
+  //   throw new Error("增加积分数量必须大于0。");
+  // }
+
+  await db.transaction(async (tx) => {
+    // 1. 获取用户当前积分
+    const [account] = await tx
+      .select({ totalPoints: schema.pointsAccounts.totalPoints })
+      .from(schema.pointsAccounts)
+      .where(eq(schema.pointsAccounts.userId, userId))
+      .limit(1);
+
+    if (!account) {
+      throw new Error(`用户 ${userId} 不存在积分账户。`);
+    }
+
+    const currentPoints = account.totalPoints;
+    const newPoints = currentPoints + pointsToAdd;
+
+    // 2. 记录积分交易流水
+    await tx.insert(schema.pointsTransactions).values({
+      userId: userId,
+      pointsChange: pointsToAdd, // 增加为正数
+      reasonCode: reasonCode,
+      description: description,
+      createdAt: new Date().toISOString(),
+    });
+
+    // 3. 更新积分账户
+    await tx
+      .update(schema.pointsAccounts)
+      .set({
+        totalPoints: newPoints,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(schema.pointsAccounts.userId, userId));
+
+    console.log(`用户 ${userId} 积分成功增加 ${pointsToAdd}，当前积分 ${newPoints}`);
+  });
+}
+/**
  * 查询用户积分明细。
  * @param userId 用户ID
  * @param page 页码 (默认为 1)
@@ -174,6 +230,34 @@ export async function getUserPointsTransactions(
     return transactions;
   } catch (error) {
     console.error(`查询用户 ${userId} 积分明细失败:`, error);
+    throw error; // 抛出错误以便调用方处理
+  }
+}
+/**
+ * 检查用户今天是否已签到。
+ * @param userId 用户ID
+ * @param reasonCode 交易原因代码 (例如: "sign_in")
+ * @returns Promise<boolean> 如果今天已签到则返回 true，否则返回 false
+ */
+export async function hasUserSignedToday(userId: string, reasonCode: string): Promise<boolean> {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 设置为今天开始时间
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1); // 设置为明天开始时间
+
+    const transactions = await db
+      .select()
+      .from(schema.pointsTransactions)
+      .where(
+        sql`${schema.pointsTransactions.userId} = ${userId} AND ${schema.pointsTransactions.reasonCode} = ${reasonCode} AND ${schema.pointsTransactions.createdAt} >= ${today.toISOString()} AND ${schema.pointsTransactions.createdAt} < ${tomorrow.toISOString()}`
+      )
+      .limit(1);
+
+    return transactions.length > 0;
+  } catch (error) {
+    console.error(`检查用户 ${userId} 今日签到记录失败:`, error);
     throw error; // 抛出错误以便调用方处理
   }
 }

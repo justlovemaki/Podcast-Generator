@@ -35,25 +35,29 @@ interface PodcastCreatorProps {
   isGenerating?: boolean;
   credits: number;
   settings: SettingsFormData | null; // 新增 settings 属性
+  onSignInSuccess: () => void; // 新增 onSignInSuccess 属性
+  enableTTSConfigPage: boolean; // 新增 enableTTSConfigPage 属性
 }
 
 const PodcastCreator: React.FC<PodcastCreatorProps> = ({
   onGenerate,
   isGenerating = false,
   credits,
-  settings // 解构 settings 属性
+  settings, // 解构 settings 属性
+  onSignInSuccess, // 解构 onSignInSuccess 属性
+  enableTTSConfigPage // 解构 enableTTSConfigPage 属性
 }) => {
 
   const languageOptions = [
-    { value: 'Make sure the language of the output content is Chinese', label: '简体中文' },
-    { value: 'Make sure the language of the output content is English', label: 'English' },
-    { value: 'Make sure the language of the output content is Japanese', label: '日本語' },
+    { value: 'Chinese', label: '简体中文' },
+    { value: 'English', label: 'English' },
+    { value: 'Japanese', label: '日本語' },
   ];
 
   const durationOptions = [
+    { value: 'Under 5 minutes', label: '5分钟以内' },
     { value: '5-10 minutes', label: '5-10分钟' },
-    { value: '15-20 minutes', label: '15-20分钟' },
-    { value: '25-30 minutes', label: '25-30分钟' },
+    { value: '10-15 minutes', label: '10-15分钟' },
   ];
 
    const [topic, setTopic] = useState('');
@@ -85,7 +89,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
    const [selectedConfigName, setSelectedConfigName] = useState<string>(''); // 新增状态来存储配置文件的名称
    const fileInputRef = useRef<HTMLInputElement>(null);
 
-   const { toasts, error } = useToast(); // 使用 useToast hook, 引入 success
+   const { toasts, error, success, removeToast } = useToast(); // 使用 useToast hook, 引入 success
    const { data: session } = useSession(); // 获取 session
 
    const handleSubmit = async () => { // 修改为 async 函数
@@ -115,14 +119,15 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
     const request: PodcastGenerationRequest = {
         tts_provider: selectedConfigName.replace('.json', ''),
         input_txt_content: inputTxtContent,
-        tts_providers_config_content: JSON.stringify(settings),
         podUsers_json_content: JSON.stringify(selectedPodcastVoices[selectedConfigName] || []),
-        api_key: settings?.apikey,
-        base_url: settings?.baseurl,
-        model: settings?.model,
-        callback_url: process.env.NEXT_PUBLIC_PODCAST_CALLBACK_URL || "https://your-callback-url.com/podcast-status", // 从环境变量获取
         usetime: duration,
         output_language: language,
+        ...(enableTTSConfigPage ? {
+          tts_providers_config_content: JSON.stringify(settings),
+          api_key: settings?.apikey,
+          base_url: settings?.baseurl,
+          model: settings?.model,
+        } : {})
     };
 
     try {
@@ -135,7 +140,35 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
     } catch (err) {
         console.error("播客生成失败:", err);
     }
-};
+  };
+
+  const handleSignIn = async () => {
+    if (!session?.user) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/points', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        success("签到成功", data.message);
+        onSignInSuccess(); // 签到成功后调用回调
+      } else {
+        error("签到失败", data.error);
+      }
+    } catch (err) {
+      console.error("签到请求失败:", err);
+      error("签到失败", "网络错误或服务器无响应");
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -271,7 +304,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                     setCustomInstructions(e.target.value);
                     setItem('podcast-custom-instructions', e.target.value); // 实时保存到 localStorage
                   }}
-                  placeholder="添加自定义指令（可选）..."
+                  placeholder="添加自定义指令（可选）... 例如：固定的开场白和结束语，文案脚本语境，输出内容的重点"
                   className="w-full h-16 resize-none border-none outline-none text-sm placeholder-neutral-400 bg-white"
                   disabled={isGenerating}
                 />
@@ -391,6 +424,19 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                 </svg>
                 <span className="truncate">{credits}</span>
               </div>
+
+              {/* 签到按钮 */}
+              <button
+                onClick={handleSignIn}
+                disabled={isGenerating}
+                className={cn(
+                  "btn-secondary flex items-center gap-1 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2",
+                  isGenerating && "opacity-50 cursor-not-allowed"
+                )}
+              >
+              签到
+              </button>
+
             <div className="flex flex-col items-center gap-1">
               {/* 创作按钮 */}
               <button
@@ -454,7 +500,10 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
         onClose={() => setShowLoginModal(false)}
       />
 
-      <ToastContainer toasts={toasts} onRemove={() => {}} /> {/* 添加 ToastContainer */}
+      <ToastContainer
+        toasts={toasts}
+        onRemove={removeToast}
+      />
     </div>
   );
 };

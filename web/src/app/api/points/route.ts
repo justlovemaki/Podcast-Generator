@@ -1,4 +1,4 @@
-import { getUserPoints, deductUserPoints } from "@/lib/points"; // 导入 deductUserPoints
+import { getUserPoints, deductUserPoints, addPointsToUser, hasUserSignedToday } from "@/lib/points"; // 导入 deductUserPoints, addPointsToUser, hasUserSignedToday
 import { NextResponse, NextRequest } from "next/server"; // 导入 NextRequest
 import { getSessionData } from "@/lib/server-actions"; // 导入 getSessionData
 
@@ -73,6 +73,38 @@ export async function PUT(request: NextRequest) {
             console.error("积分不足错误: %s %s %s", auth_id, task_id, error);
             return NextResponse.json({ success: false, error: error.message }, { status: 402 }); // Forbidden
         }
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const session = await getSessionData();
+  if (!session || !session.user || !session.user.id) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.user.id;
+  const fixedPointsToAdd = parseInt(process.env.POINTS_PER_SIGN_IN || '5', 10); // 签到积分固定从环境变量获取，默认5分
+  const fixedReasonCode = "sign_in";
+  const description = "每日签到"; // 描述固定
+
+  try {
+    // 1. 判断今日是否已签到
+    const hasSignedToday = await hasUserSignedToday(userId, fixedReasonCode);
+    if (hasSignedToday) {
+      return NextResponse.json({ success: false, error: "Already signed in today" }, { status: 400 });
+    }
+
+    // 2. 调用增加积分的方法
+    await addPointsToUser(userId, fixedPointsToAdd, fixedReasonCode, description);
+
+    return NextResponse.json({ success: true, message: "Points added successfully" });
+
+  } catch (error) {
+    console.error("Error adding points:", error);
+    if (error instanceof Error) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
     return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });

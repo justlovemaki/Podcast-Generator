@@ -46,3 +46,4 @@ Thumbs.db
 drizzle
 .claude/
 /.public/
+/src/app/api/points/add-by-user

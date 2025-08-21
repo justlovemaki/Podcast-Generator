@@ -227,7 +227,8 @@ def _parse_arguments():
     parser.add_argument("--model", default="gpt-3.5-turbo", help="OpenAI model to use (default: gpt-3.5-turbo).")
     parser.add_argument("--threads", type=int, default=1, help="Number of threads to use for audio generation (default: 1).")
     parser.add_argument("--output-language", type=str, default=None, help="Language for the podcast overview and script (default: Chinese).")
-    parser.add_argument("--usetime", type=str, default=None, help="Specific time to be mentioned in the podcast script, e.g., '今天', '昨天'.")
+    parser.add_argument("--usetime", type=str, default=None, help="Specific time to be mentioned in the podcast script, e.g., 10 minutes, 1 hour.")
+
     return parser.parse_args()
 
 def _load_configuration():

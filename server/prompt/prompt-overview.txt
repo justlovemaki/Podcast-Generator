@@ -19,7 +19,7 @@
 
     **2. Output Language**
 
-    *   **{{outlang}}**.
+    *   ** Make sure the language of the output content is {{outlang}} **.
 </Additional Customizations>
 
 <INSTRUCTIONS>
@@ -96,7 +96,8 @@
             - Return summary in clean markdown format
             - Do not include markdown code block tags (```markdown  ```)
             - Use standard markdown syntax for formatting (headers, lists, etc.)
-            - Use ### for main headings
+            - Use ## for main headings
+            - Use ### to indicate a categorical question
             - Use #### for subheadings where appropriate
             - Use bullet points (- item) for lists
             - Ensure proper indentation and spacing

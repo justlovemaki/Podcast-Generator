@@ -17,7 +17,7 @@ import { cn, formatTime, downloadFile } from '@/lib/utils';
 import AudioVisualizer from './AudioVisualizer';
 import { useIsSmallScreen } from '@/hooks/useMediaQuery'; // 导入新的 Hook
 import type { AudioPlayerState, PodcastItem } from '@/types';
-import { useToast } from '@/components/Toast';
+import { useToast, ToastContainer } from '@/components/Toast';
 
 interface AudioPlayerProps {
   podcast: PodcastItem;
@@ -36,7 +36,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const { success: toastSuccess } = useToast(); // 使用 useToast Hook
+  const { toasts, success: toastSuccess, removeToast } = useToast(); // 使用 useToast Hook
 
   const [playerState, setPlayerState] = useState<Omit<AudioPlayerState, 'isPlaying'>>({
     currentTime: 0,
@@ -399,6 +399,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           )}
         </button>
       </div>
+
+      <ToastContainer
+        toasts={toasts}
+        onRemove={removeToast}
+      />
     </div>
   );
 };

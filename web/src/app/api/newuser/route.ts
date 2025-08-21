@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   if (!userHasPointsAccount) {
     console.log(`用户 ${userId} 不存在积分账户，正在初始化...`);
     try {
-      const pointsPerPodcastDay = parseInt(process.env.POINTS_PER_PODCAST_DAY || '100', 10);
+      const pointsPerPodcastDay = parseInt(process.env.POINTS_PER_PODCAST_INIT || '100', 10);
       await createPointsAccount(userId, pointsPerPodcastDay); // 调用封装的创建积分账户函数
       await recordPointsTransaction(userId, pointsPerPodcastDay, "initial_bonus", "新用户注册，初始积分奖励"); // 调用封装的记录流水函数
     } catch (error) {

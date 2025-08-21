@@ -329,6 +329,8 @@ export default function HomePage() {
               isGenerating={isGenerating}
               credits={credits}
               settings={settings} // 传递 settings
+              onSignInSuccess={fetchCreditsAndUserInfo} // 传递 onSignInSuccess
+              enableTTSConfigPage={enableTTSConfigPage} // 传递 enableTTSConfigPage
             />
             
             {/* 最近生成 - 紧凑布局 */}
@@ -348,7 +350,7 @@ export default function HomePage() {
               />
             )}
             
-            {/* 定价部分 */}
+            {/* 定价部分 todo */}
             {/* <PricingSection /> */}
 
             {/* 推荐播客 - 水平滚动 */}

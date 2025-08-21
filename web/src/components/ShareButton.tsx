@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AiOutlineShareAlt } from 'react-icons/ai';
-import { useToast } from './Toast'; // 确保路径正确
+import { useToast, ToastContainer} from './Toast'; // 确保路径正确
 import { usePathname } from 'next/navigation'; // next/navigation 用于获取当前路径
 
 interface ShareButtonProps {
@@ -10,7 +10,7 @@ interface ShareButtonProps {
 }
 
 const ShareButton: React.FC<ShareButtonProps> = ({ className }) => {
-  const { success, error } = useToast();
+  const { toasts, success, error, removeToast } = useToast();
   const pathname = usePathname(); // 获取当前路由路径
 
   const handleShare = async () => {
@@ -28,6 +28,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ className }) => {
   };
 
   return (
+    <>
     <button
       onClick={handleShare}
       className={`text-neutral-500 hover:text-black transition-colors text-sm ${className}`}
@@ -35,6 +36,12 @@ const ShareButton: React.FC<ShareButtonProps> = ({ className }) => {
     >
       <AiOutlineShareAlt className="w-5 h-5" />
     </button>
+
+    <ToastContainer
+      toasts={toasts}
+      onRemove={removeToast}
+    />
+    </>
   );
 };
 
