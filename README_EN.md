@@ -73,6 +73,8 @@ python podcast_generator.py [optional parameters]
 *   `--base-url <YOUR_OPENAI_BASE_URL>`: Proxy address of the OpenAI API. If not provided, it will be read from the configuration file or `OPENAI_BASE_URL` environment variable.
 *   `--model <OPENAI_MODEL_NAME>`: Specify the OpenAI model to use (such as `gpt-4o`, `gpt-4-turbo`). Default value is `gpt-3.5-turbo`.
 *   `--threads <NUMBER_OF_THREADS>`: Specify the number of parallel threads for audio generation (default is `1`) to improve processing speed.
+*   `--output-language <LANGUAGE_CODE>`: Specify the output language of the podcast script (default is `Chinese`).
+*   `--usetime <TIME_DURATION>`: Specify the time length of the podcast script (default is `10 minutes`).
 
 #### **Running Example**
 
@@ -147,6 +149,48 @@ Additional instructions or context you want to provide to the AI, for example:
 - "All characters' speeches must be brief, with each sentence not exceeding two lines."
 ```custom-end
 ```
+
+---
+
+## 🌐 Web Application (Next.js)
+
+In addition to the command-line script and FastAPI service, this project also provides a fully functional web user interface. This interface aims to provide a more intuitive and convenient podcast generation and management experience, exposing complex backend functions through friendly frontend operations to users.
+
+### ✨ Core Features
+
+*   **Web Operation Interface**: Intuitive and friendly web interface that makes the podcast generation process clear at a glance.
+*   **Micro User System Integration**: Supports user login, registration, points and billing functions, building a complete user ecosystem.
+*   **Podcast Creation and Configuration**: Allows users to enter topics through forms and configure TTS characters, volume and speed parameters.
+*   **Real-time Progress Tracking**: Displays the status and progress of podcast generation.
+*   **Podcast Playback and Management**: Integrates an audio player for users to listen to generated podcasts and may provide functions for managing historical podcasts.
+*   **API Interaction**: Seamless communication with the backend Python service through APIs, including podcast generation, status queries, and audio streaming.
+
+### 🚀 Quick Start (Web)
+
+1.  **Install Node.js**: Please ensure Node.js is installed on your system (LTS version recommended).
+2.  **Install Dependencies**: Enter the `web/` directory and install all frontend dependencies.
+    ```bash
+    cd web/
+    npm install
+    # or yarn install
+    ```
+3.  **Start Development Server**:
+    ```bash
+    npm run dev
+    # or yarn dev
+    ```
+    The web application will start at `http://localhost:3000` (default).
+4.  **Build Production Environment**:
+    ```bash
+    npm run build
+    # or yarn build
+    npm run start
+    # or yarn start
+    ```
+
+### 🐳 Docker Deployment
+
+This project supports deployment via Docker. For detailed information, please refer to [Docker Usage Guide](DOCKER_USAGE.md).
 
 ---
 
@@ -253,15 +297,29 @@ You can find sample podcast audio generated using different TTS services in the 
 ├── config/                  # ⚙️ Configuration directory
 │   ├── doubao-tts.json      # ... (configuration for each TTS provider)
 │   └── tts_providers.json   # Unified TTS authentication file
+├── server/                  # 🐍 Backend service directory
+│   ├── main.py              # FastAPI Web API entry: Provides RESTful APIs for podcast generation, status query, audio download, manages task lifecycle, and performs data cleanup.
+│   ├── podcast_generator.py # Core podcast generation logic: Responsible for interacting with OpenAI API to generate podcast scripts, calling TTS adapters to convert text to speech, and using FFmpeg to merge audio files.
+│   ├── tts_adapters.py      # TTS adapter: Encapsulates interaction logic with different TTS services (such as Index-TTS, Edge-TTS, Doubao, Minimax, Fish Audio, Gemini).
+│   ├── openai_cli.py        # OpenAI command-line tool
+│   └── ...                  # Other backend files
+├── web/                     # 🌐 Frontend Web Application Directory (Next.js)
+│   ├── public/              # Static resources
+│   ├── src/                 # Source code
+│   │   ├── app/             # Next.js route pages
+│   │   ├── components/      # React components
+│   │   ├── hooks/           # React Hooks
+│   │   ├── lib/             # Library files (authentication, database, API, etc.)
+│   │   └── types/           # TypeScript type definitions
+│   ├── package.json         # Frontend dependencies
+│   ├── next.config.js       # Next.js configuration
+│   └── ...                  # Other frontend files
 ├── prompt/                  # 🧠 AI prompt directory
 │   ├── prompt-overview.txt
 │   └── prompt-podscript.txt
 ├── example/                 # 🎧 Sample audio directory
 ├── output/                  # 🎉 Output audio directory
 ├── input.txt                # 🎙️ Podcast topic input file
-├── openai_cli.py            # OpenAI command-line tool
-├── podcast_generator.py     # 🚀 Main script
-├── tts_adapters.py          # TTS adapter file
 ├── README.md                # 📄 Project documentation (Chinese)
 └── README_EN.md             # 📄 Project documentation (English)
 ```

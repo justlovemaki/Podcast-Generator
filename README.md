@@ -1,4 +1,4 @@
-# 🎙️ 简易播客生成器 (Simple Podcast Generator)
+# 🎙️ 播客生成器 (Podcast Generator)
 
 > 轻松将您的想法，一键生成为生动有趣的多人对话播客！
 > [English Version](README_EN.md)
@@ -73,6 +73,8 @@ python podcast_generator.py [可选参数]
 *   `--base-url <YOUR_OPENAI_BASE_URL>`: OpenAI API 的代理地址。若不提供，将从配置文件或 `OPENAI_BASE_URL` 环境变量中读取。
 *   `--model <OPENAI_MODEL_NAME>`: 指定使用的 OpenAI 模型（如 `gpt-4o`, `gpt-4-turbo`）。默认值为 `gpt-3.5-turbo`。
 *   `--threads <NUMBER_OF_THREADS>`: 指定生成音频的并行线程数（默认为 `1`），提高处理速度。
+*   `--output-language <LANGUAGE_CODE>`: 指定播客脚本的输出语言（默认为 `Chinese`）。
+*   `--usetime <TIME_DURATION>`: 指定播客脚本的时间长度（默认为 `10 minutes`）。
 
 #### **运行示例**
 
@@ -150,6 +152,48 @@ curl -X POST "http://localhost:8000/generate-podcast" \
 
 ---
 
+## 🌐 Web 应用 (Next.js)
+
+除了命令行脚本和 FastAPI 服务，本项目还提供了一个功能完善的 Web 用户界面。这个界面旨在提供更直观、便捷的播客生成与管理体验，将后端复杂的功能通过友好的前端操作暴露给用户。
+
+### ✨ 核心功能亮点
+
+*   **web操作界面**: 直观友好的web界面，让播客生成过程一目了然。
+*   **微用户体系集成**: 支持用户登录、注册、积分与计费功能，构建完善的用户生态。
+*   **播客创建与配置**: 允许用户通过表单输入主题，配置 TTS 角色、音量和语速等参数。
+*   **实时进度跟踪**: 显示播客生成的状态和进度。
+*   **播客播放与管理**: 集成音频播放器，方便用户收听已生成的播客，并可能提供管理历史播客的功能。
+*   **API 交互**: 通过 API 与后端 Python 服务无缝通信，包括播客生成、状态查询和音频流。
+
+### 🚀 快速开始 (Web)
+
+1.  **安装 Node.js**: 请确保您的系统中已安装 Node.js (推荐 LTS 版本)。
+2.  **安装依赖**: 进入 `web/` 目录，安装所有前端依赖。
+    ```bash
+    cd web/
+    npm install
+    # 或者 yarn install
+    ```
+3.  **启动开发服务器**:
+    ```bash
+    npm run dev
+    # 或者 yarn dev
+    ```
+    Web 应用将在 `http://localhost:3000` (默认) 启动。
+4.  **构建生产环境**:
+    ```bash
+    npm run build
+    # 或者 yarn build
+    npm run start
+    # 或者 yarn start
+    ```
+
+
+### 🐳 Docker 部署
+
+本项目支持通过 Docker 进行部署，详细信息请参考 [Docker 使用指南](DOCKER_USAGE.md)。
+
+---
 ## ⚙️ 配置文件详解
 
 ### `config/[tts-provider].json` (TTS 角色与语音配置)
@@ -253,15 +297,29 @@ curl -X POST "http://localhost:8000/generate-podcast" \
 ├── config/                  # ⚙️ 配置文件目录
 │   ├── doubao-tts.json      # ... (各 TTS 服务商的配置)
 │   └── tts_providers.json   # 统一的 TTS 认证文件
+├── server/                  # 🐍 后端服务目录
+│   ├── main.py              # FastAPI Web API 入口：提供播客生成、状态查询、音频下载等 RESTful API，管理任务生命周期，并进行数据清理。
+│   ├── podcast_generator.py # 核心播客生成逻辑：负责与 OpenAI API 交互生成播客脚本，调用 TTS 适配器将文本转语音，并使用 FFmpeg 合并音频文件。
+│   ├── tts_adapters.py      # TTS 适配器：封装了与不同 TTS 服务（如 Index-TTS, Edge-TTS, Doubao, Minimax, Fish Audio, Gemini）的交互逻辑。
+│   ├── openai_cli.py        # OpenAI 命令行工具 
+│   └── ...                  # 其他后端文件
+├── web/                     # 🌐 前端 Web 应用目录 (Next.js)
+│   ├── public/              # 静态资源
+│   ├── src/                 # 源码
+│   │   ├── app/             # Next.js 路由页面
+│   │   ├── components/      # React 组件
+│   │   ├── hooks/           # React Hooks
+│   │   ├── lib/             # 库文件 (认证、数据库、API等)
+│   │   └── types/           # TypeScript 类型定义
+│   ├── package.json         # 前端依赖
+│   ├── next.config.js       # Next.js 配置
+│   └── ...                  # 其他前端文件
 ├── prompt/                  # 🧠 AI 提示词目录
 │   ├── prompt-overview.txt
 │   └── prompt-podscript.txt
 ├── example/                 # 🎧 示例音频目录
 ├── output/                  # 🎉 输出音频目录
 ├── input.txt                # 🎙️ 播客主题输入文件
-├── openai_cli.py            # OpenAI 命令行工具
-├── podcast_generator.py     # 🚀 主运行脚本
-├── tts_adapters.py          # TTS 适配器文件
 ├── README.md                # 📄 项目说明文档 (中文)
 └── README_EN.md             # 📄 项目说明文档 (英文)
 ```

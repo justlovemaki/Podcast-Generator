@@ -16,8 +16,10 @@ import {
 import { cn } from '@/lib/utils';
 import ConfigSelector from './ConfigSelector';
 import VoicesModal from './VoicesModal'; // 引入 VoicesModal
+import LoginModal from './LoginModal'; // 引入 LoginModal
 import { useToast, ToastContainer } from './Toast'; // 引入 Toast Hook 和 Container
 import { setItem, getItem } from '@/lib/storage'; // 引入 localStorage 工具
+import { useSession } from '@/lib/auth-client'; // 引入 useSession
 import type { PodcastGenerationRequest, TTSConfig, Voice, SettingsFormData } from '@/types';
 import { Satisfy } from 'next/font/google'; // 导入艺术字体 Satisfy
 
@@ -72,6 +74,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
    const [language, setLanguage] = useState(languageOptions[0].value);
    const [duration, setDuration] = useState(durationOptions[0].value);
    const [showVoicesModal, setShowVoicesModal] = useState(false); // 新增状态
+   const [showLoginModal, setShowLoginModal] = useState(false); // 控制登录模态框的显示
    const [voices, setVoices] = useState<Voice[]>([]); // 从 ConfigSelector 获取 voices
    const [selectedPodcastVoices, setSelectedPodcastVoices] = useState<{[key: string]: Voice[]}>(() => {
      // 从 localStorage 读取缓存的说话人配置
@@ -83,8 +86,13 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
    const fileInputRef = useRef<HTMLInputElement>(null);
 
    const { toasts, error } = useToast(); // 使用 useToast hook, 引入 success
+   const { data: session } = useSession(); // 获取 session
 
    const handleSubmit = async () => { // 修改为 async 函数
+     if (!session?.user) { // 判断是否登录
+       setShowLoginModal(true); // 未登录则显示登录模态框
+       return;
+     }
      if (!topic.trim()) {
          error("主题不能为空", "请输入播客主题。"); // 使用 toast.error
          return;
@@ -206,9 +214,9 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
               </g>
             </svg>
           </div>
-          <h2 className="text-2xl sm:text-3xl text-black mb-6 break-words">
+          <h1 className="text-2xl sm:text-3xl text-black mb-6 break-words">
             给创意一个真实的声音
-          </h2>
+          </h1>
           
           {/* 模式切换按钮 todo */}
           {/* <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 flex-wrap">
@@ -387,10 +395,10 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
               {/* 创作按钮 */}
               <button
                 onClick={handleSubmit}
-                disabled={!topic.trim() || isGenerating || credits <= 0}
+                disabled={!topic.trim() || isGenerating}
                 className={cn(
                   "btn-primary flex items-center gap-1 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2",
-                  (!topic.trim() || isGenerating || credits <= 0) && "opacity-50 cursor-not-allowed"
+                  (!topic.trim() || isGenerating) && "opacity-50 cursor-not-allowed"
                 )}
               >
                 {isGenerating ? (
@@ -440,6 +448,11 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
           }}
         />
       )}
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
 
       <ToastContainer toasts={toasts} onRemove={() => {}} /> {/* 添加 ToastContainer */}
     </div>

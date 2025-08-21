@@ -8,6 +8,9 @@ import { AiOutlineTikTok, AiFillQqCircle, AiOutlineGithub, AiOutlineTwitter, AiF
 export const metadata: Metadata = {
   title: '联系我们 - PodcastHub',
   description: '有任何问题或建议？请随时联系 PodcastHub 团队。我们期待您的声音。',
+  alternates: {
+    canonical: '/contact',
+  },
 };
 
 /**

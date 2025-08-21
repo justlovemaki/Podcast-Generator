@@ -1,0 +1,51 @@
+# Stage 1: Dependency Installation and Build
+FROM node:20-alpine AS builder
+
+# Set working directory
+WORKDIR /app/web
+
+# Copy package.json and package-lock.json to leverage Docker cache
+COPY web/package.json web/package-lock.json ./
+
+# Install dependencies
+RUN npm install --frozen-lockfile \
+ && npm install --cpu=x64 --os=linux --libc=musl @libsql/client@latest --foreground-scripts
+
+# Copy the rest of the application code (web directory content)
+COPY web .
+
+# Copy parent config directory
+COPY config ../config
+
+# Build the Next.js application
+# The `standalone` output mode creates a self-contained application
+ENV NEXT_TELEMETRY_DISABLED 1
+RUN npm run build
+
+# Stage 2: Production Image
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Create output directory for web/server.js to use
+RUN mkdir -p server/output
+RUN npm install @libsql/linux-x64-musl
+
+# Set production environment
+ENV NODE_ENV production
+
+COPY web/.env  ./web/.env
+COPY web/sqlite.db ./web/sqlite.db
+# Copy standalone application and public assets from the builder stage
+COPY --from=builder /app/web/.next/standalone ./web/
+COPY --from=builder /app/web/.next/static ./web/.next/static
+COPY --from=builder /app/web/public ./web/public
+
+# Copy parent config directory from builder stage to runner stage
+COPY --from=builder /app/config ./config
+
+# Expose port (Next.js default port)
+EXPOSE 3000
+
+# Start the Next.js application
+CMD ["node", "web/server.js"]

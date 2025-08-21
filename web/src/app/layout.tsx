@@ -10,8 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'PodcastHub - 给创意一个真实的声音',
-  description: '使用AI技术将您的想法和内容转换为高质量的播客音频，支持多种语音和风格选择。',
+  metadataBase: new URL('https://www.podcasthub.com'),
+  title: 'PodcastHub: 您的AI播客创作平台 - 轻松将文字转化为高质量播客音频，支持多种语音和风格，让创意触手可及',
+  description: 'PodcastHub 利用尖端AI技术，为您的创意提供无限可能。轻松将文字和想法转化为专业品质的播客音频，支持多种个性化语音和风格选择。立即体验高效创作，让您的声音在全球范围内传播，吸引更多听众，并简化您的播客制作流程。',
   keywords: ['播客', 'AI', '语音合成', 'TTS', '音频生成'],
   authors: [{ name: 'PodcastHub Team' }],
   icons: {
@@ -19,10 +20,17 @@ export const metadata: Metadata = {
     apple: '/favicon.webp',
   },
   openGraph: {
-    title: 'PodcastHub - 给创意一个真实的声音',
-    description: '使用AI技术将您的想法和内容转换为高质量的播客音频，支持多种语音和风格选择。',
+    title: 'PodcastHub: 您的AI播客创作平台 - 轻松将文字转化为高质量播客音频，支持多种语音和风格，让创意触手可及',
+    description: 'PodcastHub 利用尖端AI技术，为您的创意提供无限可能。轻松将文字和想法转化为专业品质的播客音频，支持多种个性化语音和风格选择。立即体验高效创作，让您的声音在全球范围内传播，吸引更多听众，并简化您的播客制作流程。',
     type: 'website',
     locale: 'zh_CN',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PodcastHub: 您的AI播客创作平台 - 轻松将文字转化为高质量播客音频，支持多种语音和风格，让创意触手可及',
+  },
+  alternates: {
+    canonical: '/',
   },
 };
 

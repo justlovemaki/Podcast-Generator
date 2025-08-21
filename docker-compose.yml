@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile-Web
+    image: simple-podcast-web
+    ports:
+      - "3200:3000"
+    volumes:
+      - audio-data:/app/server/output
+    restart: always
+    depends_on:
+      - server
+    environment:
+      - NEXT_PUBLIC_API_URL=http://server:8000
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile-Server
+    image: simple-podcast-server
+    ports:
+      - "3100:8000"
+    volumes:
+      - audio-data:/app/server/output
+    restart: always
+    environment:
+      - PODCAST_API_SECRET_KEY=your-production-api-secret-key
+
+volumes:
+  audio-data:

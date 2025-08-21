@@ -1,0 +1,30 @@
+# 使用官方 Python 运行时作为父镜像
+FROM python:3.11-alpine
+
+# 安装 FFmpeg 和 FFprobe
+# FFmpeg 用于音频处理，包括合并和转换
+RUN apk add --no-cache ffmpeg && rm -rf /var/cache/apk/*
+
+# 复制 requirements.txt 以便利用 Docker 缓存
+COPY server/requirements.txt /tmp/requirements.txt
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
+
+# 复制 server 目录的内容到容器的 /app/server
+COPY server/ /app/server/
+
+# 复制父目录的 config 文件夹到容器的 /app/config
+COPY config/ /app/config/
+
+# 设置工作目录为 server 目录
+WORKDIR /app/server
+
+# 暴露应用程序运行的端口
+EXPOSE 8000
+
+# 定义环境变量，如果你的应用需要
+# ENV PODCAST_API_SECRET_KEY="your-production-api-secret-key"
+
+# 运行应用程序的命令
+# 使用 uvicorn 直接运行 FastAPI 应用
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -7,6 +7,9 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '隐私政策 - PodcastHub',
   description: '了解 PodcastHub 如何保护您的隐私。我们致力于透明化地处理您的数据。',
+  alternates: {
+    canonical: '/privacy',
+  },
 };
 
 /**

@@ -7,6 +7,9 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '使用条款 - PodcastHub',
   description: '欢迎了解 PodcastHub 的使用条款。本条款旨在保护用户与平台的共同利益。',
+  alternates: {
+    canonical: '/terms',
+  },
 };
 
 /**
