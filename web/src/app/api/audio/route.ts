@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getLanguageFromRequest } from '@/lib/utils';
+import { useTranslation } from '@/i18n';
 import path from 'path';
 import fs from 'fs';
 
 export async function GET(request: NextRequest) {
+  const lang = getLanguageFromRequest(request);
+  const { t } = await useTranslation(lang, 'errors');
   const filename = request.nextUrl.searchParams.get('filename');
   
   // 验证文件名安全性
   if (!filename || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
     return NextResponse.json(
-      { error: '无效的文件名' },
+      { error: t('invalid_filename')},
       { status: 400 }
     );
   }
@@ -27,7 +31,7 @@ export async function GET(request: NextRequest) {
     
     if (!allowedExtensions.includes(ext)) {
       return NextResponse.json(
-        { error: '不支持的文件类型' },
+        { error: t('unsupported_file_type')},
         { status: 400 }
       );
     }
@@ -86,13 +90,13 @@ export async function GET(request: NextRequest) {
   } catch (error: any) { // 明确指定 error 类型
     if (error.code === 'ENOENT') {
       return NextResponse.json(
-        { error: '文件不存在' },
+        { error: t('file_not_found') },
         { status: 404 }
       );
     }
     console.error('Error serving audio file:', error);
     return NextResponse.json(
-      { error: '服务器内部错误' },
+      { error: t('internal_server_error') },
       { status: 500 }
     );
   }

@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_PODCAST_API_BASE_URL || 'http://192
 /**
  * 启动播客生成任务
  */
-export async function startPodcastGenerationTask(body: PodcastGenerationRequest, userId: string): Promise<ApiResponse<PodcastGenerationResponse>> {
+export async function startPodcastGenerationTask(body: PodcastGenerationRequest, userId: string, lang: string): Promise<ApiResponse<PodcastGenerationResponse>> {
 
   try {
     const response = await fetch(`${API_BASE_URL}/generate-podcast`, {
@@ -41,7 +41,7 @@ export async function startPodcastGenerationTask(body: PodcastGenerationRequest,
 /**
  * 获取播客生成任务状态
  */
-export async function getPodcastStatus(userId: string): Promise<ApiResponse<PodcastStatusResponse>> {
+export async function getPodcastStatus(userId: string, lang: string): Promise<ApiResponse<PodcastStatusResponse>> {
   try {
     const response = await fetch(`${API_BASE_URL}/podcast-status`, {
       method: 'GET',
@@ -76,7 +76,7 @@ export async function getPodcastStatus(userId: string): Promise<ApiResponse<Podc
  * @param req NextRequest 对象，包含请求信息，如查询参数 file_name。
  * @returns 返回从 FastAPI 后端获取的音频信息，或错误响应。
  */
-export async function getAudioInfo(fileName: string) {
+export async function getAudioInfo(fileName: string, lang: string) {
 
     if (!fileName) {
         return { success: false, error: '缺少 file_name 查询参数', statusCode: 400 };
@@ -105,7 +105,7 @@ export async function getAudioInfo(fileName: string) {
  * @param userId 用户ID
  * @returns Promise<ApiResponse<typeof schema.user.$inferSelect | null>> 返回用户信息或null
  */
-export async function getUserInfo(userId: string): Promise<ApiResponse<typeof schema.user.$inferSelect | null>> {
+export async function getUserInfo(userId: string, lang: string): Promise<ApiResponse<typeof schema.user.$inferSelect | null>> {
     try {
         const userInfo = await db
             .select()

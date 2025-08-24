@@ -1,8 +1,10 @@
 import React from 'react';
 import { PricingPlan, Feature } from '../types'; // 导入之前定义的类型
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 interface PricingCardProps {
   plan: PricingPlan;
+  lang: string; // 新增 lang 属性
 }
 
 const FeatureItem: React.FC<{ feature: Feature }> = ({ feature }) => (
@@ -49,7 +51,8 @@ const FeatureItem: React.FC<{ feature: Feature }> = ({ feature }) => (
   </li>
 );
 
-const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
+const PricingCard: React.FC<PricingCardProps> = ({ plan, lang }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const isMostPopular = plan.isMostPopular;
 
   return (
@@ -63,7 +66,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
     >
       {isMostPopular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full shadow-medium text-sm font-semibold text-neutral-800 whitespace-nowrap">
-          最受欢迎
+          {t('pricingCard.mostPopular')}
         </div>
       )}
       <div
@@ -88,7 +91,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan }) => {
             {plan.price}
           </span>
           <span className="text-xl text-neutral-500 ml-2">
-            /{plan.period === 'monthly' ? '月' : '月'}
+            {t('pricingCard.perMonth')}
           </span>
         </div>
 

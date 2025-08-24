@@ -12,10 +12,14 @@ let ttsProvidersPromise: Promise<any> | null = null;
  * 通过缓存Promise来防止并发请求，并缓存成功的结果。
  * @returns {Promise<any>} 返回包含配置信息的对象，如果失败则返回null。
  */
-const fetchAndCacheProviders = (): Promise<any> => {
+const fetchAndCacheProviders = (lang: string): Promise<any> => {
   return (async () => {
     try {
-      const response = await fetch('/api/tts-providers');
+      const response = await fetch('/api/tts-providers', {
+        headers: {
+          'x-next-locale': lang,
+        },
+      });
       if (!response.ok) {
         console.error('Failed to fetch tts-providers, status:', response.status);
         ttsProvidersPromise = null; // 失败时重置，以便重试
@@ -35,13 +39,13 @@ const fetchAndCacheProviders = (): Promise<any> => {
   })();
 };
 
-export const getTTSProviders = async (): Promise<any> => {
+export const getTTSProviders = async (lang: string): Promise<any> => {
   if (enableTTSConfigPage) {
     return getItem<any>(SETTINGS_STORAGE_KEY);
   } else {
     // 1. 如果没有并发请求，则发起新请求
     if (!ttsProvidersPromise) {
-      ttsProvidersPromise = fetchAndCacheProviders();
+      ttsProvidersPromise = fetchAndCacheProviders(lang);
     }
 
     // 2. 返回 Promise，后续调用将复用此 Promise 直到其解决

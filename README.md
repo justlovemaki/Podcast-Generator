@@ -144,9 +144,9 @@ curl -X POST "http://localhost:8000/generate-podcast" \
 ```
 ```custom-begin
 您希望提供给 AI 的额外指令或上下文，例如：
-- “请确保讨论中包含对 [特定概念] 的深入分析。”
-- “请在对话中加入一些幽默元素，特别是关于 [某个主题] 的笑话。”
-- “所有角色的发言都必须是简短的，并且每句话不超过两行。”
+- "请确保讨论中包含对 [特定概念] 的深入分析。"
+- "请在对话中加入一些幽默元素，特别是关于 [某个主题] 的笑话。"
+- "所有角色的发言都必须是简短的，并且每句话不超过两行。"
 ```custom-end
 ```
 
@@ -194,6 +194,33 @@ curl -X POST "http://localhost:8000/generate-podcast" \
 本项目支持通过 Docker 进行部署，详细信息请参考 [Docker 使用指南](DOCKER_USAGE.md)。
 
 ---
+
+## 🌍 国际化 (i18n) 支持
+
+本项目支持多语言界面，目前支持中文 (zh-CN) 和英文 (en)。
+
+### 📁 语言文件结构
+
+语言文件位于 `web/public/locales/` 目录下，按照语言代码分组：
+- `web/public/locales/zh-CN/common.json` - 中文翻译
+- `web/public/locales/en/common.json` - 英文翻译
+
+### 🛠️ 添加新语言
+
+1. 在 `web/public/locales/` 目录下创建新的语言文件夹，例如 `fr/`
+2. 复制 `common.json` 文件到新文件夹中
+3. 翻译文件中的所有键值对
+4. 在 `web/next-i18next.config.js` 文件中添加新的语言代码到 `locales` 数组
+5. 在 `web/src/i18n.ts` 文件中更新 `languages` 变量
+
+### 🌐 语言切换
+
+用户可以通过 URL 路径或浏览器语言设置自动切换语言：
+- `http://localhost:3000/zh-CN/` - 中文界面
+- `http://localhost:3000/en/` - 英文界面
+
+---
+
 ## ⚙️ 配置文件详解
 
 ### `config/[tts-provider].json` (TTS 角色与语音配置)
@@ -329,7 +356,7 @@ curl -X POST "http://localhost:8000/generate-podcast" \
 ## 📝 免责声明
 
 *   **许可证**: 本项目采用 [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html) 授权。
-*   **无担保**: 本软件按“现状”提供，不附带任何明示或暗示的担保。
+*   **无担保**: 本软件按"现状"提供，不附带任何明示或暗示的担保。
 *   **责任限制**: 在任何情况下，作者或版权持有者均不对因使用本软件而产生的任何损害承担责任。
 *   **第三方服务**: 用户需自行承担使用第三方服务（如 OpenAI API、TTS 服务）的风险和责任。
 *   **使用目的**: 本项目仅供学习和研究目的使用，请遵守所有适用的法律法规。

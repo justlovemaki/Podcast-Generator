@@ -1,11 +1,16 @@
 import { getUserPointsTransactions } from "@/lib/points";
 import { NextResponse, NextRequest } from "next/server";
 import { getSessionData } from "@/lib/server-actions";
+import { useTranslation } from '@/i18n';
+import { getLanguageFromRequest } from '@/lib/utils';
 
 export async function GET(request: NextRequest) {
+  const lang = getLanguageFromRequest(request);
+  const { t } = await useTranslation(lang, 'errors');
+
   const session = await getSessionData();
   if (!session || !session.user || !session.user.id) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ success: false, error: t("unauthorized") }, { status: 401 });
   }
 
   try {
@@ -16,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     // 校验 page 和 pageSize 是否为有效数字
     if (isNaN(page) || page < 1 || isNaN(pageSize) || pageSize < 1) {
-      return NextResponse.json({ success: false, error: "Invalid pagination parameters" }, { status: 400 });
+      return NextResponse.json({ success: false, error: t("invalid_pagination_parameters") }, { status: 400 });
     }
 
     const transactions = await getUserPointsTransactions(userId, page, pageSize);
@@ -24,6 +29,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: true, transactions });
   } catch (error) {
     console.error("Error fetching user points transactions:", error);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: t("internal_server_error") }, { status: 500 });
   }
 }

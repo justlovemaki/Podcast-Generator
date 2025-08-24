@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
 import type { TTSConfig } from '@/types';
+import { useTranslation } from '@/i18n'; // 导入 useTranslation
+import { getLanguageFromRequest } from '@/lib/utils';
 
 // 缓存对象，存储响应数据和时间戳
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -34,8 +36,11 @@ const TTS_PROVIDER_ORDER = [
 ];
 
 // 获取配置文件列表
-export async function GET() {
-  const cacheKey = 'config_files_list';
+export async function GET(request: NextRequest) {
+  const lang = getLanguageFromRequest(request);
+  const { t } = await useTranslation(lang, 'errors'); // 加载 'errors' 命名空间的翻译
+  
+  const cacheKey = `config_files_list_${lang}`; // 缓存键中包含语言
   const cachedData = getCache(cacheKey);
 
   if (cachedData) {
@@ -77,12 +82,13 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
+      message: t('config_files_list_success'), // 添加多语言消息
       data: configFiles,
     });
   } catch (error) {
     console.error('Error reading config directory:', error);
     return NextResponse.json(
-      { success: false, error: '无法读取配置目录' },
+      { success: false, error: t('config_files_list_error') }, // 使用翻译的错误消息
       { status: 500 }
     );
   }
@@ -90,8 +96,11 @@ export async function GET() {
 
 // 获取特定配置文件内容
 export async function POST(request: NextRequest) {
+  const lang = getLanguageFromRequest(request);
+  const { t } = await useTranslation(lang, 'errors'); // 加载 'errors' 命名空间的翻译
+
   const { configFile } = await request.json();
-  const cacheKey = `config_file_${configFile}`;
+  const cacheKey = `config_file_${configFile}_${lang}`; // 缓存键中包含语言
   const cachedData = getCache(cacheKey);
 
   if (cachedData) {
@@ -105,7 +114,7 @@ export async function POST(request: NextRequest) {
   try {
     if (!configFile || !configFile.endsWith('.json')) {
       return NextResponse.json(
-        { success: false, error: '无效的配置文件名' },
+        { success: false, error: t('invalid_config_file_name') }, // 使用翻译的错误消息
         { status: 400 }
       );
     }
@@ -118,12 +127,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      message: t('config_file_read_success'), // 添加多语言消息
       data: config,
     });
   } catch (error) {
     console.error('Error reading config file:', error);
     return NextResponse.json(
-      { success: false, error: '无法读取配置文件' },
+      { success: false, error: t('read_config_file_error') }, // 使用翻译的错误消息
       { status: 500 }
     );
   }

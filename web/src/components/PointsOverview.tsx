@@ -1,6 +1,7 @@
 // web/src/components/PointsOverview.tsx
 import React from 'react';
 import { UserCircleIcon, WalletIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 interface PointEntry {
   transactionId: string;
@@ -18,13 +19,16 @@ interface PointsOverviewProps {
     image: string;
   };
   pointHistory: PointEntry[];
+  lang: string; // 新增 lang 属性
 }
 
 const PointsOverview: React.FC<PointsOverviewProps> = ({
   totalPoints,
   user,
   pointHistory,
+  lang
 }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   return (
     <div className="w-9/10 sm:w-3/5 lg:w-1/3 mx-auto flex flex-col gap-6 p-6 md:p-8 lg:p-10 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-xl">
       {/* Upper Section: Total Points and User Info */}
@@ -41,23 +45,23 @@ const PointsOverview: React.FC<PointsOverviewProps> = ({
           </div>
         </div>
         <div className="mt-4 md:mt-0 text-center sm:text-right">
-          <p className="text-blue-200 dark:text-blue-300 text-sm uppercase">总积分</p>
+          <p className="text-blue-200 dark:text-blue-300 text-sm uppercase">{t('pointsOverview.totalPoints')}</p>
           <p className="text-5xl font-extrabold tracking-tighter">{totalPoints}</p>
           <WalletIcon className="h-8 w-8 text-white inline-block ml-2" />
         </div>
       </div>
       {/* Small text for mobile view only */}
       <p className="text-center text-sm text-blue-500 dark:text-blue-300">
-        仅显示最近20条积分明细。
+        {t('pointsOverview.last20EntriesOnly')}
       </p>
 
       {/* Lower Section: Point Details */}
       <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg h-[60vh] sm:h-[70vh] overflow-y-auto">
         <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b pb-2 border-gray-200 dark:border-gray-700">
-          积分明细
+          {t('pointsOverview.pointDetails')}
         </h3>
         {pointHistory.length === 0 ? (
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 text-center py-4">暂无积分明细。</p>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 text-center py-4">{t('pointsOverview.noPointDetails')}</p>
         ) : (
           <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {pointHistory

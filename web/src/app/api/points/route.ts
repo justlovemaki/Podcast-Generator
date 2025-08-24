@@ -1,11 +1,15 @@
 import { getUserPoints, deductUserPoints, addPointsToUser, hasUserSignedToday } from "@/lib/points"; // 导入 deductUserPoints, addPointsToUser, hasUserSignedToday
 import { NextResponse, NextRequest } from "next/server"; // 导入 NextRequest
 import { getSessionData } from "@/lib/server-actions"; // 导入 getSessionData
+import { useTranslation } from '@/i18n';
+import { getLanguageFromRequest } from '@/lib/utils'; // 导入 getLanguageFromRequest
 
-export async function GET() {
+export async function GET(request: NextRequest) { // GET 函数接收 request
   const session = await getSessionData(); // 使用 getSessionData 获取 session
+  const lang = getLanguageFromRequest(request); // 获取语言
+  const { t } = await useTranslation(lang, 'errors'); // 初始化翻译
   if (!session || !session.user || !session.user.id) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ success: false, error: t("unauthorized") }, { status: 401 });
   }
 
   try {
@@ -21,28 +25,30 @@ export async function GET() {
     return NextResponse.json({ success: true, points: points });
   } catch (error) {
     console.error("Error fetching user points:", error);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: t("internal_server_error") }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest) {
   const { task_id, auth_id, timestamp, status } = await request.json();
+  const lang = getLanguageFromRequest(request); // 获取语言
+  const { t } = await useTranslation(lang, 'errors'); // 初始化翻译
   try {
     if(status !== 'completed') {
-      return NextResponse.json({ success: false, error: "Invalid status" }, { status: 400 });
+      return NextResponse.json({ success: false, error: t("invalid_status") }, { status: 400 });
     }
 
     // 1. 参数校验
     if (!task_id || !auth_id || typeof timestamp !== 'number') {
        console.log(task_id, auth_id, timestamp)
-      return NextResponse.json({ success: false, error: "Invalid request parameters" }, { status: 400 });
+      return NextResponse.json({ success: false, error: t("invalid_request_parameters") }, { status: 400 });
     }
 
     // 2. 时间戳校验 (10秒内)
     const currentTime = Math.floor(Date.now() / 1000); // 秒级时间戳
     if (Math.abs(currentTime - timestamp) > 10) {
       console.log(currentTime, timestamp)
-      return NextResponse.json({ success: false, error: "Request too old or in the future" }, { status: 400 });
+      return NextResponse.json({ success: false, error: t("request_too_old_or_future") }, { status: 400 });
     }
     
     // 3. 校验是否重复请求 (这里需要一个机制来判断 task_id 是否已被处理)
@@ -59,54 +65,57 @@ export async function PUT(request: NextRequest) {
     // 5. 扣减积分
     const pointsToDeduct = parseInt(process.env.POINTS_PER_PODCAST || '10', 10); // 从环境变量获取，默认10
     const reasonCode = "podcast_generation";
-    const description = `播客生成任务：${task_id}`;
+    const description = `播客生成任务：${task_id}`; // Keep this as is if task_id is dynamic or not translatable
 
     await deductUserPoints(userId, pointsToDeduct, reasonCode, description);
 
-    return NextResponse.json({ success: true, message: "Points deducted successfully" });
+    return NextResponse.json({ success: true, message: t("points_deducted_successfully") });
 
   } catch (error) {
     console.error("Error deducting points:", error);
     if (error instanceof Error) {
         // 区分积分不足的错误
-        if (error.message.includes("积分不足")) {
+        if (error.message.includes(t("insufficient_points_raw"))) { // 使用翻译键来判断
             console.error("积分不足错误: %s %s %s", auth_id, task_id, error);
-            return NextResponse.json({ success: false, error: error.message }, { status: 402 }); // Forbidden
+            return NextResponse.json({ success: false, error: t("insufficient_points") }, { status: 402 }); // Forbidden
         }
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: t("internal_server_error") }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   const session = await getSessionData();
+  const lang = getLanguageFromRequest(request); // 获取语言
+  console.log(lang)
+  const { t } = await useTranslation(lang, 'errors'); // 初始化翻译
   if (!session || !session.user || !session.user.id) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ success: false, error: t("unauthorized") }, { status: 401 });
   }
 
   const userId = session.user.id;
   const fixedPointsToAdd = parseInt(process.env.POINTS_PER_SIGN_IN || '5', 10); // 签到积分固定从环境变量获取，默认5分
   const fixedReasonCode = "sign_in";
-  const description = "每日签到"; // 描述固定
+  const description = t("daily_sign_in"); // 描述固定
 
   try {
     // 1. 判断今日是否已签到
     const hasSignedToday = await hasUserSignedToday(userId, fixedReasonCode);
     if (hasSignedToday) {
-      return NextResponse.json({ success: false, error: "Already signed in today" }, { status: 400 });
+      return NextResponse.json({ success: false, error: t("already_signed_in_today") }, { status: 400 });
     }
 
     // 2. 调用增加积分的方法
     await addPointsToUser(userId, fixedPointsToAdd, fixedReasonCode, description);
 
-    return NextResponse.json({ success: true, message: "Points added successfully" });
+    return NextResponse.json({ success: true, message: t("points_added_successfully") });
 
   } catch (error) {
     console.error("Error adding points:", error);
     if (error instanceof Error) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ success: false, error: t("internal_server_error") }, { status: 500 });
   }
 }

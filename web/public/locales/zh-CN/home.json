@@ -1,0 +1,26 @@
+{
+  "podcastGenerationFailed": "播客生成失败，请重试",
+  "podcastTagsPlaceholder": "待生成的播客标签",
+  "configErrorTitle": "配置错误",
+  "configErrorMessage": "API Key 或模型未设置，请前往设置页填写。",
+  "error": {
+    "401": "生成播客失败，请检查API Key是否正确，或登录状态。",
+    "402": "生成播客失败，请检查积分是否足够。",
+    "403": "生成播客失败，请登录后重试。",
+    "409": "生成播客失败，有正在进行中的任务",
+    "backend": "生成播客失败，请检查后端服务或配置",
+    "generationFailed": "生成失败",
+    "noTaskId": "生成任务失败，未返回任务ID",
+    "unknown": "未知错误",
+    "dataProcessing": "数据处理失败",
+    "cantProcessPodcastList": "无法处理播客列表数据"
+  },
+  "taskCreatedTitle": "任务已创建",
+  "taskCreatedMessage": "播客生成任务已启动，任务ID",
+  "recentlyGenerated": "最近生成",
+  "dataRetentionWarning": "数据只保留30分钟，请尽快下载保存",
+  "saveSuccessTitle": "保存成功",
+  "saveErrorTitle": "保存失败",
+  "pageInDevelopment": "页面开发中",
+  "featureComingSoon": "该功能正在开发中，敬请期待。"
+}

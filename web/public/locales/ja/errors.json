@@ -1,0 +1,49 @@
+{
+  "invalid_filename": "無効なファイル名",
+  "unsupported_file_type": "サポートされていないファイルタイプ",
+  "file_not_found": "ファイルが見つかりません",
+  "internal_server_error": "サーバー内部エラー"
+,
+  "unauthorized": "未承認",
+  "invalid_status": "無効なステータス",
+  "invalid_request_parameters": "無効なリクエストパラメータ",
+  "request_too_old_or_future": "リクエストが古すぎるか未来です",
+  "points_deducted_successfully": "ポイントが正常に差し引かれました",
+  "insufficient_points": "ポイント不足",
+  "daily_sign_in": "毎日サインイン",
+  "already_signed_in_today": "本日はすでにサインイン済みです",
+  "points_added_successfully": "ポイントが正常に追加されました"
+,
+  "config_files_list_success": "設定ファイルリストが正常に取得されました",
+  "config_files_list_error": "設定ファイルリストの取得に失敗しました",
+  "invalid_config_file_name": "無効な設定ファイル名",
+  "config_file_read_success": "設定ファイルが正常に読み取られました",
+  "read_config_file_error": "設定ファイルの読み取りに失敗しました"
+,
+  "missing_file_name_parameter": "ファイル名クエリパラメータがありません",
+  "internal_server_error_backend_connection": "内部サーバーエラーまたはバックエンドサービスに接続できません"
+,
+  "user_not_logged_in_or_session_expired": "ユーザーがログインしていないか、セッションの有効期限が切れています",
+  "request_body_cannot_be_empty": "リクエストボディは空にできません",
+  "tts_provider_cannot_be_empty": "TTSプロバイダーは空にできません",
+  "please_select_at_least_one_speaker": "少なくとも1人のポッドキャスト話者を選択してください",
+  "invalid_speaker_config_format": "無効なポッドキャスト話者設定フォーマット",
+  "insufficient_points_for_podcast": "ポイントが不足しています。ポッドキャストを生成するには{{pointsNeeded}}ポイントが必要です。現在{{currentPoints}}ポイントしかありません。",
+  "invalid_output_language": "無効な出力言語",
+  "invalid_podcast_duration": "無効なポッドキャスト期間",
+  "missing_frontend_tts_config": "フロントエンドTTS設定情報がありません",
+  "incomplete_backend_tts_config": "バックエンドTTS設定が不完全です。バックエンド設定ファイルを確認してください。",
+  "internal_server_error_default": "サーバー内部エラー"
+,
+  "failed_to_get_task_status": "タスクステータスの取得に失敗しました"
+,
+  "insufficient_points_raw": "ポイント不足"
+,
+  "forbidden_user_id": "禁止：このリソースへのアクセスが許可されていないユーザーID",
+  "invalid_request_parameters_add_points": "無効なリクエストパラメータ。`userId`、`pointsToAdd`（正の数）、`reasonCode`、および`description`が必要です。",
+  "points_added_successfully_to_user": "ユーザー{{userId}}にポイントが正常に追加されました"
+,
+  "invalid_pagination_parameters": "無効なページネーションパラメータ"
+,
+  "cannot_read_tts_provider_config": "TTSプロバイダー構成ファイルを読み取れません"
+}

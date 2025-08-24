@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { AiFillPlayCircle, AiFillPauseCircle, AiOutlineClockCircle, AiOutlineEye, AiOutlineUser, AiFillHeart, AiOutlineEllipsis } from 'react-icons/ai';
 import { cn, formatTime, formatRelativeTime } from '@/lib/utils';
 import type { PodcastItem } from '@/types';
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 interface PodcastCardProps {
   podcast: PodcastItem;
@@ -14,6 +15,7 @@ interface PodcastCardProps {
   currentPodcast?: PodcastItem | null;
   isPlaying?: boolean;
   onTitleClick?: (podcast: PodcastItem) => void; // 新增 onTitleClick 回调
+  lang: string; // 新增 lang 属性
 }
 
 const PodcastCard: React.FC<PodcastCardProps> = ({
@@ -24,7 +26,9 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
   currentPodcast,
   isPlaying,
   onTitleClick, // 解构 onTitleClick
+  lang
 }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const [isLiked, setIsLiked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -118,7 +122,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
         {(podcast.status === 'pending' || podcast.status === 'running') && (
           <div className="absolute inset-0 bg-black/100 z-10 flex flex-col items-center justify-center text-white text-lg font-semibold p-4 text-center">
             <p className="mb-2">
-              {podcast.status === 'pending' ? '播客生成排队中...' : '播客生成中...'}
+              {podcast.status === 'pending' ? t('podcastCard.podcastGenerationQueued') : t('podcastCard.podcastGenerating')}
             </p>
           </div>
         )}
@@ -190,6 +194,7 @@ const PodcastCard: React.FC<PodcastCardProps> = ({
           <button
             onClick={handleMoreClick}
             className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-neutral-600 hover:text-black transition-all duration-200 backdrop-blur-sm"
+            title={t('podcastCard.moreOperations')}
           >
             <AiOutlineEllipsis className="w-4 h-4" />
           </button>

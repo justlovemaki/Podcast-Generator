@@ -1,0 +1,84 @@
+{
+  "privacy_policy": {
+    "title": "Privacy Policy - PodcastHub",
+    "description": "Learn how PodcastHub protects your privacy. We are committed to transparently handling your data.",
+    "last_updated": "Last updated: August 21, 2025",
+    "intro_paragraph": "Thank you for choosing PodcastHub! We understand the importance of privacy to you. This Privacy Policy (hereinafter referred to as \"this Policy\") aims to explain how we collect, use, store, share, and protect your personal information. Please read and understand this Policy carefully before using our services.",
+    "section1": {
+      "title": "1. Information We Collect",
+      "intro": "To provide and optimize our services, we collect the following types of information:",
+      "point1": {
+        "heading": "Information you actively provide",
+        "content": "When you register an account, use services, or contact us, you may provide personal information such as your name, email address, password, and text content you upload for podcast generation."
+      },
+      "point2": {
+        "heading": "Information we automatically collect",
+        "content": "When you use the service, our servers automatically record certain information, including your IP address, browser type and version, operating system, device information, access date and time, and your interaction data within the service (such as clickstream, feature usage frequency, etc.)."
+      },
+      "point3": {
+        "heading": "Cookies and similar technologies",
+        "content": "We use Cookies to store your preferences, maintain login status, and analyze usage to improve user experience. You can manage or delete Cookies according to your preferences."
+      }
+    },
+    "section2": {
+      "title": "2. How We Use Your Information",
+      "intro": "We will use your personal information for the following purposes:",
+      "point1": {
+        "heading": "Provide and maintain services",
+        "content": ": Process your text content to generate podcasts, manage your account, and ensure the normal operation of services."
+      },
+      "point2": {
+        "heading": "Improve and develop services",
+        "content": ": Analyze usage data to understand user preferences, optimize existing features, and develop new products and services."
+      },
+      "point3": {
+        "heading": "Communicate with you",
+        "content": ": Send you important service notifications, account security reminders, update instructions, or marketing information you may be interested in (you can choose to unsubscribe)."
+      },
+      "point4": {
+        "heading": "Security assurance",
+        "content": ": Protect our services, users, and the public from fraud, abuse, and security threats."
+      },
+      "point5": {
+        "heading": "Comply with legal obligations",
+        "content": ": Fulfill applicable laws and regulations."
+      }
+    },
+    "section3": {
+      "title": "3. Information Sharing and Disclosure",
+      "intro": "We are committed to keeping your information confidential. Unless the following circumstances exist, we will not share your personal information with any third party:",
+      "point1": {
+        "heading": "Obtain your explicit consent",
+        "content": ": With your explicit consent, we will share your information with other parties."
+      },
+      "point2": {
+        "heading": "Legal requirements",
+        "content": ": We may disclose your personal information externally in accordance with laws and regulations, legal procedures, or mandatory requirements from government authorities."
+      },
+      "point3": {
+        "heading": "Service providers",
+        "content": ": We may share necessary information with trusted third-party service providers (such as cloud storage, data analysis services) to assist us in providing and improving services. These providers are obligated to comply with our data protection standards."
+      },
+      "point4": {
+        "heading": "Protecting our rights",
+        "content": ": To enforce our terms of service, protect our rights, property, or safety, and protect our users or the public from harm, we may share information to the necessary extent."
+      }
+    },
+    "section4": {
+      "title": "4. Data Security",
+      "content": "We adopt industry-standard security measures to protect your information and prevent unauthorized access, disclosure, use, modification, or destruction. These measures include data encryption, access control, and regular security reviews. However, no internet transmission or electronic storage method is 100% secure, so we cannot guarantee absolute security."
+    },
+    "section5": {
+      "title": "5. Your Rights",
+      "content": "You have various rights regarding your personal information, including accessing, correcting, and deleting your account information. You can exercise these rights through account settings or by contacting us."
+    },
+    "section6": {
+      "title": "6. Policy Changes",
+      "content": "We may revise this Privacy Policy from time to time. For any significant changes, we will notify you by posting a prominent notice on the website or by sending you an email at least 30 days before the new terms take effect. What constitutes a significant change will be determined by us at our sole discretion."
+    },
+    "section7": {
+      "title": "7. Contact Us",
+      "content": "If you have any questions or concerns about this Privacy Policy or our privacy practices, please feel free to contact us through our contact page."
+    }
+  }
+}

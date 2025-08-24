@@ -22,6 +22,7 @@ import { setItem, getItem } from '@/lib/storage'; // 引入 localStorage 工具
 import { useSession } from '@/lib/auth-client'; // 引入 useSession
 import type { PodcastGenerationRequest, TTSConfig, Voice, SettingsFormData } from '@/types';
 import { Satisfy } from 'next/font/google'; // 导入艺术字体 Satisfy
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 // 定义艺术字体，预加载并设置 fallback
 const satisfy = Satisfy({
@@ -37,6 +38,7 @@ interface PodcastCreatorProps {
   settings: SettingsFormData | null; // 新增 settings 属性
   onSignInSuccess: () => void; // 新增 onSignInSuccess 属性
   enableTTSConfigPage: boolean; // 新增 enableTTSConfigPage 属性
+  lang: string; // 新增 lang 属性
 }
 
 const PodcastCreator: React.FC<PodcastCreatorProps> = ({
@@ -45,19 +47,21 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
   credits,
   settings, // 解构 settings 属性
   onSignInSuccess, // 解构 onSignInSuccess 属性
-  enableTTSConfigPage // 解构 enableTTSConfigPage 属性
+  enableTTSConfigPage, // 解构 enableTTSConfigPage 属性
+  lang
 }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
 
   const languageOptions = [
-    { value: 'Chinese', label: '简体中文' },
-    { value: 'English', label: 'English' },
-    { value: 'Japanese', label: '日本語' },
+    { value: 'Chinese', label: t('podcastCreator.chinese') },
+    { value: 'English', label: t('podcastCreator.english') },
+    // { value: 'Japanese', label: t('podcastCreator.japanese') },
   ];
 
   const durationOptions = [
-    { value: 'Under 5 minutes', label: '5分钟以内' },
-    { value: '5-10 minutes', label: '5-10分钟' },
-    { value: '10-15 minutes', label: '10-15分钟' },
+    { value: 'Under 5 minutes', label: t('podcastCreator.under5Minutes') },
+    { value: '5-10 minutes', label: t('podcastCreator.between5And10Minutes') },
+    { value: '10-15 minutes', label: t('podcastCreator.between10And15Minutes') },
   ];
 
    const [topic, setTopic] = useState('');
@@ -75,7 +79,21 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
        setCustomInstructions(cachedCustomInstructions);
      }
    }, []);
-   const [language, setLanguage] = useState(languageOptions[0].value);
+
+   const getInitialLanguage = (currentLang: string) => {
+     if (currentLang.startsWith('zh')) {
+       return 'Chinese';
+     }
+     if (currentLang.startsWith('en')) {
+       return 'English';
+     }
+     if (currentLang.startsWith('ja')) {
+       return 'Japanese';
+     }
+     return languageOptions[0].value; // 默认选中第一个选项
+   };
+
+   const [language, setLanguage] = useState(getInitialLanguage(lang));
    const [duration, setDuration] = useState(durationOptions[0].value);
    const [showVoicesModal, setShowVoicesModal] = useState(false); // 新增状态
    const [showLoginModal, setShowLoginModal] = useState(false); // 控制登录模态框的显示
@@ -98,16 +116,16 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
        return;
      }
      if (!topic.trim()) {
-         error("主题不能为空", "请输入播客主题。"); // 使用 toast.error
+         error(t('podcastCreator.topicCannotBeEmpty'), t('podcastCreator.pleaseEnterPodcastTopic'));
          return;
      }
      if (!selectedConfig) {
-         error("TTS配置未选择", "请选择一个TTS配置。"); // 使用 toast.error
+         error(t('podcastCreator.ttsConfigNotSelected'), t('podcastCreator.pleaseSelectTTSConfig'));
          return;
      }
  
      if (!selectedPodcastVoices[selectedConfigName] || selectedPodcastVoices[selectedConfigName].length === 0) {
-         error("请选择说话人", "请至少选择一位播客说话人。"); // 使用 toast.error
+         error(t('podcastCreator.pleaseSelectSpeaker'), t('podcastCreator.pleaseSelectAtLeastOneSpeaker'));
          return;
      }
 
@@ -138,7 +156,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
         setCustomInstructions('');
         setItem('podcast-custom-instructions', '');
     } catch (err) {
-        console.error("播客生成失败:", err);
+        console.error(t('podcastCreator.podcastGenerationFailed'), err);
     }
   };
 
@@ -153,20 +171,21 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-next-locale': lang,
         },
       });
 
       const data = await response.json();
 
       if (data.success) {
-        success("签到成功", data.message);
+        success(t('podcastCreator.checkInSuccess'), data.message);
         onSignInSuccess(); // 签到成功后调用回调
       } else {
-        error("签到失败", data.error);
+        error(t('podcastCreator.checkInFailed'), data.error);
       }
     } catch (err) {
       console.error("签到请求失败:", err);
-      error("签到失败", "网络错误或服务器无响应");
+      error(t('podcastCreator.checkInFailed'), t('podcastCreator.networkError'));
     }
   };
 
@@ -248,7 +267,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
             </svg>
           </div>
           <h1 className="text-2xl sm:text-3xl text-black mb-6 break-words">
-            给创意一个真实的声音
+            {t('podcastCreator.giveVoiceToCreativity')}
           </h1>
           
           {/* 模式切换按钮 todo */}
@@ -290,7 +309,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                 setTopic(e.target.value);
                 setItem('podcast-topic', e.target.value); // 实时保存到 localStorage
               }}
-              placeholder="输入文字，支持Markdown格式..."
+              placeholder={t('podcastCreator.enterTextPlaceholder')}
               className="w-full h-32 resize-none border-none outline-none text-lg placeholder-neutral-400 bg-white"
               disabled={isGenerating}
             />
@@ -304,7 +323,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                     setCustomInstructions(e.target.value);
                     setItem('podcast-custom-instructions', e.target.value); // 实时保存到 localStorage
                   }}
-                  placeholder="添加自定义指令（可选）... 例如：固定的开场白和结束语，文案脚本语境，输出内容的重点"
+                  placeholder={t('podcastCreator.addCustomInstructions')}
                   className="w-full h-16 resize-none border-none outline-none text-sm placeholder-neutral-400 bg-white"
                   disabled={isGenerating}
                 />
@@ -325,6 +344,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                   setVoices(newVoices); // 更新 voices 状态
                 }}
                 className="w-full"
+                lang={lang} // 传递 lang
             /></div>
 
             {/* 说话人按钮 */}
@@ -339,7 +359,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                 )}
                 disabled={isGenerating || !selectedConfig}
             >
-                说话人
+                {t('podcastCreator.speaker')}
             </button></div>
 
             {/* 语言选择 */}
@@ -383,7 +403,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
             {/* <button
               onClick={() => fileInputRef.current?.click()}
               className="p-1 sm:p-2 text-neutral-500 hover:text-black transition-colors"
-              title="上传文件"
+              title={t('podcastCreator.fileUpload')}
               disabled={isGenerating}
             >
               <AiOutlineUpload className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -400,7 +420,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
             {/* <button
               onClick={handlePaste}
               className="p-1 sm:p-2 text-neutral-500 hover:text-black transition-colors"
-              title="粘贴内容"
+              title={t('podcastCreator.pasteContent')}
               disabled={isGenerating}
             >
               <AiOutlineLink className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -410,7 +430,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
             {/* <button
               onClick={() => navigator.clipboard.writeText(topic)}
               className="p-1 sm:p-2 text-neutral-500 hover:text-black transition-colors"
-              title="复制内容"
+              title={t('podcastCreator.copyContent')}
               disabled={isGenerating || !topic}
             >
               <AiOutlineCopy className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -430,11 +450,11 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                 onClick={handleSignIn}
                 disabled={isGenerating}
                 className={cn(
-                  "btn-secondary flex items-center gap-1 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2",
+                  "btn-secondary flex items-center gap-1 text-sm px-3 py-2 sm:px-4 sm:py-2",
                   isGenerating && "opacity-50 cursor-not-allowed"
                 )}
               >
-              签到
+              {t('podcastCreator.checkIn')}
               </button>
 
             <div className="flex flex-col items-center gap-1">
@@ -443,19 +463,19 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
                 onClick={handleSubmit}
                 disabled={!topic.trim() || isGenerating}
                 className={cn(
-                  "btn-primary flex items-center gap-1 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2",
+                  "btn-primary flex items-center gap-1 text-sm px-3 py-2 sm:px-4 sm:py-2",
                   (!topic.trim() || isGenerating) && "opacity-50 cursor-not-allowed"
                 )}
               >
                 {isGenerating ? (
                   <>
                     <AiOutlineLoading3Quarters className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
-                    <span className=" xs:inline">Biu!</span>
+                    <span className=" xs:inline">{t('podcastCreator.biu')}</span>
                   </>
                 ) : (
                   <>
                     <Wand2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className=" xs:inline">创作</span>
+                    <span className=" xs:inline">{t('podcastCreator.create')}</span>
                   </>
                 )}
               </button>
@@ -492,12 +512,14 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
               return newState;
             });
           }}
+          lang={lang}
         />
       )}
       {/* Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
+        lang={lang}
       />
 
       <ToastContainer

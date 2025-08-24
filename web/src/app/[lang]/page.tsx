@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import PodcastCreator from '@/components/PodcastCreator';
@@ -16,6 +16,7 @@ import type { PodcastGenerationRequest, PodcastItem, UIState, PodcastGenerationR
 import { getTTSProviders } from '@/lib/config';
 import { getSessionData } from '@/lib/server-actions';
 import PricingSection from '@/components/PricingSection'; // 导入 PricingSection 组件
+import { useTranslation } from '../../i18n/client';
 
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
@@ -48,7 +49,9 @@ const normalizeSettings = (savedSettings: any): SettingsFormData => {
   };
 };
 
-export default function HomePage() {
+export default function HomePage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = use(params);
+  const { t } = useTranslation(lang, 'home');
   const { toasts, success, error, warning, info, removeToast } = useToast();
   const { executeOnce } = usePreventDuplicateCall();
   const router = useRouter(); // Initialize useRouter
@@ -57,8 +60,8 @@ export default function HomePage() {
   const mapApiResponseToPodcasts = (tasks: PodcastGenerationResponse[]): PodcastItem[] => {
     return tasks.map((task: any) => ({
       id: task.task_id,
-      title: task.title ? task.title : task.status === 'failed' ? '播客生成失败，请重试' : ' ',
-      description: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()).filter((tag: string) => !!tag).join(', ') : task.status === 'failed' ? task.error || '待生成的播客标签' : '待生成的播客标签',
+      title: task.title ? task.title : task.status === 'failed' ? t('podcastGenerationFailed') : ' ',
+      description: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()).filter((tag: string) => !!tag).join(', ') : task.status === 'failed' ? task.error || t('podcastTagsPlaceholder') : t('podcastTagsPlaceholder'),
       thumbnail: task.avatar_base64 ? `data:image/png;base64,${task.avatar_base64}` : '',
       author: {
         name: '',
@@ -68,7 +71,7 @@ export default function HomePage() {
       playCount: 0,
       createdAt: task.timestamp ? new Date(task.timestamp * 1000).toISOString() : new Date().toISOString(),
       audioUrl: task.audioUrl ? task.audioUrl : '',
-      tags: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()).filter((tag: string) => !!tag) : task.status === 'failed' ? [task.error] : ['待生成的播客标签'],
+      tags: task.tags ? task.tags.split('#').map((tag: string) => tag.trim()).filter((tag: string) => !!tag) : task.status === 'failed' ? [task.error] : [t('podcastTagsPlaceholder')],
       status: task.status,
       file_name: task.output_audio_filepath || '',
     }));
@@ -123,7 +126,7 @@ export default function HomePage() {
   // 加载设置
   useEffect(() => {
     const loadSettings = async () => {
-      const savedSettings = await getTTSProviders();
+      const savedSettings = await getTTSProviders(lang);
       if (savedSettings) {
         const normalizedSettings = normalizeSettings(savedSettings);
         setSettings(normalizedSettings);
@@ -166,7 +169,7 @@ export default function HomePage() {
       // info('开始生成播客', '正在处理您的请求...');
       
       if (!settings || !settings.apikey || !settings.model) {
-        error('配置错误', 'API Key 或模型未设置，请前往设置页填写。');
+        error(t('configErrorTitle'), t('configErrorMessage'));
         setIsGenerating(false);
         return;
       }
@@ -176,44 +179,45 @@ export default function HomePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-next-locale': lang,
         },
         body: JSON.stringify(request),
       });
 
       if (!response.ok) {
         if(response.status === 401) {
-          throw new Error('生成播客失败，请检查API Key是否正确，或登录状态。');
+          throw new Error(t('error.401'));
         }
         if(response.status === 402) {
-          throw new Error('生成播客失败，请检查积分是否足够。');
+          throw new Error(t('error.402'));
         }
         if(response.status === 403) {
           setIsLoginModalOpen(true); // 显示登录模态框
-          throw new Error('生成播客失败，请登录后重试。');
+          throw new Error(t('error.403'));
         }
         if(response.status === 409) {
-          throw new Error(`生成播客失败，有正在进行中的任务 (状态码: ${response.status})`);
+          throw new Error(`${t('error.409')} (状态码: ${response.status})`);
         }
-        throw new Error(`生成播客失败，请检查后端服务或配置 (状态码: ${response.status})`);
+        throw new Error(`${t('error.backend')} (状态码: ${response.status})`);
       }
 
       const apiResponse: { success: boolean; data?: PodcastGenerationResponse; error?: string } = await response.json();
       
       if (!apiResponse.success) {
-        throw new Error(apiResponse.error || '生成播客失败');
+        throw new Error(apiResponse.error || t('error.generationFailed'));
       }
 
       if (apiResponse.data && apiResponse.data.id) {
-        success('任务已创建', `播客生成任务已启动，任务ID: ${apiResponse.data.id}`);
+        success(t('taskCreatedTitle'), `${t('taskCreatedMessage')}: ${apiResponse.data.id}`);
         await fetchRecentPodcasts(); // 刷新最近生成列表
       } else {
-        throw new Error('生成任务失败，未返回任务ID');
+        throw new Error(t('error.noTaskId'));
       }
       
     } catch (err) {
       console.error('Error generating podcast:', err);
-      error('生成失败', err instanceof Error ? err.message : '未知错误');
-      throw new Error(err instanceof Error ? err.message : '未知错误');
+      error(t('error.generationFailed'), err instanceof Error ? err.message : t('error.unknown'));
+      throw new Error(err instanceof Error ? err.message : t('error.unknown'));
     } finally {
       setIsGenerating(false);
     }
@@ -246,6 +250,7 @@ export default function HomePage() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'x-next-locale': lang,
         },
       });
       if (!response.ok) {
@@ -267,7 +272,7 @@ export default function HomePage() {
       }
     } catch (err) {
       console.error('Error processing podcast data:', err);
-      error('数据处理失败', err instanceof Error ? err.message : '无法处理播客列表数据');
+      error(t('error.dataProcessing'), err instanceof Error ? err.message : t('error.cantProcessPodcastList'));
     }
 
     fetchCreditsAndUserInfo();
@@ -276,7 +281,12 @@ export default function HomePage() {
   // 新增辅助函数：获取积分和用户信息
   const fetchCreditsAndUserInfo = async () => {
       try {
-          const pointsResponse = await fetch('/api/points');
+          const pointsResponse = await fetch('/api/points', {
+            method: 'GET',
+            headers: {
+              'x-next-locale': lang,
+            },
+          });
           if (pointsResponse.ok) {
               const data = await pointsResponse.json();
               if (data.success) {
@@ -295,7 +305,12 @@ export default function HomePage() {
       }
 
       try {
-          const transactionsResponse = await fetch('/api/points/transactions');
+          const transactionsResponse = await fetch('/api/points/transactions', {
+            method: 'GET',
+            headers: {
+              'x-next-locale': lang,
+            },
+          });
           if (transactionsResponse.ok) {
               const data = await transactionsResponse.json();
               if (data.success) {
@@ -331,13 +346,14 @@ export default function HomePage() {
               settings={settings} // 传递 settings
               onSignInSuccess={fetchCreditsAndUserInfo} // 传递 onSignInSuccess
               enableTTSConfigPage={enableTTSConfigPage} // 传递 enableTTSConfigPage
+              lang={lang}
             />
             
             {/* 最近生成 - 紧凑布局 */}
             {explorePodcasts.length > 0 && (
               <ContentSection
-                title="最近生成"
-                subtitle="数据只保留30分钟，请尽快下载保存"
+                title={t('recentlyGenerated')}
+                subtitle={t('dataRetentionWarning')}
                 items={explorePodcasts}
                 onPlayPodcast={handlePlayPodcast}
                 onTitleClick={handleTitleClick} // 传递 handleTitleClick
@@ -347,6 +363,7 @@ export default function HomePage() {
                 layout="grid"
                 showRefreshButton={true}
                 onRefresh={fetchRecentPodcasts}
+                lang={lang}
               />
             )}
             
@@ -368,8 +385,9 @@ export default function HomePage() {
       case 'settings':
         return (
           <SettingsForm
-            onSuccess={(message) => success('保存成功', message)}
-            onError={(message) => error('保存失败', message)}
+            onSuccess={(message) => success(t('saveSuccessTitle'), message)}
+            onError={(message) => error(t('saveErrorTitle'), message)}
+            lang={lang}
           />
         );
 
@@ -379,14 +397,15 @@ export default function HomePage() {
             totalPoints={credits}
             user={user}
             pointHistory={pointHistory}
+            lang={lang}
           />
         );
         
       default:
         return (
           <div className="max-w-4xl mx-auto px-6 text-center py-12">
-            <h1 className="text-2xl font-bold text-black mb-4">页面开发中</h1>
-            <p className="text-neutral-600">该功能正在开发中，敬请期待。</p>
+            <h1 className="text-2xl font-bold text-black mb-4">{t('pageInDevelopment')}</h1>
+            <p className="text-neutral-600">{t('featureComingSoon')}</p>
           </div>
         );
     }
@@ -404,6 +423,7 @@ export default function HomePage() {
         credits={credits} // 将积分传递给Sidebar
         onPodcastExplore={setExplorePodcasts} // 传递刷新播客函数
         onCreditsChange={handleCreditsChange} // 传递积分更新函数
+        lang={lang}
       />
 
       {/* 移动端菜单按钮 */}
@@ -447,6 +467,7 @@ export default function HomePage() {
             isPlaying={isPlaying}
             onPlayPause={handleTogglePlayPause}
             onEnded={() => setIsPlaying(false)}
+            lang={lang}
           />
       )}
 
@@ -454,6 +475,7 @@ export default function HomePage() {
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
+        lang={lang}
       />
 
       {/* Toast通知容器 */}

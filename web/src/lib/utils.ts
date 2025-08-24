@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx';
+import { NextRequest } from 'next/server';
 import { twMerge } from 'tailwind-merge';
 
 /**
@@ -157,4 +158,33 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     document.body.removeChild(textArea);
     return success;
   }
+}
+
+import { fallbackLng, languages } from '../i18n/settings';
+
+/**
+ * 从 NextRequest 中获取语言
+ * 检查 'lang' 查询参数或 'Accept-Language' 请求头
+ */
+export function getLanguageFromRequest(request: NextRequest): string {
+  // 优先使用 URL 查询参数中的 'lang'
+  const langParam = request.nextUrl.searchParams.get('lang');
+  if (langParam && languages.includes(langParam)) {
+    return langParam;
+  }
+
+  // 否则，尝试从 'Accept-Language' 请求头中获取
+  const acceptLanguage = request.headers.get('x-next-locale');
+  if (acceptLanguage) {
+    const detectedLng = acceptLanguage
+      .split(',')
+      .map(l => l.split(';')[0])
+      .find(l => languages.includes(l));
+    if (detectedLng) {
+      return detectedLng;
+    }
+  }
+  console.log(fallbackLng)
+  // 如果未找到支持的语言，则返回默认语言
+  return fallbackLng;
 }

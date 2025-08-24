@@ -1,0 +1,26 @@
+{
+  "podcastGenerationFailed": "Podcast generation failed, please retry",
+  "podcastTagsPlaceholder": "Pending podcast tags",
+  "configErrorTitle": "Configuration Error",
+  "configErrorMessage": "API Key or Model not set, please go to settings page to fill in.",
+  "error": {
+    "401": "Podcast generation failed, please check if the API Key is correct, or login status.",
+    "402": "Podcast generation failed, please check if you have enough points.",
+    "403": "Podcast generation failed, please login and try again.",
+    "409": "Podcast generation failed, there is a task in progress",
+    "backend": "Podcast generation failed, please check backend service or configuration",
+    "generationFailed": "Generation Failed",
+    "noTaskId": "Generation task failed, no task ID returned",
+    "unknown": "Unknown Error",
+    "dataProcessing": "Data processing failed",
+    "cantProcessPodcastList": "Unable to process podcast list data"
+  },
+  "taskCreatedTitle": "Task Created",
+  "taskCreatedMessage": "Podcast generation task has been started, Task ID",
+  "recentlyGenerated": "Recently Generated",
+  "dataRetentionWarning": "Data is only kept for 30 minutes, please download and save it as soon as possible",
+  "saveSuccessTitle": "Save successfully",
+  "saveErrorTitle": "Save failed",
+  "pageInDevelopment": "Page in development",
+  "featureComingSoon": "This feature is under development, please look forward to it."
+}

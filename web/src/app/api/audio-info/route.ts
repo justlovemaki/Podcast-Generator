@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAudioInfo, getUserInfo } from '@/lib/podcastApi';
+import { useTranslation } from '@/i18n';
+import { getLanguageFromRequest } from '@/lib/utils';
 
 
 /**
@@ -7,6 +9,8 @@ import { getAudioInfo, getUserInfo } from '@/lib/podcastApi';
  * 查询参数：file_name
  */
 export async function GET(req: NextRequest) {
+  const lang = getLanguageFromRequest(req);
+  const { t } = await useTranslation(lang, 'errors');
   // 从请求 URL 中获取查询参数
   const { searchParams } = new URL(req.url);
   const fileName = searchParams.get('file_name');
@@ -14,14 +18,14 @@ export async function GET(req: NextRequest) {
   // 检查是否提供了 fileName 参数
   if (!fileName) {
     return NextResponse.json(
-      { success: false, error: '缺少 file_name 查询参数' },
+      { success: false, error: t('missing_file_name_parameter') },
       { status: 400 }
     );
   }
 
   try {
     // 调用前端的 podcastApi 模块中的 getAudioInfo 函数
-    const result = await getAudioInfo(fileName);
+    const result = await getAudioInfo(fileName, lang);
 
     if (!result.success) {
       // 转发 getAudioInfo 返回的错误信息和状态码
@@ -36,7 +40,7 @@ export async function GET(req: NextRequest) {
 
 
     if (authId) {
-      const userInfo = await getUserInfo(authId);
+      const userInfo = await getUserInfo(authId, lang);
       if (userInfo.success && userInfo.data) {
         userInfoData = {
           name: userInfo.data.name,
@@ -58,7 +62,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error('代理 /api/audio-info 失败:', error);
     return NextResponse.json(
-      { success: false, error: '内部服务器错误或无法连接到后端服务' },
+      { success: false, error: t('internal_server_error_backend_connection') },
       { status: 500 }
     );
   }

@@ -9,6 +9,7 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   output: 'standalone',
+  devIndicators: false,
 };
 
 module.exports = nextConfig;

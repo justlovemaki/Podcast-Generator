@@ -1,0 +1,49 @@
+{
+  "invalid_filename": "Invalid filename",
+  "unsupported_file_type": "Unsupported file type",
+  "file_not_found": "File not found",
+  "internal_server_error": "Internal server error"
+,
+  "unauthorized": "Unauthorized",
+  "invalid_status": "Invalid status",
+  "invalid_request_parameters": "Invalid request parameters",
+  "request_too_old_or_future": "Request too old or in the future",
+  "points_deducted_successfully": "Points deducted successfully",
+  "insufficient_points": "Insufficient points",
+  "daily_sign_in": "Daily sign-in",
+  "already_signed_in_today": "Already signed in today",
+  "points_added_successfully": "Points added successfully"
+,
+  "config_files_list_success": "Configuration files list retrieved successfully",
+  "config_files_list_error": "Failed to retrieve configuration files list",
+  "invalid_config_file_name": "Invalid configuration file name",
+  "config_file_read_success": "Configuration file read successfully",
+  "read_config_file_error": "Failed to read configuration file"
+,
+  "missing_file_name_parameter": "Missing file_name query parameter",
+  "internal_server_error_backend_connection": "Internal server error or unable to connect to backend service"
+,
+  "user_not_logged_in_or_session_expired": "User not logged in or session expired",
+  "request_body_cannot_be_empty": "Request body cannot be empty",
+  "tts_provider_cannot_be_empty": "TTS provider cannot be empty",
+  "please_select_at_least_one_speaker": "Please select at least one podcast speaker",
+  "invalid_speaker_config_format": "Invalid podcast speaker configuration format",
+  "insufficient_points_for_podcast": "Insufficient points, generating a podcast requires {{pointsNeeded}} points, you currently have {{currentPoints}} points.",
+  "invalid_output_language": "Invalid output language",
+  "invalid_podcast_duration": "Invalid podcast duration",
+  "missing_frontend_tts_config": "Missing frontend TTS configuration information",
+  "incomplete_backend_tts_config": "Incomplete backend TTS configuration, please check backend configuration file.",
+  "internal_server_error_default": "Internal server error"
+,
+  "failed_to_get_task_status": "Failed to get task status"
+,
+  "insufficient_points_raw": "积分不足"
+,
+  "forbidden_user_id": "Forbidden: User ID not allowed to access this resource",
+  "invalid_request_parameters_add_points": "Invalid request parameters. `userId`, `pointsToAdd` (positive number), `reasonCode`, and `description` are required.",
+  "points_added_successfully_to_user": "Points successfully added to user {{userId}}"
+,
+  "invalid_pagination_parameters": "Invalid pagination parameters"
+,
+  "cannot_read_tts_provider_config": "Cannot read TTS provider configuration file"
+}

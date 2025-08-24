@@ -1,0 +1,62 @@
+{
+  "terms_of_service": {
+    "title": "Terms of Service - PodcastHub",
+    "description": "Welcome to PodcastHub's Terms of Service. These terms are designed to protect the common interests of users and the platform.",
+    "heading": "PodcastHub Terms of Service",
+    "last_updated": "Last updated: August 21, 2025",
+    "intro_paragraph": "Welcome to PodcastHub! We provide leading AI technology to convert your text content into high-quality podcast audio (hereinafter referred to as \"the Service\"). Before using our services, please read the following Terms of Service (hereinafter referred to as \"these Terms\") carefully. By accessing or using our services, you agree to be bound by these Terms.",
+    "section1": {
+      "title": "1. Service Overview",
+      "content": "PodcastHub is a platform that allows users to upload text, configure parameters, and generate audio content. Services include but are not limited to text-to-speech (TTS), audio processing, content storage, and distribution support. We are committed to providing stable and efficient technical solutions but reserve the right to modify or suspend services at any time without prior notice."
+    },
+    "section2": {
+      "title": "2. User Account and Security",
+      "content": "You need to register an account to use all our services. You promise to provide accurate, complete, and up-to-date registration information and are responsible for maintaining the confidentiality of your account and password. All activities conducted through your account are your responsibility. If you discover any unauthorized use of your account, please notify us immediately."
+    },
+    "section3": {
+      "title": "3. User Conduct Guidelines",
+      "intro": "You agree to abide by all applicable laws and regulations when using this service and shall not use this service to engage in the following activities:",
+      "point1": "Upload, generate, or disseminate any content that is illegal, harmful, threatening, abusive, harassing, defamatory, obscene, infringes on the privacy of others, incites hatred, or is racially or ethnically objectionable.",
+      "point2": "Infringe on the intellectual property rights of any third party, including but not limited to copyrights, trademarks, patents, or trade secrets.",
+      "point3": "Impersonate any person or entity, or otherwise misrepresent your affiliation with any person or entity.",
+      "point4": "Interfere with or disrupt our services, servers, or networks connected to the services, or fail to comply with any requirements, procedures, policies, or regulations of networks connected to the services.",
+      "point5": "Engage in any activity that may impose an unreasonable or disproportionately large load on our service infrastructure."
+    },
+    "section4": {
+      "title": "4. Intellectual Property",
+      "point1": {
+        "heading": "Your Content",
+        "content": ": You retain full ownership and intellectual property rights to all text content you submit to the service (\"User Content\"). You grant PodcastHub a worldwide, non-exclusive, royalty-free license to use, reproduce, process, adapt, modify, publish, transmit, and display your User Content solely for the purpose of operating, providing, and improving the Service."
+      },
+      "point2": {
+        "heading": "Generated Content",
+        "content": ": The copyright of audio content generated through this service (\"Generated Content\") depends on the copyright status of the User Content you input. As a technology service provider, we do not claim any ownership of the copyright of Generated Content."
+      },
+      "point3": {
+        "heading": "Our Services",
+        "content": ": This service and all its related technologies, trademarks, logos, and content (excluding your content and generated content) are the proprietary property of PodcastHub. You may not use them without our prior written consent."
+      }
+    },
+    "section5": {
+      "title": "5. Disclaimers and Limitation of Liability",
+      "point1": "This service is provided \"as is\" and \"as available,\" and we make no express or implied warranties, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement. We do not warrant that the service will be uninterrupted, timely, secure, or error-free.",
+      "point2": "To the maximum extent permitted by law, PodcastHub and its affiliates, directors, employees, or licensors shall in no event be liable for any indirect, incidental, special, consequential, or punitive damages arising from your access to or use of this service, whether such damages are based on warranty, contract, tort (including negligence), or any other legal theory."
+    },
+    "section6": {
+      "title": "6. Termination of Service",
+      "content": "We reserve the right to suspend or terminate your access to this service at any time for any reason (including your breach of these terms) without prior notice. You may also terminate this agreement at any time by deactivating your account. Upon termination, your right to use this service will cease immediately."
+    },
+    "section7": {
+      "title": "7. Modification of Terms",
+      "content": "We reserve the right to modify or replace these terms at our sole discretion at any time. If the changes are material, we will notify you by prominent notice on the website or by sending you an email at least 30 days before the new terms take effect. What constitutes a material change will be determined by us at our sole discretion."
+    },
+    "section8": {
+      "title": "8. Governing Law",
+      "content": "The conclusion, validity, interpretation, performance, and dispute resolution of these terms shall be governed by relevant laws."
+    },
+    "section9": {
+      "title": "9. Contact Us",
+      "content": "If you have any questions about these terms, please contact us through our contact page."
+    }
+  }
+}

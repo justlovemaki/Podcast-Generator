@@ -18,6 +18,7 @@ import AudioVisualizer from './AudioVisualizer';
 import { useIsSmallScreen } from '@/hooks/useMediaQuery'; // 导入新的 Hook
 import type { AudioPlayerState, PodcastItem } from '@/types';
 import { useToast, ToastContainer } from '@/components/Toast';
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 interface AudioPlayerProps {
   podcast: PodcastItem;
@@ -25,6 +26,7 @@ interface AudioPlayerProps {
   onPlayPause: () => void;
   onEnded: () => void;
   className?: string;
+  lang: string; // 新增 lang 属性
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({
@@ -33,7 +35,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   onPlayPause,
   onEnded,
   className,
+  lang, // 解构 lang 属性
 }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const { toasts, success: toastSuccess, removeToast } = useToast(); // 使用 useToast Hook
@@ -190,8 +194,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     // 从 podcast.audioUrl 中提取文件名
     const audioFileName = podcast.file_name;
     if (!audioFileName) {
-      console.error("无法获取音频文件名进行分享。");
-      toastSuccess('分享失败：无法获取音频文件名。');
+      console.error(t('audioPlayer.cannotGetAudioFileName'));
+      toastSuccess(t('audioPlayer.shareFailed'));
       return;
     }
 
@@ -212,7 +216,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       // 降级到复制音频链接
       await navigator.clipboard.writeText(shareUrl); // 使用构建的分享链接
       // 使用Toast提示
-      toastSuccess('播放链接已复制到剪贴板！');
+      toastSuccess(t('audioPlayer.playLinkCopied'));
     }
   };
 
@@ -239,7 +243,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           onClick={togglePlayPause}
           disabled={isLoading}
           className="w-8 h-8 flex-shrink-0 bg-white text-black rounded-full flex items-center justify-center hover:bg-neutral-400 transition-colors disabled:opacity-50"
-          title={isPlaying ? "暂停" : "播放"}
+          title={isPlaying ? t('audioPlayer.pause') : t('audioPlayer.play')}
         >
           {isLoading ? (
             <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -304,14 +308,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             <button
               onClick={() => skipTime(-10)}
               className="p-1 text-neutral-600 hover:text-black transition-colors"
-              title="后退10秒"
+              title={t('audioPlayer.backward10s')}
             >
               <AiOutlineStepBackward className="w-4 h-4" />
             </button>
             <button
               onClick={() => skipTime(10)}
               className="p-1 text-neutral-600 hover:text-black transition-colors"
-              title="前进10秒"
+              title={t('audioPlayer.forward10s')}
             >
               <AiOutlineStepForward className="w-4 h-4" />
             </button>
@@ -328,7 +332,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 }
               }}
               className="p-1 text-neutral-600 hover:text-black transition-colors min-w-[40px] text-xs"
-              title={`当前倍速: ${currentPlaybackRate.toFixed(2)}x`}
+              title={`${t('audioPlayer.currentPlaybackRate')}: ${currentPlaybackRate.toFixed(2)}x`}
             >
               {currentPlaybackRate.toFixed(2)}x
             </button>
@@ -338,7 +342,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               <button
                 onClick={toggleMute}
                 className="p-1 text-neutral-600 hover:text-black transition-colors"
-                title={isMuted ? "取消静音" : "静音"}
+                title={isMuted ? t('audioPlayer.unmute') : t('audioPlayer.mute')}
               >
                 {isMuted || playerState.volume === 0 ? (
                   <AiOutlineMuted className="w-4 h-4" />
@@ -361,7 +365,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             <button
               onClick={handleShare}
               className="p-1 text-neutral-600 hover:text-black transition-colors"
-              title="分享"
+              title={t('audioPlayer.share')}
             >
               <AiOutlineShareAlt className="w-4 h-4" />
             </button>
@@ -369,7 +373,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             <button
               onClick={handleDownload}
               className="p-1 text-neutral-600 hover:text-black transition-colors"
-              title="下载"
+              title={t('audioPlayer.download')}
             >
               <AiOutlineCloudDownload className="w-4 h-4" />
             </button>
@@ -389,7 +393,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
             "p-1 text-neutral-400 hover:text-neutral-600 transition-colors flex-shrink-0",
             { "opacity-50 cursor-not-allowed": isSmallScreen && effectiveIsCollapsed } // 当 effectiveIsCollapsed 为 true 且是小屏幕时禁用 (因为此时按钮功能是展开，不允许)
           )}
-          title={isSmallScreen && effectiveIsCollapsed ? "小于sm尺寸不可展开" : (effectiveIsCollapsed ? "展开播放器" : "收起播放器")}
+          title={isSmallScreen && effectiveIsCollapsed ? t('audioPlayer.lessThanSMSizeCannotExpand') : (effectiveIsCollapsed ? t('audioPlayer.expandPlayer') : t('audioPlayer.collapsePlayer'))}
           disabled={isSmallScreen && effectiveIsCollapsed} // 当 effectiveIsCollapsed 为 true 且是小屏幕时禁用
         >
           {effectiveIsCollapsed ? ( // 根据 effectiveIsCollapsed 决定显示哪个图标

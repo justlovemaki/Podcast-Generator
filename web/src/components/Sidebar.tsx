@@ -20,6 +20,7 @@ import { getSessionData } from '@/lib/server-actions';
 import { cn } from '@/lib/utils';
 import LoginModal from './LoginModal'; // 导入 LoginModal 组件
 import type { PodcastItem } from '@/types';
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
 interface SidebarProps {
@@ -31,6 +32,7 @@ interface SidebarProps {
   credits: number; // 添加 credits 属性
   onPodcastExplore: (podcasts: PodcastItem[]) => void; // 添加刷新播客函数
   onCreditsChange: (newCredits: number) => void; // 添加 onCreditsChange 回调函数
+  lang: string; // 新增 lang 属性
 }
 
 interface NavItem {
@@ -49,7 +51,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   credits, // 解构 credits 属性
   onPodcastExplore, // 解构刷新播客函数
   onCreditsChange, // 解构 onCreditsChange 属性
+  lang // 解构 lang 属性
 }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const [showLoginModal, setShowLoginModal] = useState(false); // 控制登录模态框的显示状态
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // 控制注销确认模态框的显示状态
   const [session, setSession] = useState<any>(null); // 使用 useState 管理 session
@@ -74,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       const currentTime = new Date().getTime();
 
       if (currentTime > expirationTime) {
-        console.log('Session expired, logging out...');
+        console.log(t('sidebar.sessionExpired'));
         signOut({
           fetchOptions: {
             onSuccess: () => {
@@ -86,29 +90,29 @@ const Sidebar: React.FC<SidebarProps> = ({
         });
       }
     }
-  }, [session, router, onCreditsChange]); // 监听 session 变化和 router（因为 signOut 中使用了 router.push），并添加 onCreditsChange
+  }, [session, router, onCreditsChange, t]); // 监听 session 变化和 router（因为 signOut 中使用了 router.push），并添加 onCreditsChange
 
   // todo
   const mainNavItems: NavItem[] = [
-    { id: 'home', label: '首页', icon: AiOutlineHome },
+    { id: 'home', label: t('sidebar.home'), icon: AiOutlineHome },
     // 隐藏资料库和探索
-    // { id: 'library', label: '资料库', icon: Library },
-    // { id: 'explore', label: '探索', icon: Compass },
+    // { id: 'library', label: t('sidebar.library'), icon: Library },
+    // { id: 'explore', label: t('sidebar.explore'), icon: Compass },
   ];
 
   const bottomNavItems: NavItem[] = [
     // 隐藏定价和积分
-    // { id: 'pricing', label: '定价', icon: DollarSign },
-    { id: 'credits', label: '积分', icon: AiOutlineMoneyCollect, badge: credits.toString() }, // 动态设置 badge
-    ...(enableTTSConfigPage ? [{ id: 'settings', label: 'TTS设置', icon: AiOutlineSetting }] : [])
+    // { id: 'pricing', label: t('sidebar.pricing'), icon: DollarSign },
+    { id: 'credits', label: t('sidebar.points'), icon: AiOutlineMoneyCollect, badge: credits.toString() }, // 动态设置 badge
+    ...(enableTTSConfigPage ? [{ id: 'settings', label: t('sidebar.ttsSettings'), icon: AiOutlineSetting }] : [])
   ];
 
 
   const socialLinks = [
-    { icon: AiOutlineGithub, href: 'https://github.com/justlovemaki', label: 'Github' },
-    { icon: AiOutlineTwitter, href: 'https://x.com/justlikemaki', label: 'Twitter' }, 
-    { icon: AiOutlineTikTok, href: 'https://cdn.jsdmirror.com/gh/justlovemaki/imagehub@main/logo/7fc30805eeb831e1e2baa3a240683ca3.md.png', label: 'Douyin' },
-    { icon: AiOutlineMail, href: 'mailto:justlikemaki@foxmail.com', label: 'Email' },
+    { icon: AiOutlineGithub, href: 'https://github.com/justlovemaki', label: t('sidebar.github') },
+    { icon: AiOutlineTwitter, href: 'https://x.com/justlikemaki', label: t('sidebar.twitter') },
+    { icon: AiOutlineTikTok, href: 'https://cdn.jsdmirror.com/gh/justlovemaki/imagehub@main/logo/7fc30805eeb831e1e2baa3a240683ca3.md.png', label: t('sidebar.tiktok') },
+    { icon: AiOutlineMail, href: 'mailto:justlikemaki@foxmail.com', label: t('sidebar.email') },
   ];
 
   return (
@@ -125,10 +129,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           {collapsed ? (
             /* 收起状态 - 只显示展开按钮 */
             <div className="w-full flex justify-center">
-              <button 
+              <button
                 onClick={onToggleCollapse}
                 className="w-8 h-8 gradient-brand rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity"
-                title="展开侧边栏"
+                title={t('sidebar.expandSidebar')}
               >
                 <AiOutlineMenuUnfold className="w-4 h-4 text-white" />
               </button>
@@ -160,10 +164,10 @@ const Sidebar: React.FC<SidebarProps> = ({
               
               {/* 收起按钮 */}
               <div className="flex-shrink-0 ml-auto">
-                <button 
+                <button
                   onClick={onToggleCollapse}
                   className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 border border-neutral-200 transition-all duration-200"
-                  title="收起侧边栏"
+                  title={t('sidebar.collapseSidebar')}
                 >
                   <AiOutlineMenuFold className="w-4 h-4 text-neutral-500" />
                 </button>
@@ -303,13 +307,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                   collapsed ? "w-8 h-8" : "w-10 h-10",
                   !collapsed && "hover:opacity-80 transition-opacity" // 展开时添加悬停效果
                 )}
-                title={collapsed ? (session.user.name || session.user.email || '用户') : "点击头像注销"}
+                title={collapsed ? (session.user.name || session.user.email || t('sidebar.user')) : t('sidebar.clickAvatarToLogout')}
               >
                 {session.user.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={session.user.image}
-                    alt="User Avatar"
+                    alt={t('sidebar.userAvatar')}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -328,7 +332,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   "whitespace-nowrap transition-all duration-500 ease-in-out transform-gpu",
                   collapsed ? "opacity-0 scale-x-0" : "opacity-100 scale-x-100 text-neutral-800 font-medium" // 收缩时文字也隐藏
                 )}>
-                  {session.user.name || session.user.email || '用户'}
+                  {session.user.name || session.user.email || t('sidebar.user')}
                 </span>
               </div>
             </div>
@@ -340,7 +344,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 "flex items-center rounded-lg transition-all duration-200",
                 collapsed ? "justify-center w-8 h-8 px-0 text-neutral-600 hover:text-black hover:bg-neutral-50" : "justify-center w-[95%] mx-auto py-2 bg-black text-white hover:opacity-80"
               )}
-              title={collapsed ? "登录" : undefined}
+              title={collapsed ? t('sidebar.login') : undefined}
             >
               <AiOutlineLogin className="w-5 h-5 flex-shrink-0" />
               <div className={cn(
@@ -350,7 +354,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <span className={cn(
                   "text-sm whitespace-nowrap transition-all duration-500 ease-in-out transform-gpu",
                   collapsed ? "opacity-0 scale-x-0" : "opacity-100 scale-x-100"
-                )}>登录</span>
+                )}>{t('sidebar.login')}</span>
               </div>
             </button>
           )}
@@ -359,13 +363,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         {showLogoutConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-xl text-center">
-              <p className="mb-4 text-lg font-semibold">确定要注销吗？</p>
+              <p className="mb-4 text-lg font-semibold">{t('sidebar.areYouSureToLogout')}</p>
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
                   className="px-4 py-2 rounded-lg bg-neutral-200 text-neutral-800 hover:bg-neutral-300 transition-colors"
                 >
-                  取消
+                  {t('sidebar.cancel')}
                 </button>
                 <button
                   onClick={() => {
@@ -383,7 +387,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   }}
                   className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
                 >
-                  注销
+                  {t('sidebar.confirmLogout')}
                 </button>
               </div>
             </div>
@@ -392,7 +396,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* 登录模态框 */}
-      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} lang={lang} />
     </div>
   );
 };

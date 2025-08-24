@@ -1,0 +1,26 @@
+{
+  "podcastGenerationFailed": "ポッドキャストの生成に失敗しました。再試行してください。",
+  "podcastTagsPlaceholder": "保留中のポッドキャストタグ",
+  "configErrorTitle": "設定エラー",
+  "configErrorMessage": "APIキーまたはモデルが設定されていません。設定ページで入力してください。",
+  "error": {
+    "401": "ポッドキャストの生成に失敗しました。APIキーが正しいか、ログイン状態を確認してください。",
+    "402": "ポッドキャストの生成に失敗しました。ポイントが十分にあるか確認してください。",
+    "403": "ポッドキャストの生成に失敗しました。ログインしてもう一度お試しください。",
+    "409": "ポッドキャストの生成に失敗しました。タスクが進行中です。",
+    "backend": "ポッドキャストの生成に失敗しました。バックエンドサービスまたは設定を確認してください。",
+    "generationFailed": "生成に失敗しました。",
+    "noTaskId": "生成タスクに失敗しました。タスクIDが返されませんでした。",
+    "unknown": "不明なエラー",
+    "dataProcessing": "データ処理に失敗しました。",
+    "cantProcessPodcastList": "ポッドキャストリストデータを処理できませんでした。"
+  },
+  "taskCreatedTitle": "タスク作成済み",
+  "taskCreatedMessage": "ポッドキャスト生成タスクが開始されました。タスクID",
+  "recentlyGenerated": "最近生成されたもの",
+  "dataRetentionWarning": "データは30分間のみ保持されます。できるだけ早くダウンロードして保存してください。",
+  "saveSuccessTitle": "保存成功",
+  "saveErrorTitle": "保存失敗",
+  "pageInDevelopment": "開発中のページ",
+  "featureComingSoon": "この機能は開発中です。ご期待ください。"
+}

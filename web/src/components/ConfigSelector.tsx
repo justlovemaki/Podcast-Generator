@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { AiOutlineCheck } from 'react-icons/ai';
 import type { TTSConfig, Voice } from '@/types';
 import { getTTSProviders } from '@/lib/config';
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
 interface ConfigFile {
@@ -15,12 +16,15 @@ interface ConfigFile {
 interface ConfigSelectorProps {
   onConfigChange?: (config: TTSConfig, name: string, voices: Voice[]) => void; // 添加 name 和 voices 参数
   className?: string;
+  lang: string; // 新增 lang 属性
 }
 
 const ConfigSelector: React.FC<ConfigSelectorProps> = ({
   onConfigChange,
-  className
+  className,
+  lang
 }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const [configFiles, setConfigFiles] = useState<ConfigFile[]>([]);
   const [selectedConfig, setSelectedConfig] = useState<string>('');
   const [currentConfig, setCurrentConfig] = useState<TTSConfig | null>(null);
@@ -61,6 +65,7 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-next-locale': lang,
         },
         body: JSON.stringify({ configFile }),
       });
@@ -90,12 +95,17 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
     loadConfigFilesCalled.current = true;
 
     try {
-      const response = await fetch('/api/config');
+      const response = await fetch('/api/config', {
+        method: 'GET',
+        headers: {
+          'x-next-locale': lang,
+        },
+      });
       const result = await response.json();
       
       if (result.success && Array.isArray(result.data)) {
         // 过滤出已配置的TTS选项
-        const settings = await getTTSProviders();
+        const settings = await getTTSProviders(lang);
         const availableConfigs = result.data.filter((config: ConfigFile) =>
           isTTSConfigured(config.name, settings)
         );
@@ -161,7 +171,7 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
           >
             {/* <Settings className="w-4 h-4 text-neutral-500" /> */}
             <span className="flex-1 text-left text-sm">
-              {isLoading ? '加载中...' : selectedConfigFile?.displayName || (configFiles.length === 0 ? '请先配置TTS' : '选择TTS配置')}
+              {isLoading ? t('configSelector.loading') : selectedConfigFile?.displayName || (configFiles.length === 0 ? t('configSelector.pleaseConfigTTS') : t('configSelector.selectTTSConfig'))}
             </span>
             {/* <ChevronDown className={cn(
               "w-4 h-4 text-neutral-400 transition-transform",
@@ -189,8 +199,8 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
                 </button>
               )) : (
                 <div className="px-4 py-3 text-sm text-neutral-500 text-center">
-                  <div className="mb-1">暂无可用的TTS配置</div>
-                  <div className="text-xs">请先在设置中配置TTS服务</div>
+                  <div className="mb-1">{t('configSelector.noAvailableTTSConfig')}</div>
+                  <div className="text-xs">{t('configSelector.pleaseConfigTTS')}</div>
                 </div>
               )}
             </div>

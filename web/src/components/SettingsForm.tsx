@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  KeyIcon, 
-  CogIcon, 
+import {
+  KeyIcon,
+  CogIcon,
   GlobeAltIcon,
   SpeakerWaveIcon,
   CheckIcon,
@@ -12,6 +12,7 @@ import {
   EyeSlashIcon
 } from '@heroicons/react/24/outline';
 import { getItem, setItem } from '@/lib/storage';
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 // 存储键名
 const SETTINGS_STORAGE_KEY = 'podcast-settings';
@@ -64,9 +65,11 @@ interface SettingsFormProps {
   onSave?: (data: SettingsFormData) => void;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
+  lang: string; // 新增 lang 属性
 }
 
-export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFormProps) {
+export default function SettingsForm({ onSave, onSuccess, onError, lang }: SettingsFormProps) {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const [formData, setFormData] = useState<SettingsFormData>({
     apikey: '',
     model: '',
@@ -178,15 +181,15 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
       if (onSave) {
         onSave(processedData);
       }
-
-      onSuccess?.('设置保存成功！');
-    } catch (error) {
-      console.error('Error saving settings:', error);
-      onError?.('保存设置时出现错误，请重试');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ 
+       onSuccess?.(t('settingsForm.settingsSavedSuccessfully'));
+     } catch (error) {
+       console.error('Error saving settings:', error);
+       onError?.(t('settingsForm.errorSavingSettings'));
+     } finally {
+       setIsLoading(false);
+     }
+   };
 
   const renderPasswordInput = (
     label: string,
@@ -283,8 +286,8 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
   return (
     <div className="max-w-4xl mx-auto px-6">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-black mb-2">设置</h1>
-        <p className="text-neutral-600 break-words">配置播客生成器的API设置和TTS服务</p>
+        <h1 className="text-3xl font-bold text-black mb-2">{t('settingsForm.settings')}</h1>
+        <p className="text-neutral-600 break-words">{t('settingsForm.apiSettingsDescription')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -294,21 +297,21 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
             <div className="p-2 bg-neutral-100 rounded-lg">
               <CogIcon className="h-5 w-5 text-neutral-600" />
             </div>
-            <h2 className="text-xl font-semibold text-black">通用设置</h2>
+            <h2 className="text-xl font-semibold text-black">{t('settingsForm.generalSettings')}</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {renderPasswordInput(
-              'API Key',
+              t('settingsForm.apiKey'),
               'apikey',
               formData.apikey,
-              '输入您的OpenAI API Key',
+              t('settingsForm.inputYourOpenAIAPIKey'),
               true
             )}
 
             <div className="space-y-2 relative">
               <label className="block text-sm font-medium text-neutral-700">
-                模型
+                {t('settingsForm.model')}
                 <span className="text-red-500 ml-1">*</span>
               </label>
               <div className="relative">
@@ -317,7 +320,7 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
                   value={formData.model}
                   onChange={(e) => handleInputChange('model', e.target.value)}
                   onFocus={() => setIsModelDropdownOpen(true)}
-                  placeholder="选择或输入模型名称"
+                  placeholder={t('settingsForm.selectOrEnterModelName')}
                   className="input-primary w-full pr-8"
                   required
                 />
@@ -347,7 +350,7 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
                         }}
                         className="w-full px-4 py-2 text-left hover:bg-neutral-50 transition-colors text-sm"
                       >
-                        {model}
+                        {model === '输入自定义模型' ? t('settingsForm.customModelInput') : model}
                       </button>
                     ))}
                   </div>
@@ -364,10 +367,10 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
             </div>
 
             {renderTextInput(
-              'Base URL',
+              t('settingsForm.baseURL'),
               'baseurl',
               formData.baseurl,
-              '可选：自定义API基础URL',
+              t('settingsForm.optionalCustomBaseURL'),
               false, // required
               'md:col-span-2' // wrapperClassName
             )}
@@ -380,7 +383,7 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
             <div className="p-2 bg-neutral-100 rounded-lg">
               <SpeakerWaveIcon className="h-5 w-5 text-neutral-600" />
             </div>
-            <h2 className="text-xl font-semibold text-black">TTS服务设置</h2>
+            <h2 className="text-xl font-semibold text-black">{t('settingsForm.ttsServiceSettings')}</h2>
           </div>
 
           <div className="space-y-8">
@@ -388,16 +391,16 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
                 <GlobeAltIcon className="h-5 w-5 text-blue-500" />
-                网络 API TTS 服务
+                {t('settingsForm.webAPITTSServices')}
               </h3>
               <div className="grid grid-cols-1 gap-8">
                 {/* Edge TTS */}
                 <div className="space-y-4 border-l-4 border-blue-200 pl-4">
                   <h4 className="text-md font-medium text-black flex items-center gap-2">
                     <SpeakerWaveIcon className="h-4 w-4 text-neutral-500" />
-                    Edge TTS
+                    {t('settingsForm.edgeTTS')}
                   </h4>
-                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">基于微软Edge的TTS免费服务，提供高质量语音合成。</p>
+                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">{t('settingsForm.edgeTTSDescription')}</p>
                   {renderTextInput(
                     'API URL',
                     'edge.api_url',
@@ -410,21 +413,21 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
                 <div className="space-y-4 border-l-4 border-blue-200 pl-4">
                   <h4 className="text-md font-medium text-black flex items-center gap-2">
                     <SpeakerWaveIcon className="h-4 w-4 text-neutral-500" />
-                    Doubao TTS
+                    {t('settingsForm.doubaoTTS')}
                   </h4>
-                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">由火山引擎提供支持的语音合成服务，baseUrl=https://openspeech.bytedance.com/api/v3/tts/unidirectional</p>
+                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">{t('settingsForm.doubaoTTSDescription')}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {renderTextInput(
-                      'App ID',
+                      t('settingsForm.appID'),
                       'doubao.X-Api-App-Id',
                       formData.doubao['X-Api-App-Id'],
-                      '输入Doubao App ID'
+                      t('settingsForm.inputDoubaoAppID')
                     )}
                     {renderPasswordInput(
-                      'Access Key',
+                      t('settingsForm.accessKey'),
                       'doubao.X-Api-Access-Key',
                       formData.doubao['X-Api-Access-Key'],
-                      '输入Doubao Access Key'
+                      t('settingsForm.inputDoubaoAccessKey')
                     )}
                   </div>
                 </div>
@@ -433,21 +436,21 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
                 <div className="space-y-4 border-l-4 border-blue-200 pl-4">
                   <h4 className="text-md font-medium text-black flex items-center gap-2">
                     <SpeakerWaveIcon className="h-4 w-4 text-neutral-500" />
-                    Minimax TTS
+                    {t('settingsForm.minimaxTTS')}
                   </h4>
-                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">由Minimax提供支持的语音合成服务，baseUrl=https://api.minimaxi.com/v1/t2a_v2</p>
+                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">{t('settingsForm.minimaxTTSDescription')}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {renderTextInput(
-                      'Group ID',
+                      t('settingsForm.groupID'),
                       'minimax.group_id',
                       formData.minimax.group_id,
-                      '输入Minimax Group ID'
+                      t('settingsForm.inputMinimaxGroupID')
                     )}
                     {renderPasswordInput(
-                      'API Key',
+                      t('settingsForm.apiKey'),
                       'minimax.api_key',
                       formData.minimax.api_key,
-                      '输入Minimax API Key'
+                      t('settingsForm.inputMinimaxAPIKey')
                     )}
                   </div>
                 </div>
@@ -456,15 +459,15 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
                 <div className="space-y-4 border-l-4 border-blue-200 pl-4">
                   <h4 className="text-md font-medium text-black flex items-center gap-2">
                     <SpeakerWaveIcon className="h-4 w-4 text-neutral-500" />
-                    Fish TTS
+                    {t('settingsForm.fishTTS')}
                   </h4>
-                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">由FishAudio提供支持的语音合成服务，baseUrl=https://api.fish.audio/v1/tts</p>
+                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">{t('settingsForm.fishTTSDescription')}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {renderPasswordInput(
-                      'API Key',
+                      t('settingsForm.apiKey'),
                       'fish.api_key',
                       formData.fish.api_key,
-                      '输入Fish TTS API Key'
+                      t('settingsForm.inputFishTTSAPIKey')
                     )}
                   </div>
                 </div>
@@ -473,15 +476,15 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
                 <div className="space-y-4 border-l-4 border-blue-200 pl-4">
                   <h4 className="text-md font-medium text-black flex items-center gap-2">
                     <SpeakerWaveIcon className="h-4 w-4 text-neutral-500" />
-                    Gemini TTS
+                    {t('settingsForm.geminiTTS')}
                   </h4>
-                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">由Google Gemini提供支持的语音合成服务，baseUrl=https://generativelanguage.googleapis.com/v1beta/models</p>
+                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">{t('settingsForm.geminiTTSDescription')}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {renderPasswordInput(
-                      'API Key',
+                      t('settingsForm.apiKey'),
                       'gemini.api_key',
                       formData.gemini.api_key,
-                      '输入Gemini API Key'
+                      t('settingsForm.inputGeminiAPIKey')
                     )}
                   </div>
                 </div>
@@ -493,16 +496,16 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
             <div className="space-y-4 mt-8">
               <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
                 <SpeakerWaveIcon className="h-5 w-5 text-purple-500" />
-                本地 API TTS 服务
+                {t('settingsForm.localAPITTSServices')}
               </h3>
               <div className="grid grid-cols-1 gap-8">
                 {/* Index TTS */}
                 <div className="space-y-4 border-l-4 border-purple-200 pl-4">
                   <h4 className="text-md font-medium text-black flex items-center gap-2">
                     <SpeakerWaveIcon className="h-4 w-4 text-neutral-500" />
-                    Index TTS
+                    {t('settingsForm.indexTTS')}
                   </h4>
-                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">用于本地部署的IndexTTS服务，提供自定义语音合成能力。</p>
+                  <p className="text-sm text-neutral-500 mt-1 mb-2 break-words">{t('settingsForm.indexTTSDescription')}</p>
                   {renderTextInput(
                     'API URL',
                     'index.api_url',
@@ -522,7 +525,7 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
             onClick={handleReset}
             className="px-6 py-3 border border-neutral-300 text-neutral-700 rounded-full font-medium transition-all duration-200 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2"
           >
-            重置
+            {t('settingsForm.reset')}
           </button>
           <button
             type="submit"
@@ -532,11 +535,11 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                保存中...
+                {t('settingsForm.saving')}
               </>
             ) : (
               <>
-                保存设置
+                {t('settingsForm.saveSettings')}
               </>
             )}
           </button>
@@ -548,12 +551,12 @@ export default function SettingsForm({ onSave, onSuccess, onError }: SettingsFor
         <div className="flex items-start gap-3">
           <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-amber-800">配置说明</h3>
+            <h3 className="text-sm font-medium text-amber-800">{t('settingsForm.configurationNotes')}</h3>
             <ul className="text-sm text-amber-700 space-y-1 break-words">
-              <li>• API Key 是必填项，用于调用OpenAI服务生成播客脚本</li>
-              <li>• TTS服务配置为可选项，未配置的服务将不会在语音选择中显示</li>
-              <li>• 空白字段将被保存为 null 值</li>
-              <li>• 配置保存后将立即生效，无需重启应用</li>
+              <li>• {t('settingsForm.apiKeyRequired')}</li>
+              <li>• {t('settingsForm.ttsOptional')}</li>
+              <li>• {t('settingsForm.emptyFieldsNull')}</li>
+              <li>• {t('settingsForm.settingsApplyImmediately')}</li>
             </ul>
           </div>
         </div>

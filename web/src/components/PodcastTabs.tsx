@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
+import { useTranslation } from '../i18n/client';
 
 interface PodcastTabsProps {
   parsedScript: { id: number; speaker: string | null; dialogue: string }[];
   overviewContent?: string;
+  lang: string;
 }
 
-export default function PodcastTabs({ parsedScript, overviewContent }: PodcastTabsProps) {
+export default function PodcastTabs({ parsedScript, overviewContent, lang }: PodcastTabsProps) {
+  const { t } = useTranslation(lang, 'components');
   const [activeTab, setActiveTab] = useState<'script' | 'overview'>('script');
 
   return (
@@ -24,7 +27,7 @@ export default function PodcastTabs({ parsedScript, overviewContent }: PodcastTa
               }`}
               onClick={() => setActiveTab('script')}
             >
-              脚本
+              {t('podcastTabs.script')}
             </button>
             {/* 大纲 */}
             <button
@@ -33,7 +36,7 @@ export default function PodcastTabs({ parsedScript, overviewContent }: PodcastTa
               }`}
               onClick={() => setActiveTab('overview')}
             >
-              大纲
+              {t('podcastTabs.outline')}
             </button>
           </div>
         </div>
@@ -56,7 +59,7 @@ export default function PodcastTabs({ parsedScript, overviewContent }: PodcastTa
             overviewContent ? (
               <MarkdownRenderer content={overviewContent} />
             ) : (
-              <p>暂无大纲内容。</p>
+              <p>{t('podcastTabs.noOutlineContent')}</p>
             )
           )}
         </article>

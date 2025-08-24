@@ -3,11 +3,13 @@ import { getAudioInfo, getUserInfo } from '@/lib/podcastApi';
 import AudioPlayerControls from './AudioPlayerControls';
 import PodcastTabs from './PodcastTabs';
 import ShareButton from './ShareButton'; // 导入 ShareButton 组件
+import { useTranslation } from '../i18n'; // 从正确路径导入 useTranslation
 
 // 脚本解析函数 (与 page.tsx 中保持一致)
 const parseTranscript = (
   transcript: { speaker_id: number; dialog: string }[] | undefined,
-  podUsers: { role: string; code: string; name: string; usedname: string }[] | undefined
+  podUsers: { role: string; code: string; name: string; usedname: string }[] | undefined,
+  t: (key: string, options?: any) => string // 传递 t 函数
 ) => {
   if (!transcript) return [];
 
@@ -16,7 +18,7 @@ const parseTranscript = (
     if (podUsers && podUsers[item.speaker_id]) {
       speakerName = podUsers[item.speaker_id].usedname; // 使用 podUsers 中的 usedname 字段作为 speakerName
     } else {
-      speakerName = `Speaker ${item.speaker_id}`; // 回退到 Speaker ID
+      speakerName = `${t('podcastContent.speaker')} ${item.speaker_id}`; // 回退到 Speaker ID
     }
     return { id: index, speaker: speakerName, dialogue: item.dialog };
   });
@@ -24,18 +26,20 @@ const parseTranscript = (
 
 interface PodcastContentProps {
   fileName: string;
+  lang: string; // 新增 lang 属性
 }
 
 
-export default async function PodcastContent({ fileName }: PodcastContentProps) {
-  const result = await getAudioInfo(fileName);
+export default async function PodcastContent({ fileName, lang }: PodcastContentProps) {
+  const { t } = await useTranslation(lang, 'components'); // 初始化 useTranslation
+  const result = await getAudioInfo(fileName, lang);
 
   if (!result.success || !result.data || result.data.status!='completed') {
     return (
       <div className="flex flex-col justify-center items-center h-screen text-gray-800">
-        <p className="text-red-500 text-lg">无法加载播客详情：{result.error || '未知错误'}</p>
+        <p className="text-red-500 text-lg">{t('podcastContent.cannotLoadPodcastDetails')}{result.error || t('podcastContent.unknownError')}</p>
         <a href="/" className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors">
-          返回首页
+          {t('podcastContent.returnToHomepage')}
         </a>
       </div>
     );
@@ -44,7 +48,7 @@ export default async function PodcastContent({ fileName }: PodcastContentProps) 
   const authId = result.data?.auth_id; // 确保 auth_id 存在且安全访问
   let userInfoData = null;
   if (authId) {
-    const userInfo = await getUserInfo(authId);
+    const userInfo = await getUserInfo(authId, lang);
     if (userInfo.success && userInfo.data) {
       userInfoData = {
         name: userInfo.data.name,
@@ -59,7 +63,7 @@ export default async function PodcastContent({ fileName }: PodcastContentProps) 
   };
 
   const audioInfo = responseData;
-  const parsedScript = parseTranscript(audioInfo.podcast_script?.podcast_transcripts || [], audioInfo.podUsers);
+  const parsedScript = parseTranscript(audioInfo.podcast_script?.podcast_transcripts || [], audioInfo.podUsers, t); // 传递 t 函数
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-10">
@@ -70,16 +74,16 @@ export default async function PodcastContent({ fileName }: PodcastContentProps) 
           className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm"
         >
           <AiOutlineArrowLeft className="w-5 h-5 mr-1" />
-          返回首页
+          {t('podcastContent.returnToHomepage')}
         </a>
         <div className="flex items-center gap-4"> {/* 使用 flex 容器包裹分享和下载按钮 */}
-          <ShareButton /> {/* 添加分享按钮 */}
+          <ShareButton lang={lang} /> {/* 添加分享按钮 */}
           {audioInfo.audioUrl && (
             <a
               href={audioInfo.audioUrl}
               download
               className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm"
-              aria-label="下载音频"
+              aria-label={t('podcastContent.downloadAudio')}
             >
               <AiOutlineCloudDownload className="w-5 h-5" />
             </a>
@@ -134,12 +138,14 @@ export default async function PodcastContent({ fileName }: PodcastContentProps) 
       <AudioPlayerControls
         audioUrl={audioInfo.audioUrl || ''}
         audioDuration={audioInfo.audio_duration}
+        lang={lang}
       />
 
       {/* 3. 内容导航区和内容展示区 - 使用客户端组件 */}
       <PodcastTabs
         parsedScript={parsedScript}
         overviewContent={audioInfo.overview_content ? audioInfo.overview_content.split('\n').slice(2).join('\n') : ''}
+        lang={lang}
       />
     </main>
   );

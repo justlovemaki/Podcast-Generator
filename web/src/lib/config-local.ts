@@ -8,7 +8,7 @@ let cacheTimestamp: number = 0;
 const CACHE_DURATION = 30 * 60 * 1000; // 30分钟，单位毫秒
 
 // 获取 tts_providers.json 文件内容
-export async function fetchAndCacheProvidersLocal() {
+export async function fetchAndCacheProvidersLocal(lang: string) {
   try {
     const now = Date.now();
 

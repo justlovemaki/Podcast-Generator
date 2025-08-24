@@ -4,6 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import { AiOutlineRight, AiOutlineReload } from 'react-icons/ai';
 import PodcastCard from './PodcastCard';
 import type { PodcastItem } from '@/types'; // 移除了 PodcastGenerationResponse
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 interface ContentSectionProps {
   title: string;
@@ -19,6 +20,7 @@ interface ContentSectionProps {
   onTitleClick?: (podcast: PodcastItem) => void; // 确保传入 onTitleClick
   currentPodcast?: PodcastItem | null; // Keep this prop for PodcastCard
   isPlaying?: boolean; // Keep this prop for PodcastCard
+  lang: string; // 新增 lang 属性
 }
 
 const ContentSection: React.FC<ContentSectionProps> = ({
@@ -34,8 +36,10 @@ const ContentSection: React.FC<ContentSectionProps> = ({
   onRefresh,
   onTitleClick, // 确保解构
   currentPodcast, // 确保解构
-  isPlaying // 确保解构
+  isPlaying, // 确保解构
+  lang
 }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
 
   if (loading) {
     return (
@@ -87,13 +91,13 @@ const ContentSection: React.FC<ContentSectionProps> = ({
               onClick={onViewAll}
               className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm"
             >
-              查看全部
+              {t('contentSection.viewAll')}
               <AiOutlineRight className="w-4 h-4" />
             </button>
           )}
         </div>
         <div className="text-center py-12 text-neutral-500">
-          <p>暂无内容</p>
+          <p>{t('contentSection.noContent')}</p>
         </div>
       </div>
     );
@@ -114,10 +118,10 @@ const ContentSection: React.FC<ContentSectionProps> = ({
             <button
               onClick={onRefresh}
               className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm group whitespace-nowrap"
-              title="刷新"
+              title={t('contentSection.refresh')}
             >
               <AiOutlineReload className="w-4 h-4" />
-              刷新
+              {t('contentSection.refresh')}
             </button>
           )}
           {onViewAll && (
@@ -140,6 +144,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
           onPlayPodcast={onPlayPodcast}
           variant={variant}
           onTitleClick={onTitleClick}
+          lang={lang}
         />
       ) : (
         // 网格布局
@@ -157,6 +162,7 @@ const ContentSection: React.FC<ContentSectionProps> = ({
               currentPodcast={currentPodcast}
               isPlaying={isPlaying}
               onTitleClick={onTitleClick}
+              lang={lang}
             />
           ))}
         </div>
@@ -171,13 +177,15 @@ interface HorizontalScrollSectionProps {
   onPlayPodcast?: (podcast: PodcastItem) => void;
   variant?: 'default' | 'compact';
   onTitleClick?: (podcast: PodcastItem) => void;
+  lang: string; // 新增 lang 属性
 }
 
 const HorizontalScrollSection: React.FC<HorizontalScrollSectionProps> = ({
   items,
   onPlayPodcast,
   variant = 'default',
-  onTitleClick
+  onTitleClick,
+  lang // 解构 lang 属性
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -258,6 +266,7 @@ const HorizontalScrollSection: React.FC<HorizontalScrollSectionProps> = ({
               variant === 'compact' ? 'w-80' : 'w-72'
             }`}
             onTitleClick={onTitleClick}
+            lang={lang}
           />
         ))}
       </div>

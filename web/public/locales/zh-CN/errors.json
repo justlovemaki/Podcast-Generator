@@ -1,0 +1,49 @@
+{
+  "invalid_filename": "无效的文件名",
+  "unsupported_file_type": "不支持的文件类型",
+  "file_not_found": "文件不存在",
+  "internal_server_error": "服务器内部错误"
+,
+  "unauthorized": "未授权",
+  "invalid_status": "无效的状态",
+  "invalid_request_parameters": "无效的请求参数",
+  "request_too_old_or_future": "请求过旧或在未来",
+  "points_deducted_successfully": "积分扣除成功",
+  "insufficient_points": "积分不足",
+  "daily_sign_in": "每日签到",
+  "already_signed_in_today": "今日已签到",
+  "points_added_successfully": "积分添加成功"
+,
+  "config_files_list_success": "配置文件列表获取成功",
+  "config_files_list_error": "获取配置文件列表失败",
+  "invalid_config_file_name": "无效的配置文件名",
+  "config_file_read_success": "配置文件读取成功",
+  "read_config_file_error": "读取配置文件失败"
+,
+  "missing_file_name_parameter": "缺少 file_name 查询参数",
+  "internal_server_error_backend_connection": "内部服务器错误或无法连接到后端服务"
+,
+  "user_not_logged_in_or_session_expired": "用户未登录或会话已过期",
+  "request_body_cannot_be_empty": "请求正文不能为空",
+  "tts_provider_cannot_be_empty": "TTS服务提供商不能为空",
+  "please_select_at_least_one_speaker": "请至少选择一位播客说话人",
+  "invalid_speaker_config_format": "播客说话人配置格式无效",
+  "insufficient_points_for_podcast": "积分不足，生成一个播客需要 {{pointsNeeded}} 积分，您当前只有 {{currentPoints}} 积分。",
+  "invalid_output_language": "无效的输出语言",
+  "invalid_podcast_duration": "无效的播客时长",
+  "missing_frontend_tts_config": "缺少前端传入的TTS配置信息",
+  "incomplete_backend_tts_config": "后端TTS配置不完整，请检查后端配置文件。",
+  "internal_server_error_default": "服务器内部错误"
+,
+  "failed_to_get_task_status": "获取任务状态失败"
+,
+  "insufficient_points_raw": "积分不足"
+,
+  "forbidden_user_id": "禁止：该用户ID无权访问此资源",
+  "invalid_request_parameters_add_points": "无效的请求参数。`userId`、`pointsToAdd`（正数）、`reasonCode`和`description`是必需的。",
+  "points_added_successfully_to_user": "积分已成功添加到用户 {{userId}}"
+,
+  "invalid_pagination_parameters": "无效的分页参数"
+,
+  "cannot_read_tts_provider_config": "无法读取TTS提供商配置文件"
+}

@@ -4,16 +4,21 @@ import type { PodcastGenerationRequest } from '@/types'; // 导入 SettingsFormD
 import { getSessionData } from '@/lib/server-actions';
 import { getUserPoints } from '@/lib/points'; // 导入 getUserPoints
 import { fetchAndCacheProvidersLocal } from '@/lib/config-local'; // 导入 getTTSProviders
+import { useTranslation } from '@/i18n';
+import { getLanguageFromRequest } from '@/lib/utils';
 
 
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true'; // 定义环境变量
 
 export async function POST(request: NextRequest) {
+  const lang = getLanguageFromRequest(request);
+  const { t } = await useTranslation(lang, 'errors');
+
   const session = await getSessionData();
   const userId = session.user?.id;
   if (!userId) {
     return NextResponse.json(
-      { success: false, error: '用户未登录或会话已过期' },
+      { success: false, error: t('user_not_logged_in_or_session_expired') },
       { status: 403 }
     );
   }
@@ -24,13 +29,13 @@ export async function POST(request: NextRequest) {
     // 参数校验
     if (!body.input_txt_content || body.input_txt_content.trim().length === 0) {
       return NextResponse.json(
-        { success: false, error: '请求正文不能为空' },
+        { success: false, error: t('request_body_cannot_be_empty') },
         { status: 400 }
       );
     }
     if (!body.tts_provider || body.tts_provider.trim().length === 0) {
       return NextResponse.json(
-        { success: false, error: 'TTS服务提供商不能为空' },
+        { success: false, error: t('tts_provider_cannot_be_empty') },
         { status: 400 }
       );
     }
@@ -39,13 +44,13 @@ export async function POST(request: NextRequest) {
       podUsers = JSON.parse(body.podUsers_json_content || '[]');
       if (podUsers.length === 0) {
         return NextResponse.json(
-          { success: false, error: '请至少选择一位播客说话人' },
+          { success: false, error: t('please_select_at_least_one_speaker') },
           { status: 400 }
         );
       }
     } catch (e) {
       return NextResponse.json(
-        { success: false, error: '播客说话人配置格式无效' },
+        { success: false, error: t('invalid_speaker_config_format') },
         { status: 400 }
       );
     }
@@ -57,7 +62,7 @@ export async function POST(request: NextRequest) {
     // 2. 检查积分是否足够
     if (currentPoints === null || currentPoints < POINTS_PER_PODCAST) {
       return NextResponse.json(
-        { success: false, error: `积分不足，生成一个播客需要 ${POINTS_PER_PODCAST} 积分，您当前只有 ${currentPoints || 0} 积分。` },
+        { success: false, error: t('insufficient_points_for_podcast', { pointsNeeded: POINTS_PER_PODCAST, currentPoints: currentPoints || 0 }) },
         { status: 402 } // 402 Forbidden - 权限不足，因为积分不足
       );
     }
@@ -66,7 +71,7 @@ export async function POST(request: NextRequest) {
     const allowedLanguages = ['Chinese', 'English', 'Japanese'];
     if (!body.output_language || !allowedLanguages.includes(body.output_language)) {
       return NextResponse.json(
-        { success: false, error: '无效的输出语言' },
+        { success: false, error: t('invalid_output_language') },
         { status: 400 }
       );
     }
@@ -74,7 +79,7 @@ export async function POST(request: NextRequest) {
     const allowedDurations = ['Under 5 minutes', '5-10 minutes', '10-15 minutes'];
     if (!body.usetime || !allowedDurations.includes(body.usetime)) {
       return NextResponse.json(
-        { success: false, error: '无效的播客时长' },
+        { success: false, error: t('invalid_podcast_duration') },
         { status: 400 }
       );
     }
@@ -85,7 +90,7 @@ export async function POST(request: NextRequest) {
       // 如果启用配置页面，则直接使用前端传入的 body
       if (body.tts_providers_config_content === undefined || body.api_key === undefined || body.base_url === undefined || body.model === undefined) {
         return NextResponse.json(
-          { success: false, error: '缺少前端传入的TTS配置信息' },
+          { success: false, error: t('missing_frontend_tts_config') },
           { status: 400 }
         );
       }
@@ -93,10 +98,10 @@ export async function POST(request: NextRequest) {
      
     } else {
       // 如果未启用配置页面，则在后端获取 TTS 配置
-      const settings = await fetchAndCacheProvidersLocal();
+      const settings = await fetchAndCacheProvidersLocal(lang);
       if (!settings || !settings.apikey || !settings.model) {
         return NextResponse.json(
-          { success: false, error: '后端TTS配置不完整，请检查后端配置文件。' },
+          { success: false, error: t('incomplete_backend_tts_config') },
           { status: 500 }
         );
       }
@@ -117,7 +122,7 @@ export async function POST(request: NextRequest) {
     const callback_url = process.env.NEXT_PUBLIC_PODCAST_CALLBACK_URL || "" // 从环境变量获取
     finalRequest.callback_url = callback_url;
     // 积分足够，继续生成播客
-    const result = await startPodcastGenerationTask(finalRequest, userId);
+    const result = await startPodcastGenerationTask(finalRequest, userId, lang);
 
     if (result.success) {
       return NextResponse.json({
@@ -135,7 +140,7 @@ export async function POST(request: NextRequest) {
     console.error('Error in generate-podcast API:', error);
     const statusCode = error.statusCode || 500; // 假设 HttpError 会有 statusCode 属性
     return NextResponse.json(
-      { success: false, error: error.message || '服务器内部错误' },
+      { success: false, error: error.message || t('internal_server_error_default') },
       { status: statusCode }
     );
   }

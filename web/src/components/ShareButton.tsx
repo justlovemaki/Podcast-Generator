@@ -4,12 +4,15 @@ import React from 'react';
 import { AiOutlineShareAlt } from 'react-icons/ai';
 import { useToast, ToastContainer} from './Toast'; // 确保路径正确
 import { usePathname } from 'next/navigation'; // next/navigation 用于获取当前路径
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 interface ShareButtonProps {
   className?: string; // 允许外部传入样式
+  lang: string; // 新增 lang 属性
 }
 
-const ShareButton: React.FC<ShareButtonProps> = ({ className }) => {
+const ShareButton: React.FC<ShareButtonProps> = ({ className, lang }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const { toasts, success, error, removeToast } = useToast();
   const pathname = usePathname(); // 获取当前路由路径
 
@@ -18,12 +21,12 @@ const ShareButton: React.FC<ShareButtonProps> = ({ className }) => {
     try {
       const currentUrl = window.location.origin + pathname; // 构建完整的当前页面 URL
       await navigator.clipboard.writeText(currentUrl);
-      success('复制成功', '页面链接已复制到剪贴板！');
-      console.log('页面链接已复制:', currentUrl); // 添加成功日志
+      success(t('shareButton.copySuccess'), t('shareButton.pageLinkCopied'));
+      console.log(`${t('shareButton.pageLinkCopied')}:`, currentUrl); // 添加成功日志
     } catch (err) {
-      console.error('复制失败:', err); // 保留原有错误日志
-      error('复制失败', '无法复制页面链接到剪贴板。');
-      console.error('无法复制页面链接到剪贴板，错误信息:', err); // 添加详细错误日志
+      console.error(`${t('shareButton.copyFailed')}:`, err); // 保留原有错误日志
+      error(t('shareButton.copyFailed'), t('shareButton.cannotCopyPageLink'));
+      console.error(`${t('shareButton.cannotCopyPageLink')}, ${t('shareButton.errorInfo')}:`, err); // 添加详细错误日志
     }
   };
 
@@ -32,7 +35,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ className }) => {
     <button
       onClick={handleShare}
       className={`text-neutral-500 hover:text-black transition-colors text-sm ${className}`}
-      aria-label="分享页面"
+      aria-label={t('shareButton.sharePage')}
     >
       <AiOutlineShareAlt className="w-5 h-5" />
     </button>

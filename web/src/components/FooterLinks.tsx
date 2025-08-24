@@ -1,5 +1,9 @@
+"use client";
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation'; // 导入 usePathname
 import React from 'react';
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 /**
  * FooterLinks 组件用于展示页脚的法律和联系链接。
@@ -7,12 +11,15 @@ import React from 'react';
  *
  * @returns {React.FC} 包含链接布局的 React 函数组件。
  */
-const FooterLinks: React.FC = () => {
+const FooterLinks: React.FC<{ lang: string }> = ({ lang: initialLang }) => {
+  const { t } = useTranslation(initialLang, 'components'); // 初始化 useTranslation 并指定命名空间
+  const pathname = usePathname();
+  const lang = pathname === '/' ? '' : initialLang; // 如果是根目录，lang赋值为空
   const links = [
-    { href: '/terms', label: '使用条款' },
-    { href: '/privacy', label: '隐私政策' },
-    { href: '/contact', label: '联系我们' },
-    { href: '#', label: '© 2025 Hex2077' },
+    { href: `${lang}/terms`, label: t('footerLinks.termsOfUse') },
+    { href: `${lang}/privacy`, label: t('footerLinks.privacyPolicy') },
+    { href: `${lang}/contact`, label: t('footerLinks.contactUs') },
+    { href: '#', label: t('footerLinks.copyright') },
   ];
 
   return (

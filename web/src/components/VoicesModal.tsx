@@ -3,6 +3,7 @@ import type { Voice } from '@/types';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
 import { AiOutlineClose } from 'react-icons/ai';
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 interface VoicesModalProps {
   isOpen: boolean;
@@ -12,9 +13,11 @@ interface VoicesModalProps {
   initialSelectedVoices: Voice[];
   currentSelectedVoiceIds: string[];
   onRemoveVoice: (voiceCode: string) => void;
+  lang: string;
 }
 
-const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSelectVoices, initialSelectedVoices, currentSelectedVoiceIds, onRemoveVoice }) => {
+const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSelectVoices, initialSelectedVoices, currentSelectedVoiceIds, onRemoveVoice, lang }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
@@ -50,8 +53,19 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
       setInputValue('');
       setDebouncedSearchTerm('');
       setSelectedLocalVoices(initialSelectedVoices);
+
+      // 根据 lang 属性设置默认语言筛选
+      if (lang === 'zh-CN') {
+        setLanguageFilter('zh');
+      } else if (lang === 'en') {
+        setLanguageFilter('en');
+      } else if (lang === 'ja') {
+        setLanguageFilter('ja');
+      } else {
+        setLanguageFilter(''); // 其他语言默认不筛选
+      }
     }
-  }, [isOpen, initialSelectedVoices]);
+  }, [isOpen, initialSelectedVoices, lang]);
 
   const filteredVoices = useMemo(() => {
     // 【修复】使用去重后的 uniqueVoices 数组进行过滤
@@ -74,7 +88,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
 
     if (languageFilter) {
       currentFilteredVoices = currentFilteredVoices.filter(voice =>
-        voice.locale && voice.locale.toLowerCase().includes(languageFilter.toLowerCase())
+        voice.locale && voice.locale.toLowerCase().startsWith(languageFilter.toLowerCase())
       );
     }
 
@@ -88,48 +102,48 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
       <div className="bg-white border border-neutral-200 rounded-2xl p-6 md:w-[40vw] md:h-[70vh] w-[80%] h-[90%] relative flex flex-col shadow-large">
         {/* Header and Filters */}
         <div className="flex items-center mb-4 pr-10 flex-wrap gap-2 justify-end">
-          <div className="min-w-[220px] mr-auto"><h2 className="text-2xl font-bold text-black">选择说话人 ({selectedLocalVoices.length}/{uniqueVoices.length})</h2></div>
+          <div className="min-w-[220px] mr-auto"><h2 className="text-2xl font-bold text-black">{t('voicesModal.selectSpeaker')} ({selectedLocalVoices.length}/{uniqueVoices.length})</h2></div>
           {/* Filter buttons... */}
           <button
             onClick={() => { setGenderFilter(''); setLanguageFilter(''); }}
             className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${genderFilter === '' && languageFilter === '' ? 'bg-gradient-to-r from-brand-purple to-brand-pink text-white' : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'}`}
           >
-            全部
+            {t('voicesModal.all')}
           </button>
           <button
             onClick={() => setGenderFilter('Male')}
             className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${genderFilter === 'Male' ? 'bg-gradient-to-r from-brand-purple to-brand-pink text-white' : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'}`}
           >
-            男
+            {t('voicesModal.male')}
           </button>
           <button
             onClick={() => setGenderFilter('Female')}
             className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${genderFilter === 'Female' ? 'bg-gradient-to-r from-brand-purple to-brand-pink text-white' : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'}`}
           >
-            女
+            {t('voicesModal.female')}
           </button>
           <button
             onClick={() => setLanguageFilter('zh')}
             className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${languageFilter === 'zh' ? 'bg-gradient-to-r from-brand-purple to-brand-pink text-white' : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'}`}
           >
-            中文 (zh)
+            {t('voicesModal.chinese')}
           </button>
           <button
             onClick={() => setLanguageFilter('en')}
             className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${languageFilter === 'en' ? 'bg-gradient-to-r from-brand-purple to-brand-pink text-white' : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'}`}
           >
-            英文 (en)
+            {t('voicesModal.english')}
           </button>
           <button
             onClick={() => setLanguageFilter('ja')}
             className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${languageFilter === 'ja' ? 'bg-gradient-to-r from-brand-purple to-brand-pink text-white' : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'}`}
           >
-            日文 (ja)
+            {t('voicesModal.japanese')}
           </button>
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full text-neutral-600 hover:bg-neutral-100 hover:text-black transition-all duration-200 z-10"
-            aria-label="关闭"
+            aria-label={t('voicesModal.close')}
           >
             <AiOutlineClose className="w-5 h-5" />
           </button>
@@ -137,11 +151,11 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
         
         {/* Search Input */}
         <div className="relative flex-shrink-0 mb-4">
-          <label htmlFor="voice-search" className="sr-only">搜索声音</label>
+          <label htmlFor="voice-search" className="sr-only">{t('voicesModal.searchVoices')}</label>
           <input
             id="voice-search"
             className="peer block w-full rounded-lg border border-neutral-200 py-3 pl-10 text-sm outline-none focus:border-black focus:ring-2 focus:ring-black/10 placeholder:text-neutral-500 transition-all duration-200"
-            placeholder="搜索声音..."
+            placeholder={t('voicesModal.searchVoicesPlaceholder')}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />
@@ -167,7 +181,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
                     if (selectedLocalVoices.length < 5) {
                       setSelectedLocalVoices(prev => [...prev, voice]);
                     } else {
-                      alert('最多只能选择5个说话人。');
+                      alert(t('voicesModal.maxVoicesAlert'));
                     }
                   }
                 }}
@@ -211,13 +225,13 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
                   )}
                   <div>
                     <h3 className="font-semibold text-lg break-words line-clamp-2 text-black">{voice.alias || voice.name}</h3>
-                    <p className="text-sm text-neutral-600 break-words">语言: {voice.locale || '未知'}</p>
+                    <p className="text-sm text-neutral-600 break-words">{t('voicesModal.language')}: {voice.locale || t('voicesModal.unknown')}</p>
                   </div>
                 </div>
               </div>
             ))
           ) : (
-            <p className="col-span-full text-center text-neutral-500">未找到匹配的声音。</p>
+            <p className="col-span-full text-center text-neutral-500">{t('voicesModal.noMatchingVoices')}</p>
           )}
         </div>
 
@@ -238,7 +252,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
                 >
                   {index === 0 ? (
                     <div className="text-center leading-tight">
-                      <div>主持人</div>
+                      <div>{t('voicesModal.presenter')}</div>
                       <div className="text-xs">{voice.alias || voice.name}</div>
                     </div>
                   ) : (
@@ -252,7 +266,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
                       }
                     }}
                     className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-full backdrop-blur-sm"
-                    aria-label="删除"
+                    aria-label={t('voicesModal.delete')}
                   >
                     <AiOutlineClose className="w-5 h-5" />
                   </button>
@@ -263,7 +277,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
           <button
             onClick={() => {
               if (selectedLocalVoices.length > 5) {
-                alert('最多只能选择5个说话人。');
+                alert(t('voicesModal.maxVoicesAlert'));
                 return;
               }
               onSelectVoices(selectedLocalVoices);
@@ -271,7 +285,7 @@ const VoicesModal: React.FC<VoicesModalProps> = ({ isOpen, onClose, voices, onSe
             }}
             className="px-6 py-3 bg-gradient-to-r text-xs sm:text-lg from-brand-purple to-brand-pink text-white rounded-full font-medium hover:from-brand-purple-hover hover:to-brand-pink focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 shadow-medium hover:shadow-large"
           >
-            确认选择 ({selectedLocalVoices.length})
+            {t('voicesModal.confirmSelection')} ({selectedLocalVoices.length})
           </button>
         </div>
       </div>

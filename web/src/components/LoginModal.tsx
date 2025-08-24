@@ -6,13 +6,16 @@ import { signIn } from '@/lib/auth-client';
 import { createPortal } from "react-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline"; // 导入关闭图标
 import { AiOutlineChrome, AiOutlineGithub } from "react-icons/ai"; // 从 react-icons/ai 导入 Google 和 GitHub 图标
+import { useTranslation } from '../i18n/client'; // 导入 useTranslation
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  lang: string; // 新增 lang 属性
 }
 
-const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose }) => {
+const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, lang }) => {
+  const { t } = useTranslation(lang, 'components'); // 初始化 useTranslation 并指定命名空间
   const modalRef = useRef<HTMLDivElement>(null);
 
   // 点击背景关闭模态框
@@ -50,7 +53,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose }) => {
         </button>
 
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-          登录您的账户
+          {t('loginModal.loginToYourAccount')}
         </h2>
 
         <div className="space-y-4">
@@ -59,7 +62,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose }) => {
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <AiOutlineChrome className="h-6 w-6" />
-            <span className="text-lg">使用 Google 登录</span>
+            <span className="text-lg">{t('loginModal.signInWithGoogle')}</span>
           </button>
 
           <button
@@ -67,7 +70,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose }) => {
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <AiOutlineGithub className="h-6 w-6" />
-            <span className="text-lg">使用 GitHub 登录</span>
+            <span className="text-lg">{t('loginModal.signInWithGitHub')}</span>
           </button>
         </div>
       </div>
