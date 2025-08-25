@@ -37,7 +37,8 @@
 ,
   "failed_to_get_task_status": "Failed to get task status"
 ,
-  "insufficient_points_raw": "积分不足"
+  "insufficient_points_raw": "Not enough points",
+  "podcast_generation_task": "Podcast Generation Task"
 ,
   "forbidden_user_id": "Forbidden: User ID not allowed to access this resource",
   "invalid_request_parameters_add_points": "Invalid request parameters. `userId`, `pointsToAdd` (positive number), `reasonCode`, and `description` are required.",

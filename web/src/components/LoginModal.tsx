@@ -7,6 +7,8 @@ import { createPortal } from "react-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline"; // 导入关闭图标
 import { AiOutlineChrome, AiOutlineGithub } from "react-icons/ai"; // 从 react-icons/ai 导入 Google 和 GitHub 图标
 import { useTranslation } from '../i18n/client'; // 导入 useTranslation
+import { usePathname } from 'next/navigation'; // 导入 usePathname
+import { getTruePathFromPathname } from '../lib/utils'; // 导入新函数
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -30,6 +32,8 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, lang }) => {
 
   if (!isOpen) return null;
 
+  const pathname = usePathname();
+  const truePath = getTruePathFromPathname(pathname, lang);
   // 使用 React Portal 将模态框渲染到 body 下，避免Z-index问题和父组件样式影响
   return createPortal(
     <div
@@ -58,7 +62,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, lang }) => {
 
         <div className="space-y-4">
           <button
-            onClick={() => signIn.social({ provider: "google" , newUserCallbackURL: "/api/newuser?provider=google"})}
+            onClick={() => signIn.social({ provider: "google" , newUserCallbackURL: "/api/newuser?provider=google&pathname=" + truePath})}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <AiOutlineChrome className="h-6 w-6" />
@@ -66,7 +70,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, lang }) => {
           </button>
 
           <button
-            onClick={() => signIn.social({ provider: "github" , newUserCallbackURL: "/api/newuser?provider=github" })}
+            onClick={() => signIn.social({ provider: "github" , newUserCallbackURL: "/api/newuser?provider=github&pathname=" + truePath })}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <AiOutlineGithub className="h-6 w-6" />

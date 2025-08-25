@@ -23,10 +23,10 @@
     "save20Percent": "Save 20%"
   },
   "configSelector": {
-    "loading": "Loading...",
+    "loading": "Loading..",
     "selectTTSConfig": "Select TTS Config",
     "noAvailableTTSConfig": "No available TTS config",
-    "pleaseConfigTTS": "Please configure TTS service in settings first"
+    "pleaseConfigTTS": "Loading.."
   },
   "contentSection": {
     "viewAll": "View All",
@@ -151,7 +151,9 @@
       "storytellingMode": "Storytelling Mode",
       "apiAccess": "API Access"
     },
-    "comingSoon": "(Coming Soon)"
+    "comingSoon": "(Coming Soon)",
+    "pricing_page_title": "Pricing Plans",
+    "pricing_page_description": "Flexible plans for all creators."
   },
   "settingsForm": {
     "settings": "Settings",

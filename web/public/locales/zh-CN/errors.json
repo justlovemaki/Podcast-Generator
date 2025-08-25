@@ -37,7 +37,8 @@
 ,
   "failed_to_get_task_status": "获取任务状态失败"
 ,
-  "insufficient_points_raw": "积分不足"
+  "insufficient_points_raw": "积分不足",
+  "podcast_generation_task": "播客生成任务"
 ,
   "forbidden_user_id": "禁止：该用户ID无权访问此资源",
   "invalid_request_parameters_add_points": "无效的请求参数。`userId`、`pointsToAdd`（正数）、`reasonCode`和`description`是必需的。",

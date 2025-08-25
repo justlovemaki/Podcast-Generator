@@ -11,6 +11,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
   const { t, i18n } = useTranslation(lang, 'components'); // 初始化 useTranslation
   const router = useRouter();
   const currentPath = usePathname(); // 将 usePathname 移到组件顶层
+  // console.log('i18n.language', i18n.language, lang);
 
   const switchLanguage = (locale: string) => {
     // 获取当前路径，并替换语言部分
@@ -34,7 +35,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
       <button
         onClick={() => switchLanguage('zh-CN')}
         className={`px-3 py-1 rounded-md text-sm font-medium text-gray-500 ${
-          i18n.language === 'zh-CN'
+          lang === 'zh-CN'
             ? 'text-gray-900 transition-colors duration-200'
             : 'hover:text-gray-900 transition-colors duration-200'
         }`}
@@ -44,7 +45,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
       <button
         onClick={() => switchLanguage('')}
         className={`px-3 py-1 rounded-md text-sm font-medium text-gray-500 ${
-          i18n.language === 'en'
+          lang === 'en'
             ? 'text-gray-900 transition-colors duration-200'
             : 'hover:text-gray-900 transition-colors duration-200'
         }`}
@@ -54,7 +55,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
       <button
         onClick={() => switchLanguage('ja')}
         className={`px-3 py-1 rounded-md text-sm font-medium text-gray-500 ${
-          i18n.language === 'ja'
+          lang === 'ja'
             ? 'text-gray-900 transition-colors duration-200'
             : 'hover:text-gray-900 transition-colors duration-200'
         }`}

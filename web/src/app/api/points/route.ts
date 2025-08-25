@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest) {
     // 5. 扣减积分
     const pointsToDeduct = parseInt(process.env.POINTS_PER_PODCAST || '10', 10); // 从环境变量获取，默认10
     const reasonCode = "podcast_generation";
-    const description = `播客生成任务：${task_id}`; // Keep this as is if task_id is dynamic or not translatable
+    const description = `${t("podcast_generation_task")}: ${task_id}`; // 多语言实现
 
     await deductUserPoints(userId, pointsToDeduct, reasonCode, description);
 

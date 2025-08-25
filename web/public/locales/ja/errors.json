@@ -37,7 +37,8 @@
 ,
   "failed_to_get_task_status": "タスクステータスの取得に失敗しました"
 ,
-  "insufficient_points_raw": "ポイント不足"
+  "insufficient_points_raw": "ポイント不足",
+  "podcast_generation_task": "ポッドキャスト生成タスク"
 ,
   "forbidden_user_id": "禁止：このリソースへのアクセスが許可されていないユーザーID",
   "invalid_request_parameters_add_points": "無効なリクエストパラメータ。`userId`、`pointsToAdd`（正の数）、`reasonCode`、および`description`が必要です。",
@@ -45,5 +46,6 @@
 ,
   "invalid_pagination_parameters": "無効なページネーションパラメータ"
 ,
-  "cannot_read_tts_provider_config": "TTSプロバイダー構成ファイルを読み取れません"
+  "cannot_read_tts_provider_config": "TTSプロバイダー構成ファイルを読み取れません",
+  "invalid_provider": "無効なTTSプロバイダー"
 }
