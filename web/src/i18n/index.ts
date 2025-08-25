@@ -13,7 +13,7 @@ const initI18next = async (lng: string, ns: string | string[] | undefined): Prom
   return i18nInstance
 }
 
-export async function useTranslation(lng: string, ns: string | string[] | undefined = 'common', options: { keyPrefix?: string } = {}) {
+export async function getTranslation(lng: string, ns: string | string[] | undefined = 'common', options: { keyPrefix?: string } = {}) {
   const i18nextInstance = await initI18next(lng, ns)
   return {
     t: i18nextInstance.getFixedT(lng, Array.isArray(ns) ? ns[0] : ns, options.keyPrefix),

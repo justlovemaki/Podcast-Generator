@@ -1,12 +1,12 @@
 import { getUserPointsTransactions } from "@/lib/points";
 import { NextResponse, NextRequest } from "next/server";
 import { getSessionData } from "@/lib/server-actions";
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import { getLanguageFromRequest } from '@/lib/utils';
 
 export async function GET(request: NextRequest) {
   const lang = getLanguageFromRequest(request);
-  const { t } = await useTranslation(lang, 'errors');
+  const { t } = await getTranslation(lang, 'errors');
 
   const session = await getSessionData();
   if (!session || !session.user || !session.user.id) {

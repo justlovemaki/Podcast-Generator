@@ -4,7 +4,7 @@ import './globals.css';
 import FooterLinks from '../../components/FooterLinks';
 import { dir } from 'i18next';
 import { languages } from '../../i18n/settings';
-import { useTranslation } from '../../i18n';
+import { getTranslation } from '../../i18n';
 import { headers } from 'next/headers';
 import { getTruePathFromHeaders } from '../../lib/utils';
 
@@ -17,7 +17,7 @@ const inter = Inter({
 
 export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
   const { lang } = await params;
-  const { t } = await useTranslation(lang, 'layout');
+  const { t } = await getTranslation(lang, 'layout');
   const truePath = await getTruePathFromHeaders(await headers(), lang);
   return {
     metadataBase: new URL('https://www.podcasthub.com'),

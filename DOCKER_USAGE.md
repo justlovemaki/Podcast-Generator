@@ -8,27 +8,27 @@
 
 ## 方法一：分别构建和运行 Docker 镜像
 
-在 `Simple-Podcast-Script` 项目的根目录下执行以下命令来构建 Docker 镜像。
+在项目的根目录下执行以下命令来构建 Docker 镜像。
 
 ### 构建 Docker 镜像
 
 #### 构建 Web 应用镜像
 
 ```bash
-docker build -t simple-podcast-web -f Dockerfile-Web .
+docker build -t podcast-web -f Dockerfile-Web .
 ```
 
-*   `-t simple-podcast-web`：为镜像指定一个名称和标签。
+*   `-t podcast-web`：为镜像指定一个名称和标签。
 *   `-f Dockerfile-Web`：指定 Web 应用的 Dockerfile 路径。
 *   `.`：指定构建上下文的路径，这里是项目的根目录。
 
 #### 构建 Server 应用镜像
 
 ```bash
-docker build -t simple-podcast-server -f Dockerfile-Server .
+docker build -t podcast-server -f Dockerfile-Server .
 ```
 
-*   `-t simple-podcast-server`：为镜像指定一个名称和标签。
+*   `-t podcast-server`：为镜像指定一个名称和标签。
 *   `-f Dockerfile-Server`：指定 Server 应用的 Dockerfile 路径。
 *   `.`：指定构建上下文的路径，这里是项目的根目录。
 
@@ -39,7 +39,7 @@ docker build -t simple-podcast-server -f Dockerfile-Server .
 #### 运行 Web 应用容器
 
 ```bash
-docker run -d -p 3200:3000 -v /opt/audio:/app/server/output --restart always --name podcast-web simple-podcast-web
+docker run -d -p 3200:3000 -v /opt/audio:/app/server/output --restart always --name podcast-web podcast-web
 ```
 
 #### 命令说明：
@@ -50,18 +50,18 @@ docker run -d -p 3200:3000 -v /opt/audio:/app/server/output --restart always --n
 *   `-v /opt/sqlite.db:/app/web/sqlite.db`：将宿主机的 `/opt/sqlite.db` 文件挂载到容器内的 `/app/web/sqlite.db` 文件，用于数据库的持久化存储。
 *   `--restart always`：设置容器的重启策略，确保容器在意外停止或系统重启后能自动重启。
 *   `--name podcast-web`：为运行中的容器指定一个名称，方便后续管理。
-*   `simple-podcast-web`：指定要运行的 Docker 镜像名称。
+*   `podcast-web`：指定要运行的 Docker 镜像名称。
 
 #### 运行 Server 应用容器
 
 ```bash
-docker run -d -p 3100:8000 -v /opt/audio:/app/server/output -v /opt/sqlite.db:/app/web/sqlite.db --restart always --name podcast-server simple-podcast-server
+docker run -d -p 3100:8000 -v /opt/audio:/app/server/output -v /opt/sqlite.db:/app/web/sqlite.db --restart always --name podcast-server podcast-server
 ```
 
 或者，如果您的应用程序需要配置环境变量（例如 `PODCAST_API_SECRET_KEY`），您可以使用 `-e` 参数进行设置：
 
 ```bash
-docker run -d -p 3100:8000 -v /opt/audio:/app/server/output --restart always --name podcast-server -e PODCAST_API_SECRET_KEY="your-production-api-secret-key" simple-podcast-server
+docker run -d -p 3100:8000 -v /opt/audio:/app/server/output --restart always --name podcast-server -e PODCAST_API_SECRET_KEY="your-production-api-secret-key" podcast-server
 ```
 
 #### 命令说明：
@@ -72,7 +72,7 @@ docker run -d -p 3100:8000 -v /opt/audio:/app/server/output --restart always --n
 *   `--restart always`：设置容器的重启策略，确保容器在意外停止或系统重启后能自动重启。
 *   `--name podcast-server`：为运行中的容器指定一个名称，方便后续管理。
 *   `-e PODCAST_API_SECRET_KEY="your-production-api-secret-key"`：设置环境变量，将 `"your-production-api-secret-key"` 替换为您的实际密钥。
-*   `simple-podcast-server`：指定要运行的 Docker 镜像名称。
+*   `podcast-server`：指定要运行的 Docker 镜像名称。
 
 ## 方法二：使用 Docker Compose（推荐）
 

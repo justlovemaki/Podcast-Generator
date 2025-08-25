@@ -1,12 +1,14 @@
 import { Metadata } from 'next';
 import PodcastContent from '@/components/PodcastContent';
-import { useTranslation } from '../../../../i18n'; // 导入 useTranslation
+import { getTranslation } from '../../../../i18n'; // 导入 getTranslation
 import { headers } from 'next/headers';
 import { getTruePathFromHeaders } from '../../../../lib/utils';
 
-export async function generateMetadata({ params }: PodcastDetailPageProps): Promise<Metadata> {
+export type paramsType = Promise<{ lang: string, fileName: string }>;
+
+export async function generateMetadata({ params }: { params: paramsType }): Promise<Metadata> {
   const { fileName, lang } = await params;
-  const { t } = await useTranslation(lang);
+  const { t } = await getTranslation(lang);
   const decodedFileName = decodeURIComponent(fileName);
   const title = `${t('podcastContent.podcastDetails')} - ${decodedFileName}`;
   const description = `${t('podcastContent.listenToPodcast')} ${decodedFileName}。`;
@@ -20,14 +22,7 @@ export async function generateMetadata({ params }: PodcastDetailPageProps): Prom
   };
 }
 
-interface PodcastDetailPageProps {
-  params: {
-    fileName: string;
-    lang: string; // 添加 lang 属性
-  };
-}
-
-export default async function PodcastDetailPage({ params }: PodcastDetailPageProps) {
+const PodcastDetailPage: React.FC<{ params: paramsType}> = async ({ params }) => {
   const { fileName, lang } = await params; // 解构 lang
   return (
     <div className="bg-white text-gray-800 font-sans">
@@ -35,3 +30,5 @@ export default async function PodcastDetailPage({ params }: PodcastDetailPagePro
     </div>
   );
 }
+
+export default PodcastDetailPage;

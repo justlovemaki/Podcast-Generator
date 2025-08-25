@@ -56,7 +56,7 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
         audioContext.close();
       }
     };
-  }, [audioElement]);
+  }, [audioElement, audioContext]); // 添加 audioContext
 
   useEffect(() => {
     if (!isPlaying || !analyserRef.current || !dataArrayRef.current || !canvasRef.current) {

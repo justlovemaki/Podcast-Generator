@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
 import type { TTSConfig } from '@/types';
-import { useTranslation } from '@/i18n'; // 导入 useTranslation
+import { getTranslation } from '@/i18n'; // 导入 getTranslation
 import { getLanguageFromRequest } from '@/lib/utils';
 
 // 缓存对象，存储响应数据和时间戳
@@ -38,7 +38,7 @@ const TTS_PROVIDER_ORDER = [
 // 获取配置文件列表
 export async function GET(request: NextRequest) {
   const lang = getLanguageFromRequest(request);
-  const { t } = await useTranslation(lang, 'errors'); // 加载 'errors' 命名空间的翻译
+  const { t } = await getTranslation(lang, 'errors'); // 加载 'errors' 命名空间的翻译
   
   const cacheKey = `config_files_list_${lang}`; // 缓存键中包含语言
   const cachedData = getCache(cacheKey);
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
 // 获取特定配置文件内容
 export async function POST(request: NextRequest) {
   const lang = getLanguageFromRequest(request);
-  const { t } = await useTranslation(lang, 'errors'); // 加载 'errors' 命名空间的翻译
+  const { t } = await getTranslation(lang, 'errors'); // 加载 'errors' 命名空间的翻译
 
   const { configFile } = await request.json();
   const cacheKey = `config_file_${configFile}_${lang}`; // 缓存键中包含语言

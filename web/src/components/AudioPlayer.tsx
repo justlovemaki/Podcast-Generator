@@ -111,7 +111,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       audio.removeEventListener('loadstart', handleLoadStart);
       audio.removeEventListener('canplay', handleCanPlay);
     };
-  }, [isPlaying, podcast.audioUrl, canPlay]); // 将 canPlay 加入依赖，确保状态变化时触发播放
+  }, [isPlaying, podcast.audioUrl, canPlay, onEnded, currentPlaybackRate]); // 添加 onEnded 和 currentPlaybackRate
 
   // 当播客URL变化时，更新audio元素的src
   useEffect(() => {

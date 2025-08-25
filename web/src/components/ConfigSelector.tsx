@@ -133,7 +133,7 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
 
   useEffect(() => {
     loadConfigFiles();
-  }, []);
+  }, [loadConfigFiles]); // 添加 loadConfigFiles
 
   // 监听localStorage变化，重新加载配置
   useEffect(() => {
@@ -151,7 +151,7 @@ const ConfigSelector: React.FC<ConfigSelectorProps> = ({
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('settingsUpdated', handleStorageChange);
     };
-  }, [selectedConfig]);
+  }, [selectedConfig, loadConfigFiles]); // 添加 loadConfigFiles
 
   const handleConfigSelect = (configFile: string) => {
     setSelectedConfig(configFile);

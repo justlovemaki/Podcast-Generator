@@ -3,7 +3,7 @@ import { getAudioInfo, getUserInfo } from '@/lib/podcastApi';
 import AudioPlayerControls from './AudioPlayerControls';
 import PodcastTabs from './PodcastTabs';
 import ShareButton from './ShareButton'; // 导入 ShareButton 组件
-import { useTranslation } from '../i18n'; // 从正确路径导入 useTranslation
+import { getTranslation } from '../i18n'; // 从正确路径导入 useTranslation
 import { headers } from 'next/headers'; // 导入 usePathname
 import { getTruePathFromHeaders } from '../lib/utils'; // 导入新函数
 
@@ -33,7 +33,7 @@ interface PodcastContentProps {
 
 
 export default async function PodcastContent({ fileName, lang }: PodcastContentProps) {
-  const { t } = await useTranslation(lang, 'components'); // 初始化 useTranslation
+  const { t } = await getTranslation(lang, 'components'); // 初始化 getTranslation
   const result = await getAudioInfo(fileName, lang);
   const truePath = await getTruePathFromHeaders(await headers(), lang);
 

@@ -1,13 +1,17 @@
-import React, { use } from 'react';
+import React from 'react'; // 不再需要 use
 import { Metadata } from 'next';
 import { AiOutlineTikTok, AiFillQqCircle, AiOutlineGithub, AiOutlineTwitter, AiFillMail } from 'react-icons/ai';
 import { headers } from 'next/headers';
 import { getTruePathFromHeaders } from '../../../lib/utils';
+import { getTranslation } from '../../../i18n';
 
-export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
-  const { lang } = await params;
-  const { t } = await (await import('../../../i18n')).useTranslation(lang, 'contact');
-  const truePath = await getTruePathFromHeaders(await headers(), lang);
+export type paramsType = Promise<{ lang: string }>;
+
+// 您的 generateMetadata 函数是完全正确的，无需改动
+export async function generateMetadata({ params }: { params: paramsType }): Promise<Metadata> {
+  const { lang } = await params; // 直接解构
+  const { t } = await getTranslation(lang, 'contact');
+  const truePath = await getTruePathFromHeaders(await headers(), lang); // 直接调用 headers()
   return {
     title: t('contact_us_title'),
     description: t('contact_us_description'),
@@ -17,16 +21,16 @@ export async function generateMetadata({ params }: { params: { lang: string } })
   };
 }
 
-import { useTranslation } from '../../../i18n'; // 导入服务端的 useTranslation
-
 /**
 * 联系我们页面组件。
 * 优化后的版本，移除了联系表单，专注于清晰地展示联系方式。
 * 采用单栏居中布局，设计简洁、现代。
 */
-const ContactUsPage = async ({ params }: { params: { lang: string } }) => {
+// 1. 将 props 类型更正为普通对象
+const ContactUsPage: React.FC<{ params: paramsType}> = async ({ params }) => {
+  // 2. 直接从 params 对象中解构 lang，移除 use()
   const { lang } = await params;
-  const { t } = await useTranslation(lang, 'contact');
+  const { t } = await getTranslation(lang, 'contact');
 
   return (
     <div className="bg-gray-50 min-h-screen py-12 sm:py-16">

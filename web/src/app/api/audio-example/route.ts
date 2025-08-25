@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLanguageFromRequest } from '@/lib/utils';
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import { fetchAndCacheProvidersLocal } from '@/lib/config-local';
 
 export async function GET(request: NextRequest) {
   const lang = getLanguageFromRequest(request);
-  const { t } = await useTranslation(lang, 'errors');
+  const { t } = await getTranslation(lang, 'errors');
   
   // 获取查询参数
   const searchParams = request.nextUrl.searchParams;

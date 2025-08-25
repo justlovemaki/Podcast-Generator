@@ -1,34 +1,30 @@
-version: '3.8'
+version: '1.0.0'
 
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile-Web
-    image: simple-podcast-web
+    image: podcast-web
     ports:
       - "3200:3000"
     volumes:
-      - audio-data/output:/app/server/output
-      - audio-data/sqlite.db:/app/web/sqlite.db
+      - /opt/audio/output:/app/server/output
+      - /opt/audio/sqlite.db:/app/web/sqlite.db
     restart: always
     depends_on:
       - server
-    environment:
-      - NEXT_PUBLIC_API_URL=http://server:8000
 
   server:
     build:
       context: .
       dockerfile: Dockerfile-Server
-    image: simple-podcast-server
+    image: podcast-server
     ports:
       - "3100:8000"
     volumes:
-      - audio-data/output:/app/server/output
+      - /opt/audio/output:/app/server/output
     restart: always
-    environment:
-      - PODCAST_API_SECRET_KEY=your-production-api-secret-key
 
 volumes:
   audio-data:

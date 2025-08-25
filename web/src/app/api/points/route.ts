@@ -1,13 +1,13 @@
 import { getUserPoints, deductUserPoints, addPointsToUser, hasUserSignedToday } from "@/lib/points"; // 导入 deductUserPoints, addPointsToUser, hasUserSignedToday
 import { NextResponse, NextRequest } from "next/server"; // 导入 NextRequest
 import { getSessionData } from "@/lib/server-actions"; // 导入 getSessionData
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import { getLanguageFromRequest } from '@/lib/utils'; // 导入 getLanguageFromRequest
 
 export async function GET(request: NextRequest) { // GET 函数接收 request
   const session = await getSessionData(); // 使用 getSessionData 获取 session
   const lang = getLanguageFromRequest(request); // 获取语言
-  const { t } = await useTranslation(lang, 'errors'); // 初始化翻译
+  const { t } = await getTranslation(lang, 'errors'); // 初始化翻译
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ success: false, error: t("unauthorized") }, { status: 401 });
   }
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) { // GET 函数接收 request
 export async function PUT(request: NextRequest) {
   const { task_id, auth_id, timestamp, status } = await request.json();
   const lang = getLanguageFromRequest(request); // 获取语言
-  const { t } = await useTranslation(lang, 'errors'); // 初始化翻译
+  const { t } = await getTranslation(lang, 'errors'); // 初始化翻译
   try {
     if(status !== 'completed') {
       return NextResponse.json({ success: false, error: t("invalid_status") }, { status: 400 });
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
   const session = await getSessionData();
   const lang = getLanguageFromRequest(request); // 获取语言
   console.log(lang)
-  const { t } = await useTranslation(lang, 'errors'); // 初始化翻译
+  const { t } = await getTranslation(lang, 'errors'); // 初始化翻译
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ success: false, error: t("unauthorized") }, { status: 401 });
   }

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPodcastStatus } from '@/lib/podcastApi';
 import { getSessionData } from '@/lib/server-actions';
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import { getLanguageFromRequest } from '@/lib/utils';
 
 export const revalidate = 0; // 等同于 `cache: 'no-store'`
 
 export async function GET(request: NextRequest) {
   const lang = getLanguageFromRequest(request);
-  const { t } = await useTranslation(lang, 'errors');
+  const { t } = await getTranslation(lang, 'errors');
 
   const session = await getSessionData();
   const userId = session.user?.id;

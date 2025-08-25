@@ -1,15 +1,16 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import { headers } from 'next/headers';
 import { getTruePathFromHeaders } from '../../../lib/utils';
 
+export type paramsType = Promise<{ lang: string }>;
 /**
  * 设置页面元数据。
  */
-export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: paramsType }): Promise<Metadata> {
   const { lang } = await params;
-  const { t } = await useTranslation(lang, 'privacy');
+  const { t } = await getTranslation(lang, 'privacy');
   const truePath = await getTruePathFromHeaders(await headers(), lang);
   return {
     title: t('privacy_policy.title'),
@@ -20,20 +21,9 @@ export async function generateMetadata({ params }: { params: { lang: string } })
   };
 }
 
-/**
- * 隐私政策页面组件。
- * 提供了详细的隐私政策说明，涵盖信息收集、使用、共享、安全及用户权利。
- * 布局采用 Tailwind CSS 进行优化，`prose` 类用于美化排版，`break-words` 确保内容不会溢出容器。
- */
-type PrivacyPolicyPageProps = {
-  params: {
-    lang: string;
-  };
-};
-
-const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = async ({ params }) => {
+const PrivacyPolicyPage: React.FC<{ params: paramsType}> = async ({ params }) => {
   const { lang } = await params;
-  const { t } = await useTranslation(lang, 'privacy');
+  const { t } = await getTranslation(lang, 'privacy');
   return (
     <div className="bg-gray-50 min-h-screen py-12 sm:py-16">
       <div className="container mx-auto p-6 md:p-8 max-w-4xl bg-white shadow-lg rounded-lg">

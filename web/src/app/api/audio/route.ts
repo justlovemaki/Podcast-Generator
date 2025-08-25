@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLanguageFromRequest } from '@/lib/utils';
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import path from 'path';
 import fs from 'fs';
 
 export async function GET(request: NextRequest) {
   const lang = getLanguageFromRequest(request);
-  const { t } = await useTranslation(lang, 'errors');
+  const { t } = await getTranslation(lang, 'errors');
   const filename = request.nextUrl.searchParams.get('filename');
   
   // 验证文件名安全性

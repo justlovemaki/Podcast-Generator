@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAudioInfo, getUserInfo } from '@/lib/podcastApi';
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import { getLanguageFromRequest } from '@/lib/utils';
 
 
@@ -10,7 +10,7 @@ import { getLanguageFromRequest } from '@/lib/utils';
  */
 export async function GET(req: NextRequest) {
   const lang = getLanguageFromRequest(req);
-  const { t } = await useTranslation(lang, 'errors');
+  const { t } = await getTranslation(lang, 'errors');
   // 从请求 URL 中获取查询参数
   const { searchParams } = new URL(req.url);
   const fileName = searchParams.get('file_name');

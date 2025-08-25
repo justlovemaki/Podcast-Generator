@@ -1,13 +1,15 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import { languages } from '@/i18n/settings';
 import { headers } from 'next/headers';
 import { getTruePathFromHeaders } from '../../../lib/utils';
 
-export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
+export type paramsType = Promise<{ lang: string }>;
+
+export async function generateMetadata({ params }: { params: paramsType }): Promise<Metadata> {
   const { lang } = await params;
-  const { t } = await useTranslation(lang, 'terms');
+  const { t } = await getTranslation(lang, 'terms');
   const truePath = await getTruePathFromHeaders(await headers(), lang);
   return {
     title: t('terms_of_service.title'),
@@ -18,9 +20,9 @@ export async function generateMetadata({ params }: { params: { lang: string } })
   };
 }
 
-const TermsOfServicePage: React.FC<{ params: { lang: string } }> = async ({ params }) => {
+const TermsOfServicePage: React.FC<{ params: paramsType }> = async ({ params }) => {
   const { lang } = await params;
-  const { t } = await useTranslation(lang, 'terms');
+  const { t } = await getTranslation(lang, 'terms');
   return (
     <div className="bg-gray-50 min-h-screen py-12 sm:py-16">
       <div className="container mx-auto p-6 md:p-8 max-w-4xl bg-white shadow-lg rounded-lg">

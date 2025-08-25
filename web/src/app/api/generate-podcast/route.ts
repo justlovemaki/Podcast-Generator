@@ -4,7 +4,7 @@ import type { PodcastGenerationRequest } from '@/types'; // 导入 SettingsFormD
 import { getSessionData } from '@/lib/server-actions';
 import { getUserPoints } from '@/lib/points'; // 导入 getUserPoints
 import { fetchAndCacheProvidersLocal } from '@/lib/config-local'; // 导入 getTTSProviders
-import { useTranslation } from '@/i18n';
+import { getTranslation } from '@/i18n';
 import { getLanguageFromRequest } from '@/lib/utils';
 
 
@@ -12,7 +12,7 @@ const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === '
 
 export async function POST(request: NextRequest) {
   const lang = getLanguageFromRequest(request);
-  const { t } = await useTranslation(lang, 'errors');
+  const { t } = await getTranslation(lang, 'errors');
 
   const session = await getSessionData();
   const userId = session.user?.id;
