@@ -2,19 +2,24 @@ import React from 'react';
 import { Metadata } from 'next';
 import { useTranslation } from '@/i18n';
 import { languages } from '@/i18n/settings';
+import { headers } from 'next/headers';
+import { getTruePathFromHeaders } from '../../../lib/utils';
 
-export async function generateMetadata({ params: { lang } }: { params: { lang: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
+  const { lang } = await params;
   const { t } = await useTranslation(lang, 'terms');
+  const truePath = await getTruePathFromHeaders(await headers(), lang);
   return {
     title: t('terms_of_service.title'),
     description: t('terms_of_service.description'),
     alternates: {
-      canonical: `/${lang}/terms`,
+      canonical: `${truePath}/terms`,
     },
   };
 }
 
-const TermsOfServicePage: React.FC<{ params: { lang: string } }> = async ({ params: { lang } }) => {
+const TermsOfServicePage: React.FC<{ params: { lang: string } }> = async ({ params }) => {
+  const { lang } = await params;
   const { t } = await useTranslation(lang, 'terms');
   return (
     <div className="bg-gray-50 min-h-screen py-12 sm:py-16">

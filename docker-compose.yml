@@ -9,7 +9,8 @@ services:
     ports:
       - "3200:3000"
     volumes:
-      - audio-data:/app/server/output
+      - audio-data/output:/app/server/output
+      - audio-data/sqlite.db:/app/web/sqlite.db
     restart: always
     depends_on:
       - server
@@ -24,7 +25,7 @@ services:
     ports:
       - "3100:8000"
     volumes:
-      - audio-data:/app/server/output
+      - audio-data/output:/app/server/output
     restart: always
     environment:
       - PODCAST_API_SECRET_KEY=your-production-api-secret-key

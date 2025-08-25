@@ -45,5 +45,6 @@
 ,
   "invalid_pagination_parameters": "Invalid pagination parameters"
 ,
-  "cannot_read_tts_provider_config": "Cannot read TTS provider configuration file"
+  "cannot_read_tts_provider_config": "Cannot read TTS provider configuration file",
+  "invalid_provider": "Invalid TTS provider"
 }

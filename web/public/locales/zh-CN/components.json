@@ -42,7 +42,8 @@
   },
   "languageSwitcher": {
     "chinese": "中文",
-    "english": "英文"
+    "english": "英文",
+    "japanese": "日文"
   },
   "loginModal": {
     "loginToYourAccount": "登录您的账户",
@@ -226,7 +227,8 @@
     "user": "用户",
     "clickAvatarToLogout": "点击头像注销",
     "lessThanSMSizeCannotExpand": "小于sm尺寸不可展开",
-    "showMore": "显示更多"
+    "showMore": "显示更多",
+    "generalSettings": "通用设置"
   },
   "toast": {
     "title": "通知",

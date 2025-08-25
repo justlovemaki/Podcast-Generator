@@ -110,7 +110,7 @@ export interface WebSocketMessage {
 // 用户界面状态
 export interface UIState {
   sidebarCollapsed: boolean;
-  currentView: 'home' | 'library' | 'explore' | 'settings' | 'credits';
+  currentView: 'home' | 'library' | 'explore' | 'tts-settings' | 'credits' | 'settings';
   theme: 'light' | 'dark';
 }
 

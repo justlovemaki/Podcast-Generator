@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'; // 导入 useState, 
 import {
   AiOutlineHome,
   AiOutlineSetting,
+  AiOutlineAudio,
   AiOutlineTwitter,
   AiOutlineTikTok,
   AiOutlineMail,
@@ -104,7 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     // 隐藏定价和积分
     // { id: 'pricing', label: t('sidebar.pricing'), icon: DollarSign },
     { id: 'credits', label: t('sidebar.points'), icon: AiOutlineMoneyCollect, badge: credits.toString() }, // 动态设置 badge
-    ...(enableTTSConfigPage ? [{ id: 'settings', label: t('sidebar.ttsSettings'), icon: AiOutlineSetting }] : [])
+    ...(enableTTSConfigPage ? [{ id: 'tts-settings', label: t('sidebar.ttsSettings'), icon: AiOutlineAudio }] : []),
   ];
 
 

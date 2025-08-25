@@ -1,17 +1,21 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { useTranslation } from '@/i18n';
+import { headers } from 'next/headers';
+import { getTruePathFromHeaders } from '../../../lib/utils';
 
 /**
  * 设置页面元数据。
  */
-export async function generateMetadata({ params: { lang } }: { params: { lang: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
+  const { lang } = await params;
   const { t } = await useTranslation(lang, 'privacy');
+  const truePath = await getTruePathFromHeaders(await headers(), lang);
   return {
     title: t('privacy_policy.title'),
     description: t('privacy_policy.description'),
     alternates: {
-      canonical: `/${lang}/privacy`,
+      canonical: `${truePath}/privacy`,
     },
   };
 }
@@ -27,14 +31,15 @@ type PrivacyPolicyPageProps = {
   };
 };
 
-const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = async ({ params: { lang } }) => {
+const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = async ({ params }) => {
+  const { lang } = await params;
   const { t } = await useTranslation(lang, 'privacy');
   return (
     <div className="bg-gray-50 min-h-screen py-12 sm:py-16">
       <div className="container mx-auto p-6 md:p-8 max-w-4xl bg-white shadow-lg rounded-lg">
         <article className="prose max-w-full break-words">
           <h1 className="text-4xl font-extrabold mb-6 text-gray-900 border-b pb-4">
-            {t('privacy_policy.title_long')}
+            {t('privacy_policy.title')}
           </h1>
           <p className="text-gray-600">{t('privacy_policy.last_updated')}</p>
           <p>{t('privacy_policy.intro_paragraph')}</p>

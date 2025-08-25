@@ -5,6 +5,8 @@ import PricingCard from './PricingCard'; // 修改导入路径
 import BillingToggle from './BillingToggle'; // 修改导入路径
 import { PricingPlan } from '../types';
 import { useTranslation } from '../i18n/client'; // 导入 useTranslation
+import { usePathname } from 'next/navigation'; // 导入 usePathname
+import { getTruePathFromPathname } from '../lib/utils'; // 导入新函数
  
 interface PricingSectionProps {
   lang: string;
@@ -109,6 +111,8 @@ const PricingSection: React.FC<PricingSectionProps> = ({ lang }) => { // 重命�
   ];
 
   const currentPlans = billingPeriod === 'monthly' ? monthlyPlans : annuallyPlans;
+  const pathname = usePathname();
+  const truePath = getTruePathFromPathname(pathname, lang);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -132,7 +136,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({ lang }) => { // 重命�
       </div>
 
       <div className="mt-12 text-center text-neutral-500">
-        <a href={`/${lang}/pricing`} target="_blank" className="flex items-center justify-center text-neutral-600 hover:text-neutral-900 transition-colors duration-200">
+        <a href={`${truePath}/pricing`} target="_blank" className="flex items-center justify-center text-neutral-600 hover:text-neutral-900 transition-colors duration-200">
           {t('pricingSection.visitPricingPage')}
           <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>

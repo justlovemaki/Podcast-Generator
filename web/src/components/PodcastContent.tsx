@@ -4,6 +4,8 @@ import AudioPlayerControls from './AudioPlayerControls';
 import PodcastTabs from './PodcastTabs';
 import ShareButton from './ShareButton'; // 导入 ShareButton 组件
 import { useTranslation } from '../i18n'; // 从正确路径导入 useTranslation
+import { headers } from 'next/headers'; // 导入 usePathname
+import { getTruePathFromHeaders } from '../lib/utils'; // 导入新函数
 
 // 脚本解析函数 (与 page.tsx 中保持一致)
 const parseTranscript = (
@@ -33,12 +35,13 @@ interface PodcastContentProps {
 export default async function PodcastContent({ fileName, lang }: PodcastContentProps) {
   const { t } = await useTranslation(lang, 'components'); // 初始化 useTranslation
   const result = await getAudioInfo(fileName, lang);
+  const truePath = await getTruePathFromHeaders(await headers(), lang);
 
   if (!result.success || !result.data || result.data.status!='completed') {
     return (
       <div className="flex flex-col justify-center items-center h-screen text-gray-800">
         <p className="text-red-500 text-lg">{t('podcastContent.cannotLoadPodcastDetails')}{result.error || t('podcastContent.unknownError')}</p>
-        <a href="/" className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors">
+        <a href={`${truePath}/`} className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors">
           {t('podcastContent.returnToHomepage')}
         </a>
       </div>
@@ -70,7 +73,7 @@ export default async function PodcastContent({ fileName, lang }: PodcastContentP
       {/* 返回首页按钮和分享按钮 */}
       <div className="flex justify-between items-center mb-6"> {/* 修改为 justify-between 和 items-center */}
         <a
-          href="/"
+          href={`${truePath}/`}
           className="flex items-center gap-1 text-neutral-500 hover:text-black transition-colors text-sm"
         >
           <AiOutlineArrowLeft className="w-5 h-5 mr-1" />

@@ -9,7 +9,9 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   output: 'standalone',
-  devIndicators: false,
+  devIndicators: {
+    position: 'top-right', // 将挂件移动到右下角
+  },
 };
 
 module.exports = nextConfig;

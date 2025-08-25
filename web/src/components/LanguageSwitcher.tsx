@@ -10,11 +10,22 @@ interface LanguageSwitcherProps {
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
   const { t, i18n } = useTranslation(lang, 'components'); // 初始化 useTranslation
   const router = useRouter();
+  const currentPath = usePathname(); // 将 usePathname 移到组件顶层
 
   const switchLanguage = (locale: string) => {
     // 获取当前路径，并替换语言部分
-    const currentPath = usePathname(); // 使用 usePathname 获取当前路径
-    const newPath = `/${locale}${currentPath.substring(currentPath.indexOf('/', 1))}`;
+    let newPath = currentPath;
+    
+    // 检查当前路径是否以语言代码开头
+    const langPattern = /^\/(en|zh-CN|ja)/;
+    if (langPattern.test(currentPath)) {
+      // 如果是，则替换为新的语言代码
+      newPath = currentPath.replace(langPattern, `/${locale}`);
+    } else {
+      // 如果不是，则在路径开头添加语言代码
+      newPath = `/${locale}${currentPath}`;
+    }
+    
     router.push(newPath);
   };
 
@@ -22,23 +33,33 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ lang }) => {
     <div className="flex items-center space-x-2">
       <button
         onClick={() => switchLanguage('zh-CN')}
-        className={`px-3 py-1 rounded-md text-sm font-medium ${
+        className={`px-3 py-1 rounded-md text-sm font-medium text-gray-500 ${
           i18n.language === 'zh-CN'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            ? 'text-gray-900 transition-colors duration-200'
+            : 'hover:text-gray-900 transition-colors duration-200'
         }`}
       >
         {t('languageSwitcher.chinese')}
       </button>
       <button
-        onClick={() => switchLanguage('en')}
-        className={`px-3 py-1 rounded-md text-sm font-medium ${
+        onClick={() => switchLanguage('')}
+        className={`px-3 py-1 rounded-md text-sm font-medium text-gray-500 ${
           i18n.language === 'en'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            ? 'text-gray-900 transition-colors duration-200'
+            : 'hover:text-gray-900 transition-colors duration-200'
         }`}
       >
         {t('languageSwitcher.english')}
+      </button>
+      <button
+        onClick={() => switchLanguage('ja')}
+        className={`px-3 py-1 rounded-md text-sm font-medium text-gray-500 ${
+          i18n.language === 'ja'
+            ? 'text-gray-900 transition-colors duration-200'
+            : 'hover:text-gray-900 transition-colors duration-200'
+        }`}
+      >
+        {t('languageSwitcher.japanese')}
       </button>
     </div>
   );

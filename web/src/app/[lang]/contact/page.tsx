@@ -1,14 +1,18 @@
 import React, { use } from 'react';
 import { Metadata } from 'next';
 import { AiOutlineTikTok, AiFillQqCircle, AiOutlineGithub, AiOutlineTwitter, AiFillMail } from 'react-icons/ai';
+import { headers } from 'next/headers';
+import { getTruePathFromHeaders } from '../../../lib/utils';
+
 export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
   const { lang } = await params;
   const { t } = await (await import('../../../i18n')).useTranslation(lang, 'contact');
+  const truePath = await getTruePathFromHeaders(await headers(), lang);
   return {
     title: t('contact_us_title'),
     description: t('contact_us_description'),
     alternates: {
-      canonical: `/${lang}/contact`,
+      canonical: `${truePath}/contact`,
     },
   };
 }
@@ -20,7 +24,8 @@ import { useTranslation } from '../../../i18n'; // 导入服务端的 useTransla
 * 优化后的版本，移除了联系表单，专注于清晰地展示联系方式。
 * 采用单栏居中布局，设计简洁、现代。
 */
-const ContactUsPage = async ({ params: { lang } }: { params: { lang: string } }) => {
+const ContactUsPage = async ({ params }: { params: { lang: string } }) => {
+  const { lang } = await params;
   const { t } = await useTranslation(lang, 'contact');
 
   return (

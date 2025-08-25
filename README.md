@@ -197,27 +197,28 @@ curl -X POST "http://localhost:8000/generate-podcast" \
 
 ## 🌍 国际化 (i18n) 支持
 
-本项目支持多语言界面，目前支持中文 (zh-CN) 和英文 (en)。
+本项目支持多语言界面，目前支持英文 (en)、中文 (zh-CN) 和日文 (ja)。
 
 ### 📁 语言文件结构
 
 语言文件位于 `web/public/locales/` 目录下，按照语言代码分组：
-- `web/public/locales/zh-CN/common.json` - 中文翻译
 - `web/public/locales/en/common.json` - 英文翻译
+- `web/public/locales/zh-CN/common.json` - 中文翻译
+- `web/public/locales/ja/common.json` - 日文翻译
 
 ### 🛠️ 添加新语言
 
 1. 在 `web/public/locales/` 目录下创建新的语言文件夹，例如 `fr/`
 2. 复制 `common.json` 文件到新文件夹中
 3. 翻译文件中的所有键值对
-4. 在 `web/next-i18next.config.js` 文件中添加新的语言代码到 `locales` 数组
-5. 在 `web/src/i18n.ts` 文件中更新 `languages` 变量
+4. 在 `web/src/i18n/settings.ts` 文件中更新 `languages` 变量
 
 ### 🌐 语言切换
 
 用户可以通过 URL 路径或浏览器语言设置自动切换语言：
-- `http://localhost:3000/zh-CN/` - 中文界面
 - `http://localhost:3000/en/` - 英文界面
+- `http://localhost:3000/zh-CN/` - 中文界面
+- `http://localhost:3000/ja/` - 日文界面
 
 ---
 

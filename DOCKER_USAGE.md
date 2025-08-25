@@ -47,6 +47,7 @@ docker run -d -p 3200:3000 -v /opt/audio:/app/server/output --restart always --n
 *   `-d`：在分离模式（detached mode）下运行容器，即在后台运行。
 *   `-p 3200:3000`：将宿主机的 3200 端口映射到容器的 3000 端口。Next.js 应用程序在容器内部的 3000 端口上运行。
 *   `-v /opt/audio:/app/server/output`：将宿主机的 `/opt/audio` 目录挂载到容器内的 `/app/server/output` 目录，用于音频文件的持久化存储。
+*   `-v /opt/sqlite.db:/app/web/sqlite.db`：将宿主机的 `/opt/sqlite.db` 文件挂载到容器内的 `/app/web/sqlite.db` 文件，用于数据库的持久化存储。
 *   `--restart always`：设置容器的重启策略，确保容器在意外停止或系统重启后能自动重启。
 *   `--name podcast-web`：为运行中的容器指定一个名称，方便后续管理。
 *   `simple-podcast-web`：指定要运行的 Docker 镜像名称。
@@ -54,7 +55,7 @@ docker run -d -p 3200:3000 -v /opt/audio:/app/server/output --restart always --n
 #### 运行 Server 应用容器
 
 ```bash
-docker run -d -p 3100:8000 -v /opt/audio:/app/server/output --restart always --name podcast-server simple-podcast-server
+docker run -d -p 3100:8000 -v /opt/audio:/app/server/output -v /opt/sqlite.db:/app/web/sqlite.db --restart always --name podcast-server simple-podcast-server
 ```
 
 或者，如果您的应用程序需要配置环境变量（例如 `PODCAST_API_SECRET_KEY`），您可以使用 `-e` 参数进行设置：

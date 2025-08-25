@@ -3,6 +3,7 @@ __pycache__/
 output/
 excalidraw.log
 config/tts_providers-local.json
+config/tts_providers-prod.json
 .claude
 .serena
 /node_modules

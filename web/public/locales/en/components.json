@@ -42,7 +42,8 @@
   },
   "languageSwitcher": {
     "chinese": "中文",
-    "english": "English"
+    "english": "English",
+    "japanese": "日本語"
   },
   "loginModal": {
     "loginToYourAccount": "Login to Your Account",
@@ -66,7 +67,7 @@
     "noOutlineContent": "No outline content."
   },
   "podcastCreator": {
-    "giveVoiceToCreativity": "Give voice to creativity",
+    "giveVoiceToCreativity": "Lend creativity an authentic voice",
     "enterTextPlaceholder": "Enter text, Markdown format supported...",
     "addCustomInstructions": "Add custom instructions (optional)... e.g. fixed opening and closing remarks, contextual text, key points of output content",
     "ttsConfigSelection": "TTS Config Selection",
@@ -222,11 +223,12 @@
     "areYouSureToLogout": "Are you sure you want to log out?",
     "cancel": "Cancel",
     "confirmLogout": "Logout",
-    "sessionExpired": "Session expired, logging out...",
+    "sessionExpired": "Session expired, logging out",
     "user": "User",
     "clickAvatarToLogout": "Click avatar to logout",
     "lessThanSMSizeCannotExpand": "Cannot expand on screens smaller than sm size",
-    "showMore": "Show more"
+    "showMore": "Show more",
+    "generalSettings": "General Settings"
   },
   "toast": {
     "title": "Notification",

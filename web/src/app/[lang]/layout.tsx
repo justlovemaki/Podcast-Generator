@@ -5,11 +5,9 @@ import FooterLinks from '../../components/FooterLinks';
 import { dir } from 'i18next';
 import { languages } from '../../i18n/settings';
 import { useTranslation } from '../../i18n';
+import { headers } from 'next/headers';
+import { getTruePathFromHeaders } from '../../lib/utils';
 
-// export async function generateStaticParams() {
-//   const params = await languages.map((lng) => ({ lng }));
-//   return params;
-// }
 
 const inter = Inter({
   subsets: ['latin'],
@@ -20,6 +18,7 @@ const inter = Inter({
 export async function generateMetadata({ params }: { params: { lang: string } }): Promise<Metadata> {
   const { lang } = await params;
   const { t } = await useTranslation(lang, 'layout');
+  const truePath = await getTruePathFromHeaders(await headers(), lang);
   return {
     metadataBase: new URL('https://www.podcasthub.com'),
     title: t('title'),
@@ -40,7 +39,7 @@ export async function generateMetadata({ params }: { params: { lang: string } })
       title: t('title'),
     },
     alternates: {
-      canonical: `/${lang}`,
+      canonical: `${truePath}`,
       languages: languages.reduce((acc: Record<string, string>, l) => {
         acc[l] = `/${l}`;
         return acc;
@@ -64,6 +63,7 @@ export default async function RootLayout({
     lang: string;
   }
 }) {
+
   const { lang } = await params;
   return (
     <html lang={lang} dir={dir(lang)} className={inter.variable}>

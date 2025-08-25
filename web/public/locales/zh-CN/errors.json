@@ -45,5 +45,6 @@
 ,
   "invalid_pagination_parameters": "无效的分页参数"
 ,
-  "cannot_read_tts_provider_config": "无法读取TTS提供商配置文件"
+  "cannot_read_tts_provider_config": "无法读取TTS提供商配置文件",
+  "invalid_provider": "无效的TTS提供商"
 }

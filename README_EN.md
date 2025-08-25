@@ -194,6 +194,33 @@ This project supports deployment via Docker. For detailed information, please re
 
 ---
 
+## 🌍 Internationalization (i18n) Support
+
+This project supports multilingual interfaces, currently supporting English (en), Chinese (zh-CN), and Japanese (ja).
+
+### 📁 Language File Structure
+
+Language files are located in the `web/public/locales/` directory, grouped by language code:
+- `web/public/locales/en/common.json` - English translation
+- `web/public/locales/zh-CN/common.json` - Chinese translation
+- `web/public/locales/ja/common.json` - Japanese translation
+
+### 🛠️ Adding New Languages
+
+1. Create a new language folder in the `web/public/locales/` directory, for example `fr/`
+2. Copy the `common.json` file to the new folder
+3. Translate all key-value pairs in the file
+4. Update the `languages` variable in the `web/src/i18n/settings.ts` file
+
+### 🌐 Language Switching
+
+Users can automatically switch languages through the URL path or browser language settings:
+- `http://localhost:3000/en/` - English interface
+- `http://localhost:3000/zh-CN/` - Chinese interface
+- `http://localhost:3000/ja/` - Japanese interface
+
+---
+
 ## ⚙️ Configuration File Details
 
 ### `config/[tts-provider].json` (TTS Character and Voice Configuration)

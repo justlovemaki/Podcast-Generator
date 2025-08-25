@@ -42,7 +42,8 @@
   },
   "languageSwitcher": {
     "chinese": "中文",
-    "english": "英語"
+    "english": "英語",
+    "japanese": "日本語"
   },
   "loginModal": {
     "loginToYourAccount": "アカウントにログイン",
@@ -228,7 +229,8 @@
     "user": "ユーザー",
     "clickAvatarToLogout": "アバターをクリックしてログアウト",
     "lessThanSMSizeCannotExpand": "smサイズ未満の画面では展開できません",
-    "showMore": "もっと見る"
+    "showMore": "もっと見る",
+    "generalSettings": "一般設定"
   },
   "toast": {
     "title": "通知",

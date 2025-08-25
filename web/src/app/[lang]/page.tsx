@@ -17,6 +17,8 @@ import { getTTSProviders } from '@/lib/config';
 import { getSessionData } from '@/lib/server-actions';
 import PricingSection from '@/components/PricingSection'; // 导入 PricingSection 组件
 import { useTranslation } from '../../i18n/client';
+import { usePathname } from 'next/navigation'; // 导入 usePathname
+import { getTruePathFromPathname } from '../../lib/utils'; // 导入新函数
 
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
@@ -223,9 +225,11 @@ export default function HomePage({ params }: { params: Promise<{ lang: string }>
     }
   };
 
+  const pathname = usePathname();
+  const truePath = getTruePathFromPathname(pathname, lang);
   // 处理播客标题点击
   const handleTitleClick = (podcast: PodcastItem) => {
-    router.push(`/podcast/${podcast.file_name.split(".")[0]}`);
+    router.push(`${truePath}/podcast/${podcast.file_name.split(".")[0]}`);
   };
 
   const handlePlayPodcast = (podcast: PodcastItem) => {
@@ -264,7 +268,8 @@ export default function HomePage({ params }: { params: Promise<{ lang: string }>
     }
 
     try {
-      const apiResponse: { success: boolean; tasks?: { message: string; tasks: PodcastGenerationResponse[]; }; error?: string } = result;
+      // The API returns { success: true, tasks: [...] } directly
+      const apiResponse: { success: boolean; tasks?: PodcastGenerationResponse[]; error?: string } = result;
       if (apiResponse.success && apiResponse.tasks && Array.isArray(apiResponse.tasks)) {
         const newPodcasts = mapApiResponseToPodcasts(apiResponse.tasks);
         const reversedPodcasts = newPodcasts.reverse();
@@ -381,8 +386,8 @@ export default function HomePage({ params }: { params: Promise<{ lang: string }>
             /> */}
           </div>
         );
-        
-      case 'settings':
+      
+      case 'tts-settings':
         return (
           <SettingsForm
             onSuccess={(message) => success(t('saveSuccessTitle'), message)}
