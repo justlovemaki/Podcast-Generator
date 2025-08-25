@@ -63,7 +63,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, lang }) => {
 
         <div className="space-y-4">
           <button
-            onClick={() => signIn.social({ provider: "google" , newUserCallbackURL: "/api/newuser?provider=google&pathname=" + truePath})}
+            onClick={() => signIn.social({ provider: "google" , callbackURL: "/api/login?pathname=" + truePath, newUserCallbackURL: "/api/newuser?provider=google&pathname=" + truePath})}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <AiOutlineChrome className="h-6 w-6" />
@@ -71,7 +71,7 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, lang }) => {
           </button>
 
           <button
-            onClick={() => signIn.social({ provider: "github" , newUserCallbackURL: "/api/newuser?provider=github&pathname=" + truePath })}
+            onClick={() => signIn.social({ provider: "github" , callbackURL: "/api/login?pathname=" + truePath, newUserCallbackURL: "/api/newuser?provider=github&pathname=" + truePath })}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <AiOutlineGithub className="h-6 w-6" />

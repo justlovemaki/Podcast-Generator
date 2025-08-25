@@ -22,6 +22,9 @@ import { cn } from '@/lib/utils';
 import LoginModal from './LoginModal'; // 导入 LoginModal 组件
 import type { PodcastItem } from '@/types';
 import { useTranslation } from '../i18n/client'; // 导入 useTranslation
+import { usePathname } from 'next/navigation'; // 导入 usePathname
+import { getTruePathFromPathname } from '../lib/utils'; // 导入新函数
+
 const enableTTSConfigPage = process.env.NEXT_PUBLIC_ENABLE_TTS_CONFIG_PAGE === 'true';
 
 interface SidebarProps {
@@ -60,6 +63,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [session, setSession] = useState<any>(null); // 使用 useState 管理 session
   const didFetch = useRef(false); // 使用 useRef 确保 useEffect 只在组件挂载时执行一次
   const router = useRouter(); // 初始化 useRouter 钩子
+  const pathname = usePathname();
+  const truePath = getTruePathFromPathname(pathname, lang);
 
   useEffect(() => {
     // 首次加载时获取 session
@@ -85,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onSuccess: () => {
               setSession(null); // 会话过期，注销成功后清空本地 session 状态
               onCreditsChange(0); // 清空积分
-              router.push("/"); // 会话过期，执行注销并重定向到主页
+              router.push(truePath+"/"); // 会话过期，执行注销并重定向到主页
             },
           },
         });
@@ -380,7 +385,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           setSession(null); // 注销成功后清空本地 session 状态
                           onPodcastExplore([]); // 注销后清空播客卡片
                           onCreditsChange(0); // 清空积分
-                          router.push("/"); // 注销成功后重定向到主页
+                          router.push(truePath+"/"); // 注销成功后重定向到主页
                         },
                       },
                     });
