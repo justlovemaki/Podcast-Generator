@@ -12,7 +12,7 @@ services:
       - /opt/audio/output:/app/server/output
       - /opt/audio/sqlite.db:/app/web/sqlite.db
     restart: always
-    name: podcast-web
+    container_name: podcast-web
     depends_on:
       - server
 
@@ -26,7 +26,7 @@ services:
     volumes:
       - /opt/audio/output:/app/server/output
     restart: always
-    name: podcast-server
+    container_name: podcast-server
 
 volumes:
   audio-data:

@@ -30,10 +30,11 @@ const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, lang }) => {
     [onClose]
   );
 
-  if (!isOpen) return null;
-
   const pathname = usePathname();
   const truePath = getTruePathFromPathname(pathname, lang);
+
+  if (!isOpen) return null;
+
   // 使用 React Portal 将模态框渲染到 body 下，避免Z-index问题和父组件样式影响
   return createPortal(
     <div
