@@ -39,7 +39,7 @@ docker build -t podcast-server -f Dockerfile-Server .
 #### 运行 Web 应用容器
 
 ```bash
-docker run -d -p 3200:3000 -v /opt/audio:/app/server/output -v /opt/sqlite.db:/app/web/sqlite.db -v /opt/audio/.env:/app/web/.env -v /opt/audio/config:/app/config --restart always --name podcast-web podcast-web
+docker run -d -p 3200:3000 -v /opt/audio:/app/server/output -v /opt/sqlite.db:/app/web/sqlite.db -v /opt/audio/config:/app/config --restart always --name podcast-web podcast-web
 ```
 
 #### 命令说明：
@@ -48,7 +48,6 @@ docker run -d -p 3200:3000 -v /opt/audio:/app/server/output -v /opt/sqlite.db:/a
 *   `-p 3200:3000`：将宿主机的 3200 端口映射到容器的 3000 端口。Next.js 应用程序在容器内部的 3000 端口上运行。
 *   `-v /opt/audio:/app/server/output`：将宿主机的 `/opt/audio` 目录挂载到容器内的 `/app/server/output` 目录，用于音频文件的持久化存储。
 *   `-v /opt/sqlite.db:/app/web/sqlite.db`：将宿主机的 `/opt/sqlite.db` 文件挂载到容器内的 `/app/web/sqlite.db` 文件，用于数据库的持久化存储。
-*   `-v /opt/audio/.env:/app/web/.env`：将宿主机的 `/opt/audio/.env` 文件挂载到容器内的 `/app/web/.env` 文件，用于配置环境变量。
 *   `-v /opt/audio/config:/app/config`：将宿主机的 `/opt/audio/config` 目录挂载到容器内的 `/app/config` 目录，用于配置文件的持久化存储。
 *   `--restart always`：设置容器的重启策略，确保容器在意外停止或系统重启后能自动重启。
 *   `--name podcast-web`：为运行中的容器指定一个名称，方便后续管理。
@@ -84,7 +83,6 @@ Docker Compose 文件中定义了以下挂载点：
 
 *   `/opt/audio/output:/app/server/output`：将宿主机的 `/opt/audio/output` 目录挂载到容器内的 `/app/server/output` 目录，用于音频文件的持久化存储。
 *   `/opt/audio/sqlite.db:/app/web/sqlite.db`：将宿主机的 `/opt/audio/sqlite.db` 文件挂载到容器内的 `/app/web/sqlite.db` 文件，用于数据库的持久化存储。
-*   `/opt/audio/.env:/app/web/.env`：将宿主机的 `/opt/audio/.env` 文件挂载到容器内的 `/app/web/.env` 文件，用于配置环境变量。
 *   `/opt/audio/config:/app/config`：将宿主机的 `/opt/audio/config` 目录挂载到容器内的 `/app/config` 目录，用于配置文件的持久化存储。
 
 ### 启动服务

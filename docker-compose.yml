@@ -11,7 +11,6 @@ services:
     volumes:
       - /opt/audio/output:/app/server/output
       - /opt/audio/sqlite.db:/app/web/sqlite.db
-      - /opt/audio/.env:/app/web/.env
       - /opt/audio/config:/app/config
     restart: always
     container_name: podcast-web
