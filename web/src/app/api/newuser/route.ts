@@ -5,9 +5,6 @@ import { getTranslation } from '@/i18n';
 import { fallbackLng } from '@/i18n/settings';
 
 export async function GET(request: NextRequest) {
-  const lng = request.headers.get('x-next-pathname') || fallbackLng;
-  const { t } = await getTranslation(lng, 'components');
-
   const sessionData = await getSessionData();
   let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "/";
   const pathname = request.nextUrl.searchParams.get('pathname');
@@ -21,7 +18,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-
+  const lng = !pathname ? fallbackLng : pathname.replace('/','');
+  const { t } = await getTranslation(lng, 'components');
   const userId = sessionData.user.id; // 获取 userId
 
   // 检查用户是否已存在积分账户
