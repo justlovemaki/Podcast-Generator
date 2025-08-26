@@ -266,5 +266,9 @@
     "initialBonusDescription": "新規ユーザー登録、初回ポイントボーナス",
     "initError": "ユーザー {{userId}} のポイントアカウントの初期化またはトランザクションの記録に失敗しました: {{error}}",
     "pointsAccountExists": "ユーザー {{userId}} はすでにポイントアカウントを持っています。初期化は不要です。"
+  },
+  "notificationBanner": {
+    "notificationBannerMessage": "期間限定無料です、今すぐ体験してください。",
+    "close": "閉じる"
   }
 }

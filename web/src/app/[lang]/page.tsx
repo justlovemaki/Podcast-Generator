@@ -9,6 +9,7 @@ import AudioPlayer from '@/components/AudioPlayer';
 import SettingsForm from '@/components/SettingsForm';
 import PointsOverview from '@/components/PointsOverview'; // 导入 PointsOverview
 import LoginModal from '@/components/LoginModal'; // 导入 LoginModal
+import NotificationBanner from '@/components/NotificationBanner'; // 导入 NotificationBanner
 import { ToastContainer, useToast } from '@/components/Toast';
 import { usePreventDuplicateCall } from '@/hooks/useApiCall';
 import { trackedFetch } from '@/utils/apiCallTracker';
@@ -418,6 +419,11 @@ export default function HomePage({ params }: { params: Promise<{ lang: string }>
 
   return (
     <div className="flex min-h-screen bg-white">
+      <NotificationBanner
+        messageKey="notificationBanner.notificationBannerMessage"
+        type="info"
+        lang={lang}
+      />
       {/* 侧边栏 */}
       <Sidebar
         currentView={uiState.currentView}

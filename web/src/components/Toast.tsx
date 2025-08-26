@@ -121,7 +121,7 @@ const Toast: React.FC<ToastProps> = ({
    onRemove,
  }) => {
    return (
-     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md p-4 flex flex-col items-center space-y-3"> {/* 定位到顶部水平居中，并限制宽度，使用flex布局垂直居中，增加间距 */}
+     <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-md p-4 flex flex-col items-center space-y-3"> {/* 定位到顶部水平居中，并限制宽度，使用flex布局垂直居中，增加间距 */}
        {toasts.map((toast) => (
          <Toast
            key={toast.id}

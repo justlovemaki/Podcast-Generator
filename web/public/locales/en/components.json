@@ -266,5 +266,9 @@
     "initialBonusDescription": "New user registration, initial points bonus",
     "initError": "Failed to initialize user {{userId}} points account or record transaction: {{error}}",
     "pointsAccountExists": "User {{userId}} already has a points account, no initialization required."
+  },
+  "notificationBanner": {
+    "notificationBannerMessage": "Limited time free, come and experience it now.",
+    "close": "Close"
   }
 }

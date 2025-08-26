@@ -10,7 +10,7 @@ const nextConfig = {
   },
   output: 'standalone',
   devIndicators: {
-    position: 'top-right', // 将挂件移动到右下角
+    position: 'top-left', // 将挂件移动到右下角
   },
 };
 

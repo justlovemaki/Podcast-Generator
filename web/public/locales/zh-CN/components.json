@@ -266,5 +266,9 @@
     "initialBonusDescription": "新用户注册，初始积分奖励",
     "initError": "初始化用户 {{userId}} 积分账户或记录流水失败: {{error}}",
     "pointsAccountExists": "用户 {{userId}} 已存在积分账户，无需初始化。"
+  },
+  "notificationBanner": {
+    "notificationBannerMessage": "限时免费中，赶快来体验吧。",
+    "close": "关闭"
   }
 }
