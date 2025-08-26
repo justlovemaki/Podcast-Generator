@@ -31,6 +31,7 @@ RUN npm install @libsql/linux-x64-musl
 # Set production environment
 ENV NODE_ENV production
 
+COPY web/.env  ./web/.env
 COPY web/sqlite.db ./web/sqlite.db
 # Copy standalone application and public assets from the builder stage
 COPY --from=builder /app/web/.next/standalone ./web/
