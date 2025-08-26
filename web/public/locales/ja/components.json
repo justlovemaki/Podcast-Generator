@@ -81,6 +81,11 @@
     "checkIn": "チェックイン",
     "create": "作成",
     "biu": "びゅう！",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "confirmGeneration": "生成の確認",
+    "confirmGenerationMessage": "この操作では{{points}}ポイントが消費されます。続行しますか？",
     "checkInSuccess": "チェックイン成功",
     "checkInFailed": "チェックイン失敗",
     "networkError": "ネットワークエラーまたはサーバー応答なし",
@@ -95,9 +100,8 @@
     "chinese": "中国語",
     "english": "英語",
     "japanese": "日本語",
-    "under5Minutes": "5分未満",
-    "between5And10Minutes": "5〜10分",
-    "between10And15Minutes": "10〜15分"
+    "under5Minutes": "約5分",
+    "between8And15Minutes": "8〜15分"
   },
   "podcastTabs": {
     "script": "スクリプト",
@@ -256,5 +260,11 @@
     "maxVoicesAlert": "最大5人のスピーカーを選択できます。",
     "delete": "削除",
     "presenter": "プレゼンター"
+  },
+  "newUser": {
+    "noPointsAccount": "ユーザー {{userId}} にポイントアカウントがありません。初期化しています...",
+    "initialBonusDescription": "新規ユーザー登録、初回ポイントボーナス",
+    "initError": "ユーザー {{userId}} のポイントアカウントの初期化またはトランザクションの記録に失敗しました: {{error}}",
+    "pointsAccountExists": "ユーザー {{userId}} はすでにポイントアカウントを持っています。初期化は不要です。"
   }
 }

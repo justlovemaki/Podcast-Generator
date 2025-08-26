@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const allowedDurations = ['Under 5 minutes', '5-10 minutes', '10-15 minutes'];
+    const allowedDurations = ['Under 5 minutes', '8-15 minutes'];
     if (!body.usetime || !allowedDurations.includes(body.usetime)) {
       return NextResponse.json(
         { success: false, error: t('invalid_podcast_duration') },

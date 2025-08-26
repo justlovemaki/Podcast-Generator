@@ -18,7 +18,7 @@ from tts_adapters import TTSAdapter, IndexTTSAdapter, EdgeTTSAdapter, FishAudioA
 
 # Global configuration
 output_dir = "output"
-file_list_path = os.path.join(output_dir, "file_list.txt")
+# file_list_path is now generated uniquely for each merge operation
 tts_providers_config_path = '../config/tts_providers.json'
 
 def read_file_content(filepath):
@@ -111,7 +111,7 @@ def generate_speaker_id_text(pod_users, voices_list):
 
     return "。".join(speaker_info) + "。"
 
-def merge_audio_files():
+def merge_audio_files(file_list_path: str):
     # 生成一个唯一的UUID
     unique_id = str(uuid.uuid4())
     unique_id = unique_id.replace("-", "")
@@ -136,7 +136,7 @@ def merge_audio_files():
             "ffmpeg",
             "-f", "concat",
             "-safe", "0",
-            "-i", os.path.basename(file_list_path),
+            "-i", os.path.basename(file_list_path),  # Use the passed file_list_path
             "-acodec", "pcm_s16le",
             "-ar", "44100",
             "-ac", "2",
@@ -167,23 +167,41 @@ def merge_audio_files():
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error merging or converting audio files with FFmpeg: {e.stderr}")
     finally:
-        # Clean up temporary audio files, the file list, and the intermediate WAV file
-        for item in os.listdir(output_dir):
-            if item.startswith("temp_audio"):
-                try:
-                    os.remove(os.path.join(output_dir, item))
-                except OSError as e:
-                    print(f"Error removing temporary audio file {item}: {e}") # This should not stop the process
+        # Clean up audio files listed in the file list, the file list itself, and the intermediate WAV file
         try:
-            os.remove(file_list_path)
-        except OSError as e:
-            print(f"Error removing file list {file_list_path}: {e}") # This should not stop the process
+            # Read the file list and delete the audio files listed
+            if os.path.exists(file_list_path):
+                with open(file_list_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        # Parse lines like: file 'temp_audio_12345.mp3'
+                        if line.startswith("file "):
+                            # Extract the filename, removing quotes
+                            filename = line[5:].strip().strip("'\"")
+                            filepath = os.path.join(output_dir, filename)
+                            try:
+                                if os.path.exists(filepath):
+                                    os.remove(filepath)
+                                    print(f"Deleted audio file: {filename}")
+                            except OSError as e:
+                                print(f"Error removing audio file {filename}: {e}")
+                
+                # Delete the file list itself
+                try:
+                    os.remove(file_list_path)
+                    print(f"Deleted file list: {os.path.basename(file_list_path)}")
+                except OSError as e:
+                    print(f"Error removing file list {file_list_path}: {e}")
+        except Exception as e:
+            print(f"Error reading file list for cleanup: {e}")
+        
+        # Clean up the intermediate WAV file
         try:
             if os.path.exists(output_audio_filepath_wav):
                 os.remove(output_audio_filepath_wav)
                 print(f"Cleaned up intermediate WAV file: {output_audio_filename_wav}")
         except OSError as e:
             print(f"Error removing intermediate WAV file {output_audio_filepath_wav}: {e}")
+        
         print("Cleaned up temporary files.")
 
 def get_audio_duration(filepath: str) -> Optional[float]:
@@ -218,6 +236,102 @@ def get_audio_duration(filepath: str) -> Optional[float]:
     except Exception as e:
         print(f"An unexpected error occurred while getting audio duration for {filepath}: {e}")
         return None
+
+def trim_audio_silence(input_filepath: str, output_filepath: str, silence_threshold_db: float = -60, min_silence_duration: float = 0.5):
+    """
+    Removes leading and trailing silence from an audio file using ffmpeg.
+    
+    Args:
+        input_filepath (str): Path to the input audio file.
+        output_filepath (str): Path where the trimmed audio file will be saved.
+        silence_threshold_db (float): Silence threshold in dB. Audio below this level is considered silence.
+        min_silence_duration (float): Minimum duration of silence to detect, in seconds.
+    """
+    try:
+        # Check if ffmpeg is available
+        subprocess.run(["ffmpeg", "-version"], check=True, capture_output=True)
+    except FileNotFoundError:
+        raise RuntimeError("FFmpeg is not installed or not in your PATH. Please install FFmpeg to trim audio silence. You can download FFmpeg from: https://ffmpeg.org/download.html")
+
+    print(f"Trimming silence from {input_filepath}...")
+    try:
+        command = [
+            "ffmpeg",
+            "-i", input_filepath,
+            "-af",
+            f"silencedetect=n={silence_threshold_db}dB:d={min_silence_duration}",
+            "-f", "null",
+            "-"
+        ]
+        process = subprocess.run(command, check=False, capture_output=True, text=True)
+        
+        # Parse output for silence points
+        lines = process.stderr.splitlines()
+        start_trim = 0.0
+        end_trim = get_audio_duration(input_filepath) # Default to full duration
+
+        silence_starts = []
+        silence_ends = []
+
+        for line in lines:
+            if "silencedetect" in line:
+                if "silence_start" in line:
+                    match = re.search(r"silence_start: (\d+\.\d+)", line)
+                    if match:
+                        start = float(match.group(1))
+                        silence_starts.append(start)
+                elif "silence_end" in line:
+                    match = re.search(r"silence_end: (\d+\.\d+)", line)
+                    if match:
+                        end = float(match.group(1))
+                        silence_ends.append(end)
+
+        current_audio_duration = get_audio_duration(input_filepath)
+        if current_audio_duration is None:
+            print(f"Warning: Could not get duration for {input_filepath}. Skipping silence trim.")
+            subprocess.run(["ffmpeg", "-i", input_filepath, "-c", "copy", output_filepath], check=True)
+            return
+
+        start_trim_val = 0.0 # Initialize start_trim_val
+        end_trim_val = current_audio_duration # Initialize end_trim_val with the full duration
+
+        if silence_starts and silence_ends:
+            # Determine leading silence
+            if silence_starts[0] == 0.0: # Silence at the very beginning
+                start_trim_val = silence_ends[0]
+            
+            # Determine trailing silence
+            # Only consider trimming from the end if there's silence close to the end
+            if silence_ends[-1] >= (end_trim_val - min_silence_duration):
+                end_trim_val = silence_starts[-1]
+
+        # If after trimming, the duration becomes too short or negative, skip trimming
+        if (end_trim_val - start_trim_val) <= 0.01: # Add a small epsilon to avoid issues with very short audios
+            print(f"Skipping trim for {input_filepath}: trimmed duration too short or negative. Copying original.")
+            # If trimming would result in empty or near-empty file, just copy the original
+            subprocess.run(["ffmpeg", "-i", input_filepath, "-c", "copy", output_filepath], check=True)
+        else:
+            # Perform the actual trim using detected silence points
+            trim_command = [
+                "ffmpeg",
+                "-ss", str(start_trim_val), # Move -ss before -i for accurate seeking
+                "-i", input_filepath,
+                "-to", str(end_trim_val),
+                "-avoid_negative_ts", "auto", # Add to handle potential time stamp issues
+                "-c:a", "libmp3lame",  # Re-encode to MP3 for consistency and smaller size
+                "-q:a", "2",           # High quality
+                output_filepath
+            ]
+            subprocess.run(trim_command, check=True, capture_output=True, text=True)
+            trimmed_duration = get_audio_duration(output_filepath)
+            print(f"Trimmed audio saved to {output_filepath}. Original duration: {current_audio_duration:.2f}s, Trimmed duration: {trimmed_duration:.2f}s")
+
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg stderr during silence detection or trimming:\n{e.stderr}")
+        raise RuntimeError(f"Error trimming audio silence with FFmpeg for {input_filepath}: {e}")
+    except Exception as e:
+        raise RuntimeError(f"An unexpected error occurred during audio trimming for {input_filepath}: {e}")
+
 
 def _parse_arguments():
     """Parses command-line arguments."""
@@ -301,8 +415,14 @@ def _prepare_podcast_prompts(config_data, original_podscript_prompt, custom_cont
 
     original_podscript_prompt = original_podscript_prompt.replace("{{numSpeakers}}", str(len(pod_users)))
     original_podscript_prompt = original_podscript_prompt.replace("{{turnPattern}}", turn_pattern)
-    original_podscript_prompt = original_podscript_prompt.replace("{{usetime}}", usetime if usetime is not None else "5-6 minutes")
-    original_podscript_prompt = original_podscript_prompt.replace("{{outlang}}", output_language if output_language is not None else "Make sure the input language is set as the output language")
+
+    usetime = usetime if usetime is not None else "5-6 minutes"
+    print(f"\nGenerating Script Replace Usetime: {usetime}")
+    original_podscript_prompt = original_podscript_prompt.replace("{{usetime}}", usetime)
+
+    output_language = output_language if output_language is not None else "Make sure the input language is set as the output language"
+    print(f"\nGenerating Script Replace Output Language: {output_language}")
+    original_podscript_prompt = original_podscript_prompt.replace("{{outlang}}", output_language)
 
     speaker_id_info = generate_speaker_id_text(pod_users, voices)
     podscript_prompt = speaker_id_info  + "\n\n" + custom_content + "\n\n" + original_podscript_prompt
@@ -318,17 +438,26 @@ def _generate_overview_content(api_key, base_url, model, overview_prompt, input_
         openai_client_overview = OpenAICli(api_key=api_key, base_url=base_url, model=model, system_message=formatted_overview_prompt)
         overview_response_generator = openai_client_overview.chat_completion(messages=[{"role": "user", "content": input_prompt}])
         overview_content = "".join([chunk.choices[0].delta.content for chunk in overview_response_generator if chunk.choices and chunk.choices[0].delta.content])
-        
-        print("Generated Overview:")
-        print(overview_content[:100])
 
         # Extract title (first line) and tags (second line)
         lines = overview_content.strip().split('\n')
         title = lines[0].strip() if len(lines) > 0 else ""
-        tags = lines[1].strip() if len(lines) > 1 else ""
+        tags = ""
+        # 重复判断3次是否有非空值，没有值就取下一行
+        for i in range(1, min(len(lines), 4)): # 检查第2到第4行 (索引1到3)
+            current_tags = lines[i].strip()
+            if current_tags:
+                tags = current_tags
+                # 保留取到tags的索引行，从下一行开始截取到最后一行，保存数据到overview_content
+                overview_content = "\n".join(lines[i+1:]).strip()
+                break
+        else: # 如果循环结束没有找到非空tags，则从第二行开始截取
+            overview_content = "\n".join(lines[1:]).strip()
 
         print(f"Extracted Title: {title}")
         print(f"Extracted Tags: {tags}")
+        print("Generated Overview:")
+        print(overview_content[:100])
         
         return overview_content, title, tags
     except Exception as e:
@@ -449,11 +578,20 @@ def _generate_all_audio_files(podcast_script, config_data, tts_adapter: TTSAdapt
         for future in as_completed(future_to_index):
             index = future_to_index[future]
             try:
-                result = future.result()
-                if result:
-                    audio_files_dict[index] = result
+                original_audio_file = future.result()
+                if original_audio_file:
+                    # Define a path for the trimmed audio file
+                    trimmed_audio_file = os.path.join(output_dir, f"trimmed_{os.path.basename(original_audio_file)}")
+                    trim_audio_silence(original_audio_file, trimmed_audio_file)
+                    # Use the trimmed file for the final merge
+                    audio_files_dict[index] = trimmed_audio_file
+                    # Clean up the original untrimmed file
+                    try:
+                        os.remove(original_audio_file)
+                    except OSError as e:
+                        print(f"Error removing untrimmed audio file {original_audio_file}: {e}")
             except Exception as e:
-                exception_caught = RuntimeError(f"Error generating audio for item {index}: {e}")
+                exception_caught = RuntimeError(f"Error generating or trimming audio for item {index}: {e}")
                 # An error occurred, we should stop.
                 break
 
@@ -470,19 +608,29 @@ def _generate_all_audio_files(podcast_script, config_data, tts_adapter: TTSAdapt
     print(f"\nFinished generating individual audio files. Total files: {len(audio_files)}")
     return audio_files
 
-def _create_ffmpeg_file_list(audio_files):
+def _create_ffmpeg_file_list(audio_files, expected_count: int):
     """Creates the file list for FFmpeg concatenation."""
     if not audio_files:
         raise ValueError("No audio files were generated to merge.")
     
-    print(f"Creating file list for ffmpeg at: {file_list_path}")
-    with open(file_list_path, 'w', encoding='utf-8') as f:
+    if len(audio_files) != expected_count:
+        raise RuntimeError(f"Mismatch in audio file count. Expected {expected_count}, but got {len(audio_files)}. Some audio files might be missing or an error occurred during generation.")
+
+    # Generate a unique file list path using UUID
+    unique_id = str(uuid.uuid4()).replace("-", "")
+    unique_file_list_path = os.path.join(output_dir, f"file_list_{unique_id}.txt")
+    
+    print(f"Creating file list for ffmpeg at: {unique_file_list_path}")
+    with open(unique_file_list_path, 'w', encoding='utf-8') as f:
         for audio_file in audio_files:
             f.write(f"file '{os.path.basename(audio_file)}'\n")
     
-    print("Content of file_list.txt:")
-    with open(file_list_path, 'r', encoding='utf-8') as f:
+    print(f"Content of {os.path.basename(unique_file_list_path)}:")
+    with open(unique_file_list_path, 'r', encoding='utf-8') as f:
         print(f.read())
+    
+    # Return the unique file list path for use in merge_audio_files
+    return unique_file_list_path
 
 from typing import cast # Add import for cast
 
@@ -569,8 +717,8 @@ def generate_podcast_audio():
     tts_adapter = _initialize_tts_adapter(config_data) # 初始化 TTS 适配器
 
     audio_files = _generate_all_audio_files(podcast_script, config_data, tts_adapter, args.threads)
-    _create_ffmpeg_file_list(audio_files)
-    output_audio_filepath = merge_audio_files()
+    file_list_path_created = _create_ffmpeg_file_list(audio_files, len(podcast_script.get("podcast_transcripts", [])))
+    output_audio_filepath = merge_audio_files(file_list_path_created)
     return {
         "output_audio_filepath": output_audio_filepath,
         "overview_content": overview_content,
@@ -616,9 +764,8 @@ def generate_podcast_audio_api(args, config_path: str, input_txt_content: str, t
     tts_adapter = _initialize_tts_adapter(config_data, tts_providers_config_content) # 初始化 TTS 适配器
 
     audio_files = _generate_all_audio_files(podcast_script, config_data, tts_adapter, args.threads)
-    _create_ffmpeg_file_list(audio_files)
-    
-    output_audio_filepath = merge_audio_files()
+    file_list_path_created = _create_ffmpeg_file_list(audio_files, len(podcast_script.get("podcast_transcripts", [])))
+    output_audio_filepath = merge_audio_files(file_list_path_created)
     
     audio_duration_seconds = get_audio_duration(os.path.join(output_dir, output_audio_filepath))
     formatted_duration = "00:00"

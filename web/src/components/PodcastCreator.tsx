@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import ConfigSelector from './ConfigSelector';
 import VoicesModal from './VoicesModal'; // 引入 VoicesModal
 import LoginModal from './LoginModal'; // 引入 LoginModal
+import ConfirmModal from './ConfirmModal'; // 引入 ConfirmModal
 import { useToast, ToastContainer } from './Toast'; // 引入 Toast Hook 和 Container
 import { setItem, getItem } from '@/lib/storage'; // 引入 localStorage 工具
 import { useSession } from '@/lib/auth-client'; // 引入 useSession
@@ -60,8 +61,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
 
   const durationOptions = [
     { value: 'Under 5 minutes', label: t('podcastCreator.under5Minutes') },
-    { value: '5-10 minutes', label: t('podcastCreator.between5And10Minutes') },
-    { value: '10-15 minutes', label: t('podcastCreator.between10And15Minutes') },
+    { value: '8-15 minutes', label: t('podcastCreator.between8And15Minutes') },
   ];
 
    const [topic, setTopic] = useState('');
@@ -97,6 +97,7 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
    const [duration, setDuration] = useState(durationOptions[0].value);
    const [showVoicesModal, setShowVoicesModal] = useState(false); // 新增状态
    const [showLoginModal, setShowLoginModal] = useState(false); // 控制登录模态框的显示
+   const [showConfirmModal, setShowConfirmModal] = useState(false); // 控制确认模态框的显示
    const [voices, setVoices] = useState<Voice[]>([]); // 从 ConfigSelector 获取 voices
    const [selectedPodcastVoices, setSelectedPodcastVoices] = useState<{[key: string]: Voice[]}>(() => {
      // 从 localStorage 读取缓存的说话人配置
@@ -129,6 +130,11 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
          return;
      }
 
+    // 显示确认对话框
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmGenerate = async () => {
     let inputTxtContent = topic.trim();
     if (customInstructions.trim()) {
         inputTxtContent = "```custom-begin"+`\n${customInstructions.trim()}\n`+"```custom-end"+`\n${inputTxtContent}`;
@@ -525,6 +531,19 @@ const PodcastCreator: React.FC<PodcastCreatorProps> = ({
       <ToastContainer
         toasts={toasts}
         onRemove={removeToast}
+      />
+      
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleConfirmGenerate}
+        title={t('podcastCreator.confirmGeneration')}
+        message={t('podcastCreator.confirmGenerationMessage')}
+        points={duration === '8-15 minutes' ?
+          parseInt(process.env.POINTS_PER_PODCAST || '20', 10) * 2 :
+          parseInt(process.env.POINTS_PER_PODCAST || '20', 10)}
+        lang={lang}
       />
     </div>
   );

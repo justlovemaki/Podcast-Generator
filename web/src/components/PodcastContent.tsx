@@ -147,7 +147,7 @@ export default async function PodcastContent({ fileName, lang }: PodcastContentP
       {/* 3. 内容导航区和内容展示区 - 使用客户端组件 */}
       <PodcastTabs
         parsedScript={parsedScript}
-        overviewContent={audioInfo.overview_content ? audioInfo.overview_content.split('\n').slice(2).join('\n') : ''}
+        overviewContent={audioInfo.overview_content}
         lang={lang}
       />
     </main>

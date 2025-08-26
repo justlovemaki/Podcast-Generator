@@ -81,6 +81,11 @@
     "checkIn": "签到",
     "create": "创作",
     "biu": "Biu!",
+    "confirm": "确认",
+    "cancel": "取消",
+    "close": "关闭",
+    "confirmGeneration": "确认生成",
+    "confirmGenerationMessage": "本次操作将消耗 {{points}} 积分，是否继续？",
     "checkInSuccess": "签到成功",
     "checkInFailed": "签到失败",
     "networkError": "网络错误或服务器无响应",
@@ -95,9 +100,8 @@
     "chinese": "中文",
     "english": "英文",
     "japanese": "日文",
-    "under5Minutes": "5分钟以内",
-    "between5And10Minutes": "5-10分钟",
-    "between10And15Minutes": "10-15分钟"
+    "under5Minutes": "5分钟左右",
+    "between8And15Minutes": "8-15分钟"
   },
   "podcastTabs": {
     "script": "脚本",
@@ -256,5 +260,11 @@
     "maxVoicesAlert": "最多只能选择5个说话人。",
     "delete": "删除",
     "presenter": "主讲人"
+  },
+  "newUser": {
+    "noPointsAccount": "用户 {{userId}} 不存在积分账户，正在初始化...",
+    "initialBonusDescription": "新用户注册，初始积分奖励",
+    "initError": "初始化用户 {{userId}} 积分账户或记录流水失败: {{error}}",
+    "pointsAccountExists": "用户 {{userId}} 已存在积分账户，无需初始化。"
   }
 }

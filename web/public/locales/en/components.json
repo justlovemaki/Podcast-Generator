@@ -81,6 +81,11 @@
     "checkIn": "Check In",
     "create": "Create",
     "biu": "Biu!",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirmGeneration": "Confirm Generation",
+    "confirmGenerationMessage": "This operation will consume {{points}} points, continue?",
     "checkInSuccess": "Check-in successful",
     "checkInFailed": "Check-in failed",
     "networkError": "Network error or server no response",
@@ -95,9 +100,8 @@
     "chinese": "Chinese",
     "english": "English",
     "japanese": "Japanese",
-    "under5Minutes": "Under 5 minutes",
-    "between5And10Minutes": "5-10 minutes",
-    "between10And15Minutes": "10-15 minutes"
+    "under5Minutes": "5 minutes or less",
+    "between8And15Minutes": "8-15 minutes"
   },
   "podcastTabs": {
     "script": "Script",
@@ -256,5 +260,11 @@
     "maxVoicesAlert": "You can select up to 5 speakers.",
     "delete": "Delete",
     "presenter": "Presenter"
+  },
+  "newUser": {
+    "noPointsAccount": "User {{userId}} has no points account, initializing...",
+    "initialBonusDescription": "New user registration, initial points bonus",
+    "initError": "Failed to initialize user {{userId}} points account or record transaction: {{error}}",
+    "pointsAccountExists": "User {{userId}} already has a points account, no initialization required."
   }
 }
