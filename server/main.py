@@ -265,6 +265,7 @@ async def _generate_podcast_task(
                 "task_results": task_results[auth_id][task_id],
                 "timestamp": int(time.time()), 
                 "status": task_results[auth_id][task_id]["status"],
+                "usetime": usetime,
             }
             
             MAX_RETRIES = 3 # 定义最大重试次数
@@ -326,6 +327,7 @@ async def generate_podcast_submission(
         "timestamp": time.time(),
         "callback_url": callback_url, # 存储回调地址
         "auth_id": auth_id, # 存储 auth_id
+        "usetime": usetime,
     }
 
     background_tasks.add_task(

@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) { // GET 函数接收 request
 }
 
 export async function PUT(request: NextRequest) {
-  const { task_id, auth_id, timestamp, status } = await request.json();
+  const { task_id, auth_id, timestamp, status, usetime } = await request.json();
   const lang = getLanguageFromRequest(request); // 获取语言
   const { t } = await getTranslation(lang, 'errors'); // 初始化翻译
   try {
@@ -63,7 +63,11 @@ export async function PUT(request: NextRequest) {
     const userId = auth_id; // 这里假设 auth_id 就是 userId
 
     // 5. 扣减积分
-    const pointsToDeduct = parseInt(process.env.POINTS_PER_PODCAST || '10', 10); // 从环境变量获取，默认10
+    let pointsToDeduct = parseInt(process.env.POINTS_PER_PODCAST || '10', 10); // 从环境变量获取，默认10
+    if(usetime === '8-15 minutes') {
+      pointsToDeduct = pointsToDeduct * 2;
+    }
+
     const reasonCode = "podcast_generation";
     const description = `${t("podcast_generation_task")}: ${task_id}`; // 多语言实现
 
