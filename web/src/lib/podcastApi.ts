@@ -10,7 +10,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_PODCAST_API_BASE_URL || 'http://192
  * 启动播客生成任务
  */
 export async function startPodcastGenerationTask(body: PodcastGenerationRequest, userId: string, lang: string): Promise<ApiResponse<PodcastGenerationResponse>> {
-
+  body.lang = lang;
   try {
     const response = await fetch(`${API_BASE_URL}/generate-podcast`, {
       method: 'POST',

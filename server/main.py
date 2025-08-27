@@ -212,6 +212,7 @@ async def _generate_podcast_task(
     callback_url: Optional[str] = None, # 新增回调地址参数
     output_language: Optional[str] = None,
     usetime: Optional[str] = None,
+    lang: Optional[str] = None,
 ):
     task_results[auth_id][task_id]["status"] = TaskStatus.RUNNING
     try:
@@ -266,6 +267,7 @@ async def _generate_podcast_task(
                 "timestamp": int(time.time()), 
                 "status": task_results[auth_id][task_id]["status"],
                 "usetime": usetime,
+                "lang": lang,
             }
             
             MAX_RETRIES = 3 # 定义最大重试次数
@@ -307,6 +309,7 @@ async def generate_podcast_submission(
     callback_url: Optional[str] = Form(None),
     output_language: Optional[str] = Form(None),
     usetime: Optional[str] = Form(None),
+    lang: Optional[str] = Form(None),
 ):
     # 1. 验证 tts_provider
     if tts_provider not in tts_provider_map:
@@ -327,7 +330,6 @@ async def generate_podcast_submission(
         "timestamp": time.time(),
         "callback_url": callback_url, # 存储回调地址
         "auth_id": auth_id, # 存储 auth_id
-        "usetime": usetime,
     }
 
     background_tasks.add_task(
@@ -344,7 +346,8 @@ async def generate_podcast_submission(
         tts_provider,
         callback_url,
         output_language,
-        usetime
+        usetime,
+        lang,
     )
 
     return {"message": "Podcast generation started.", "task_id": task_id}

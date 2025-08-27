@@ -10,6 +10,7 @@ export interface PodcastGenerationRequest {
   callback_url?: string; // 固定值
   usetime?: string; // 时长 来自选择
   output_language?: string; // 语言 来自设置
+  lang?: string; // 子路径表示语言
 }
 
 export interface PodcastGenerationResponse {

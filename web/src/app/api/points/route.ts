@@ -30,8 +30,7 @@ export async function GET(request: NextRequest) { // GET 函数接收 request
 }
 
 export async function PUT(request: NextRequest) {
-  const { task_id, auth_id, timestamp, status, usetime } = await request.json();
-  const lang = getLanguageFromRequest(request); // 获取语言
+  const { task_id, auth_id, timestamp, status, usetime, lang } = await request.json();
   const { t } = await getTranslation(lang, 'errors'); // 初始化翻译
   try {
     if(status !== 'completed') {
