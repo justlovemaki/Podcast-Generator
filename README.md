@@ -1,13 +1,17 @@
 # 🎙️ 播客生成器 (Podcast Generator)
 
 > 轻松将您的想法，一键生成为生动有趣的多人对话播客！
-> [English Version](README_EN.md)
+> [English Version](README_EN.md) [语音介绍](https://podcasts.hubtoday.app/podcast/podcasthub.mp3) [视频介绍](https://podcasts.hubtoday.app/podcast/podcasthub.mp4)
 
 这是一个强大的脚本工具，它利用 **OpenAI API** 的智慧生成富有洞察力的播客脚本，并通过 **TTS (Text-to-Speech)** API服务，将冰冷的文字转化为有温度的音频。您只需提供一个主题，剩下的交给它！
 
 ✨ 本项目的播客脚本生成逻辑深受 [SurfSense](https://github.com/MODSetter/SurfSense) 项目的启发，在此向其开源贡献表示衷心感谢！
 
 ---
+
+<audio src="https://podcasts.hubtoday.app/podcast/podcasthub.mp3" />
+
+
 
 ## ✨ 核心亮点
 
