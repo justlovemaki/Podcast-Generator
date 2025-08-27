@@ -19,6 +19,24 @@
 
 ---
 
+## 🚀 开发计划
+
+我们一直在积极地规划和开发新功能，以使播客生成器更加强大和易用。以下是我们正在酝酿的一些激动人心的更新：
+
+*   **📖 全新故事模式**: 引入创新的故事模式，让您不仅能生成对话式播客，更能一键创作引人入胜的单人或多人叙事音频故事。
+*   **🎨 沉浸式黑暗主题**: 为 Web 应用提供优雅的黑暗主题选项，优化夜间使用体验，减轻眼部疲劳。
+*   **☁️ 云端数据同步**: 集成云数据库，实现用户数据和播客历史的云端存储与多设备同步，确保您的创作永不丢失。
+*   **🗄️ 音频云存储 (OSS)**: 对接主流对象存储服务（OSS），为生成的音频文件提供更稳定、高效的存储与分发，方便随时随地访问和分享。
+*   **💳 支付系统集成**: 无缝接入主流支付网关，完善用户体系的计费与订阅功能，为项目的商业化运营提供支持。
+
+---
+
+### 🐳 Docker 部署
+
+本项目支持通过 Docker 进行部署，详细信息请参考 [Docker 使用指南](DOCKER_USAGE.md)。
+  
+---
+
 ## 🛠️ 安装指南
 
 ### 📝 前提条件
@@ -188,11 +206,6 @@ curl -X POST "http://localhost:8000/generate-podcast" \
     # 或者 yarn start
     ```
 
-
-### 🐳 Docker 部署
-
-本项目支持通过 Docker 进行部署，详细信息请参考 [Docker 使用指南](DOCKER_USAGE.md)。
-
 ---
 
 ## 🌍 国际化 (i18n) 支持
@@ -244,7 +257,7 @@ curl -X POST "http://localhost:8000/generate-podcast" \
     {
       "name": "XiaoMin",
       "code": "yue-CN-XiaoMinNeural",
-      "volume_adjustment": 1.0, 
+      "volume_adjustment": 1.0,
       "speed_adjustment": 5.0
     }
   ],
@@ -329,7 +342,7 @@ curl -X POST "http://localhost:8000/generate-podcast" \
 │   ├── main.py              # FastAPI Web API 入口：提供播客生成、状态查询、音频下载等 RESTful API，管理任务生命周期，并进行数据清理。
 │   ├── podcast_generator.py # 核心播客生成逻辑：负责与 OpenAI API 交互生成播客脚本，调用 TTS 适配器将文本转语音，并使用 FFmpeg 合并音频文件。
 │   ├── tts_adapters.py      # TTS 适配器：封装了与不同 TTS 服务（如 Index-TTS, Edge-TTS, Doubao, Minimax, Fish Audio, Gemini）的交互逻辑。
-│   ├── openai_cli.py        # OpenAI 命令行工具 
+│   ├── openai_cli.py        # OpenAI 命令行工具
 │   └── ...                  # 其他后端文件
 ├── web/                     # 🌐 前端 Web 应用目录 (Next.js)
 │   ├── public/              # 静态资源
