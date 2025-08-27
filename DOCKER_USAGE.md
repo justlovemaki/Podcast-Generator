@@ -130,7 +130,7 @@ docker-compose logs server
 1. 请确保宿主机上的端口 3100 和 3200 未被其他应用程序占用。
 2. 请确保宿主机上的 `/opt/audio` 目录存在且具有适当的读写权限，或者根据实际情况修改挂载路径。
 3. 请确保宿主机上的 `/opt/sqlite.db` 文件存在且具有适当的读写权限。
-4. 请确保宿主机上的 `/opt/audio/.env` 文件存在且包含正确的环境变量配置。
-5. 请确保宿主机上的 `/opt/audio/config` 目录存在且包含正确的配置文件。
+4. 请确保宿主机上的 `/opt/audio/config` 目录存在且包含正确的配置文件。
+5. docker-compose up -d 执行前，请使用自己配置的 .env 文件替换web目录下的 .env 文件。
 6. 在生产环境中，请使用安全的密钥替换示例中的 `PODCAST_API_SECRET_KEY`。
 7. 使用 Docker Compose 时，服务间通过服务名称进行通信，Web 应用通过 `http://server:8000` 访问 Server 应用。
