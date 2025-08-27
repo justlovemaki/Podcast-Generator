@@ -7,3 +7,4 @@ config/tts_providers-prod.json
 .claude
 .serena
 /node_modules
+server/ext/upload_edge_tts_to_cloudflare.py
