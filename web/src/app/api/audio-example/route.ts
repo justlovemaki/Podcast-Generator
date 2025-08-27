@@ -3,6 +3,7 @@ import { getLanguageFromRequest } from '@/lib/utils';
 import { getTranslation } from '@/i18n';
 import { fetchAndCacheProvidersLocal } from '@/lib/config-local';
 
+//线上专用
 export async function GET(request: NextRequest) {
   const lang = getLanguageFromRequest(request);
   const { t } = await getTranslation(lang, 'errors');

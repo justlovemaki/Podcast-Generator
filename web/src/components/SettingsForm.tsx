@@ -13,36 +13,10 @@ import {
 } from '@heroicons/react/24/outline';
 import { getItem, setItem } from '@/lib/storage';
 import { useTranslation } from '../i18n/client'; // 导入 useTranslation
+import type { SettingsFormData } from '@/types';
 
 // 存储键名
 const SETTINGS_STORAGE_KEY = 'podcast-settings';
-
-// 设置表单数据类型
-interface SettingsFormData {
-  apikey: string;
-  model: string;
-  baseurl: string;
-  index: {
-    api_url: string;
-  };
-  edge: {
-    api_url: string;
-  };
-  doubao: {
-    'X-Api-App-Id': string;
-    'X-Api-Access-Key': string;
-  };
-  fish: {
-    api_key: string;
-  };
-  minimax: {
-    group_id: string;
-    api_key: string;
-  };
-  gemini: {
-    api_key: string;
-  };
-}
 
 // 模型选项
 const MODEL_OPTIONS = [

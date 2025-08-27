@@ -170,12 +170,6 @@ export default function HomePage({ params }: { params: Promise<{ lang: string }>
     
     try {
       // info('开始生成播客', '正在处理您的请求...');
-      
-      if (!settings || !settings.apikey || !settings.model) {
-        error(t('configErrorTitle'), t('configErrorMessage'));
-        setIsGenerating(false);
-        return;
-      }
 
       // 直接发送JSON格式的请求体
       const response = await fetch('/api/generate-podcast', {
