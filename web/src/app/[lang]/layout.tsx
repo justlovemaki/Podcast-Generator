@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: { lang: string } })
   const { t } = await getTranslation(lang, 'layout');
   const truePath = await getTruePathFromHeaders(await headers(), lang, true);
   return {
-    metadataBase: new URL('https://podcast.hubtoday.app'),
+    metadataBase: new URL('https://podcast.hex2077.dev'),
     title: t('title'),
     description: t('description'),
     // keywords: t('keywords').split(','),
